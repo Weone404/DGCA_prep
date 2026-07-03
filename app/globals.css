@@ -1,0 +1,30 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* { box-sizing: border-box; }
+
+body {
+  background: #F6F8FB;
+  color: #1B2430;
+  font-family: 'Inter', sans-serif;
+}
+
+h1, h2, h3, h4, .font-display {
+  font-family: 'Poppins', sans-serif;
+}
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: #DCE3EC; border-radius: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+
+.card {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 6px 24px rgba(27, 36, 48, 0.06);
+}
+
+.bg-gradient-page {
+  background: linear-gradient(120deg, #EAFBF3 0%, #F3F1FC 45%, #FDF1F6 100%);
+}
