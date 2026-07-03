@@ -41,6 +41,12 @@ function buildVariant(list, prefix) {
 const SHORT_VIDEOS = buildVariant(LECTURES, 'sv')
 const PERSONALYSIS = buildVariant(LECTURES, 'pa')
 
+// Build a map of lecture ID -> global index across all lectures.
+// This allows us to determine the "global" position of a lecture
+// (across subjects) so the free limit (first N lectures overall)
+// can be enforced correctly regardless of subject filtering.
+const GLOBAL_INDEX_MAP = new Map(LECTURES.map((l, i) => [l.id, i]))
+
 // ─────────────────────────────────────────────────────────────────────────────
 // PAYWALL MODAL
 // ─────────────────────────────────────────────────────────────────────────────
@@ -85,6 +91,18 @@ function PaywallModal({ totalLectures, onSuccess, onClose }) {
           <button onClick={() => onSuccess({ planLabel: plan.label, expiresAt: new Date(Date.now() + plan.durationDays * 86400000).toISOString() })} className="w-full py-3 rounded-xl bg-brand text-white font-bold mb-2">
             💳 Pay ₹{plan.price}
           </button>
+          {/* Demo activation button - only available in non-production builds */}
+          {process.env.NODE_ENV !== 'production' && (
+            <button
+              onClick={() => {
+                // give a short demo subscription (dev-only)
+                onSuccess({ planLabel: 'Demo (dev)', expiresAt: new Date(Date.now() + 24 * 3600 * 1000).toISOString() })
+              }}
+              className="w-full py-2 rounded-xl bg-white text-ink font-medium border border-line"
+            >
+              🧪 Demo Mode — Activate Free (Testing Only)
+            </button>
+          )}
           <p className="text-center text-xs text-muted mt-2">🔒 Secured payment · Instant activation</p>
         </div>
       </div>
@@ -194,7 +212,16 @@ export default function LecturesPage() {
     if (subscribed) return true
     if (tab === 'shorts') return true // short videos always free
     if (tab === 'personalysis') return false // personalysis always locked unless subscribed
-    return idx < FREE_LIMIT // lectures: first N free
+
+    // For the lectures tab we apply a global free-limit: the first
+    // FREE_LIMIT lectures across the entire catalogue are free. Use
+    // the GLOBAL_INDEX_MAP to look up the lecture's global position.
+    const globalIndex = GLOBAL_INDEX_MAP.get(item.id)
+    if (typeof globalIndex === 'number') return globalIndex < FREE_LIMIT
+
+    // Fallback: if the lecture ID isn't present in the map (shouldn't
+    // happen in normal operation), use the provided local index.
+    return (typeof idx === 'number') ? idx < FREE_LIMIT : false
   }
 
   function handlePaySuccess(newSub) {
@@ -210,6 +237,7 @@ export default function LecturesPage() {
   }
 
   function handlePlay(item, idx) {
+    // idx is optional; isItemFree will use global index when possible.
     if (!isItemFree(item, idx)) { setShowPaywall(true); return }
     setActiveVideo(item)
     if (tab === 'lectures') setActive(item)

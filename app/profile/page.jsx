@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import AppShell from '@/components/AppShell'
 import Icon from '@/components/Icon'
@@ -12,6 +12,23 @@ export default function ProfilePage() {
   const router = useRouter()
   const { user } = useAuth()
   const [tab, setTab] = useState('Personal Details')
+
+  const FIELDS = [
+    { key: 'fullName', label: 'Full Name', value: (user && user.name) || '' },
+    { key: 'email', label: 'Email address', value: (user && user.email) || '' },
+    { key: 'address', label: 'Address', value: (user && user.address) || '', full: true },
+    { key: 'city', label: 'City', value: (user && user.city) || '' },
+    { key: 'state', label: 'State/Province', value: (user && user.state) || '' },
+    { key: 'zip', label: 'Zip Code', value: (user && user.zip) || '' },
+    { key: 'country', label: 'Country', value: (user && user.country) || '' },
+  ]
+
+  const [form, setForm] = useState(() => Object.fromEntries(FIELDS.map((f) => [f.key, f.value])))
+  const [saved, setSaved] = useState(false)
+
+  useEffect(() => {
+    setForm(Object.fromEntries(FIELDS.map((f) => [f.key, f.value])))
+  }, [user])
 
   // Redirect to login if not authenticated
   if (!user) {
@@ -33,19 +50,6 @@ export default function ProfilePage() {
       </AppShell>
     )
   }
-
-  const FIELDS = [
-    { key: 'fullName', label: 'Full Name', value: user.name },
-    { key: 'email', label: 'Email address', value: user.email },
-    { key: 'address', label: 'Address', value: user.address || '', full: true },
-    { key: 'city', label: 'City', value: user.city || '' },
-    { key: 'state', label: 'State/Province', value: user.state || '' },
-    { key: 'zip', label: 'Zip Code', value: user.zip || '' },
-    { key: 'country', label: 'Country', value: user.country || '' },
-  ]
-
-  const [form, setForm] = useState(Object.fromEntries(FIELDS.map((f) => [f.key, f.value])))
-  const [saved, setSaved] = useState(false)
 
   function update(key, value) {
     setForm((f) => ({ ...f, [key]: value }))

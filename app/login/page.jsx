@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useAuth } from '@/lib/auth-context'
 import Icon from '@/components/Icon'
 
@@ -141,7 +142,11 @@ export default function LoginPage() {
             ))}
           </div>
 
-          <p className="text-center text-xs text-muted mt-8">
+          <p className="text-center text-sm mt-4">
+            Don't have an account? <Link href="/register" className="text-brand font-semibold">Create account</Link>
+          </p>
+
+          <p className="text-center text-xs text-muted mt-6">
             Demo app • All users can log in with any password
           </p>
         </div>

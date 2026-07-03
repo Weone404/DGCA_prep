@@ -4,7 +4,15 @@ const SUPABASE_URL = process.env.SUPABASE_URL
 const SUPABASE_KEY = process.env.SUPABASE_KEY
 
 const defaultMock = [
-  { id: 1, name: 'Demo Student', completed_lessons: 5, completed_lessons_last_day: 5 }
+  {
+    id: 1,
+    name: 'Demo Student',
+    completed_lessons: 5,
+    completed_lessons_last_day: 5,
+    time_spent_minutes: 155,
+    time_spent_today_minutes: 35,
+    time_spent_weekly_minutes: 155,
+  },
 ]
 
 export async function GET(req) {

@@ -3,8 +3,8 @@
 import AppShell from '@/components/AppShell'
 import Icon from '@/components/Icon'
 import { ProgressBar, Badge } from '@/components/UI'
-import { SUBJECTS, LIVE_CLASSES, RESOURCES } from '@/lib/data'
-import { useMemo, useState } from 'react'
+import { SUBJECTS, LIVE_CLASSES, RESOURCES, SUBJECT_TESTS, LECTURES, MOCK_TESTS } from '@/lib/data'
+import { useMemo, useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth-context'
 
 const ACTIVITY = [3, 5, 2, 6, 4, 7, 5]
@@ -17,10 +17,68 @@ const COURSES = [
 ]
 
 export default function DashboardPage() {
-  const [range, setRange] = useState('Weekly')
+  const [timeRange, setTimeRange] = useState('Today')
+  const [activityRange, setActivityRange] = useState('Weekly')
+  const [studentData, setStudentData] = useState(null)
   const { user } = useAuth()
   const todayClass = LIVE_CLASSES.find((c) => c.status === 'live')
   const [currentDate] = useState(new Date(2020, 5, 28)) // June 28, 2020
+
+  useEffect(() => {
+    let mounted = true
+    ;(async () => {
+      try {
+        const res = await fetch('/api/students')
+        if (!mounted) return
+        const data = await res.json()
+        const first = Array.isArray(data) ? data[0] : data
+        setStudentData(first)
+      } catch (err) {
+        // ignore
+      }
+    })()
+    return () => {
+      mounted = false
+    }
+  }, [])
+
+  const parseDuration = (duration) => {
+    const parsed = parseInt(duration, 10)
+    return Number.isNaN(parsed) ? 0 : parsed
+  }
+
+  const formatDuration = (minutes) => {
+    if (!Number.isFinite(minutes) || minutes <= 0) return '0m'
+    const hours = Math.floor(minutes / 60)
+    const mins = minutes % 60
+    return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`
+  }
+
+  const manualStudyMinutes = useMemo(() => {
+    const lectureMinutes = LECTURES.reduce(
+      (sum, lecture) => sum + parseDuration(lecture.duration) * ((lecture.watched ?? 0) / 100),
+      0,
+    )
+
+    const subjectTestMinutes = SUBJECT_TESTS.filter((test) => test.attempted).reduce(
+      (sum, test) => sum + test.duration,
+      0,
+    )
+
+    const mockTestMinutes = MOCK_TESTS.filter((test) => test.attempts > 0).reduce(
+      (sum, test) => sum + test.duration * test.attempts,
+      0,
+    )
+
+    return Math.round(lectureMinutes + subjectTestMinutes + mockTestMinutes)
+  }, [])
+
+  const activeStudyMinutes = useMemo(() => {
+    if (timeRange === 'Today') {
+      return studentData?.time_spent_today_minutes ?? studentData?.time_spent_minutes ?? manualStudyMinutes
+    }
+    return studentData?.time_spent_weekly_minutes ?? studentData?.time_spent_minutes ?? manualStudyMinutes
+  }, [timeRange, studentData, manualStudyMinutes])
 
   const points = useMemo(() => {
     const max = Math.max(...ACTIVITY)
@@ -47,7 +105,9 @@ export default function DashboardPage() {
             <div className="relative z-10 max-w-md">
               <h2 className="text-white text-3xl font-display font-bold mb-3">Hi {user ? user.name.split(' ')[0] : 'there'}!</h2>
               <p className="text-white/85 text-sm leading-relaxed">
-                You have complete 5 lesson in last day.Start your learning today.
+                {studentData
+                  ? `You've spent ${formatDuration(activeStudyMinutes)} on the site ${timeRange === 'Today' ? 'today' : 'this week'}. Keep going!`
+                  : 'Track your learning time across tests, lectures, and mock practice.'}
               </p>
               <button className="mt-5 bg-white text-brand font-semibold text-sm px-6 py-2.5 rounded-xl hover:bg-white/90 transition-colors">
                 Resume Learning
@@ -62,7 +122,11 @@ export default function DashboardPage() {
             <div className="card p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-display font-semibold text-ink">Learning Time</h3>
-                <select className="text-xs text-muted bg-canvas rounded-lg px-2 py-1 outline-none border border-line">
+                <select
+                  value={timeRange}
+                  onChange={(e) => setTimeRange(e.target.value)}
+                  className="text-xs text-muted bg-canvas rounded-lg px-2 py-1 outline-none border border-line"
+                >
                   <option>Today</option>
                   <option>This Week</option>
                 </select>
@@ -74,7 +138,9 @@ export default function DashboardPage() {
                     <circle cx="18" cy="18" r="16" fill="none" stroke="#2BC48A" strokeWidth="3.5" strokeDasharray="55" strokeDashoffset="0" strokeLinecap="round" pathLength="100" />
                     <circle cx="18" cy="18" r="16" fill="none" stroke="#FF8B6B" strokeWidth="3.5" strokeDasharray="25 100" strokeDashoffset="-55" strokeLinecap="round" pathLength="100" />
                   </svg>
-                  <div className="absolute inset-0 flex items-center justify-center font-display font-bold text-ink text-sm">2h 35m</div>
+                  <div className="absolute inset-0 flex items-center justify-center font-display font-bold text-ink text-sm">
+                    {formatDuration(activeStudyMinutes)}
+                  </div>
                 </div>
                 <div className="space-y-2 text-xs text-muted">
                   <p className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-brand" /> Reading</p>
@@ -88,7 +154,7 @@ export default function DashboardPage() {
             <div className="card p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-display font-semibold text-ink">My Activity</h3>
-                <select value={range} onChange={(e) => setRange(e.target.value)} className="text-xs text-muted bg-canvas rounded-lg px-2 py-1 outline-none border border-line">
+                <select value={activityRange} onChange={(e) => setActivityRange(e.target.value)} className="text-xs text-muted bg-canvas rounded-lg px-2 py-1 outline-none border border-line">
                   <option>Weekly</option>
                   <option>Monthly</option>
                 </select>
