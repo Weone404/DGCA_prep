@@ -3,7 +3,7 @@
 import AppShell from '@/components/AppShell'
 import Icon from '@/components/Icon'
 import { ProgressBar, Badge } from '@/components/UI'
-import { SUBJECTS, LIVE_CLASSES, RESOURCES, SUBJECT_TESTS, LECTURES, MOCK_TESTS } from '@/lib/data'
+import { SUBJECTS, LIVE_CLASSES, RESOURCES, SUBJECT_TESTS, LECTURES_ARRAY, MOCK_TESTS } from '@/lib/data'
 import { useMemo, useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth-context'
 
@@ -11,9 +11,11 @@ const ACTIVITY = [3, 5, 2, 6, 4, 7, 5]
 const DAYS = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri']
 
 const COURSES = [
-  { id: 1, name: 'History of graphic design', instructor: '', progress: 25, rating: 4.3, icon: '📚', color: '#FFA500' },
-  { id: 2, name: 'App Design Course', instructor: '', progress: 25, rating: 4.3, icon: '📱', color: '#2BC48A' },
-  { id: 3, name: 'Digital painting', instructor: '', progress: 25, rating: 4.3, icon: '🎨', color: '#2BC4FF' },
+  { id: 1, name: 'Air Regulations', instructor: '', progress: 25, rating: 4.3, icon: '', color: '#FF6B6B' },
+  { id: 2, name: 'Meteorology', instructor: '', progress: 25, rating: 4.3, icon: '', color: '#4ECDC4' },
+  { id: 3, name: 'Navigation', instructor: '', progress: 25, rating: 4.3, icon: '', color: '#95E1D3' },
+  { id: 4, name: 'Technical', instructor: '', progress: 25, rating: 4.3, icon: '', color: '#F38181' },
+  { id: 5, name: 'General Radio Telephony', instructor: '', progress: 25, rating: 4.3, icon: '', color: '#AA96DA' },
 ]
 
 export default function DashboardPage() {
@@ -55,7 +57,7 @@ export default function DashboardPage() {
   }
 
   const manualStudyMinutes = useMemo(() => {
-    const lectureMinutes = LECTURES.reduce(
+    const lectureMinutes = LECTURES_ARRAY.reduce(
       (sum, lecture) => sum + parseDuration(lecture.duration) * ((lecture.watched ?? 0) / 100),
       0,
     )

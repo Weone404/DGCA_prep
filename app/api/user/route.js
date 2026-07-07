@@ -1,0 +1,84 @@
+import { NextResponse } from 'next/server'
+import pool from '@/lib/db'
+import { createUser, findUserByEmail, findUserByPhone } from '@/lib/queries'
+
+export const dynamic = 'force-dynamic'
+
+// POST /api/user — register (upsert) a user
+export async function POST(request) {
+  try {
+    const { name, email, phone, batch } = await request.json()
+
+    if (!name || !email || !phone) {
+      return NextResponse.json(
+        { error: 'name, email, and phone are required.' },
+        { status: 400 }
+      )
+    }
+
+    const emailNormalized = email.toLowerCase().trim()
+    let user = await findUserByEmail(emailNormalized)
+
+    if (user) {
+      // User exists, update it
+      const { rows } = await pool.query(
+        `UPDATE users 
+         SET name = $1, phone = $2, batch = COALESCE($3, batch)
+         WHERE LOWER(email) = LOWER($4)
+         RETURNING *`,
+        [name, phone.trim(), batch, emailNormalized]
+      )
+      user = rows[0]
+    } else {
+      user = await createUser({ name, email: emailNormalized, phone: phone.trim(), batch })
+    }
+
+    return NextResponse.json({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      batch: user.batch,
+      is_verified: user.is_verified ?? false,
+      created_at: user.created_at,
+    })
+  } catch (err) {
+    console.error('POST /api/user error:', err)
+    return NextResponse.json({ error: 'Server error.' }, { status: 500 })
+  }
+}
+
+// GET /api/user?email=... or /api/user?phone=... — fetch user
+export async function GET(request) {
+  try {
+    const { searchParams } = request.nextUrl
+    const email = searchParams.get('email')
+    const phone = searchParams.get('phone')
+
+    if (!email && !phone) {
+      return NextResponse.json(
+        { error: 'email or phone is required.' },
+        { status: 400 }
+      )
+    }
+
+    const user = email
+      ? await findUserByEmail(email.toLowerCase().trim())
+      : await findUserByPhone(phone.trim())
+
+    if (!user) return NextResponse.json(null)
+
+    return NextResponse.json({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      batch: user.batch,
+      is_verified: user.is_verified ?? false,
+      created_at: user.created_at,
+    })
+  } catch (err) {
+    console.error('GET /api/user error:', err)
+    return NextResponse.json({ error: 'Server error.' }, { status: 500 })
+  }
+}
