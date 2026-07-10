@@ -10,7 +10,7 @@ export default function Sidebar() {
   const pathname = usePathname()
 
   return (
-    <aside className="hidden lg:flex flex-col w-[260px] shrink-0 bg-white px-5 py-6 h-screen sticky top-0 border-r border-line">
+    <aside className="hidden md:flex flex-col w-64 md:w-64 lg:w-64 shrink-0 bg-white px-4 md:px-5 py-4 md:py-6 h-screen sticky top-0 border-r border-line">
       <Link href="/dashboard" className="flex items-center gap-3 px-2 mb-8">
         <div className="w-11 h-11 rounded-2xl bg-brand flex items-center justify-center text-white font-display font-bold text-lg">W</div>
         <div>

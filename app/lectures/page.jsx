@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
@@ -6,13 +6,15 @@ import AppShell from '@/components/AppShell'
 import Icon from '@/components/Icon'
 import { ProgressBar } from '@/components/UI'
 import { useAuth } from '@/lib/auth-context'
-import { LECTURES_ARRAY, SUBJECTS } from '@/lib/data'
+import { LECTURES_ARRAY, PERSONALYSIS_DATA, SHORT_VIDEOS_DATA, SUBJECTS } from '@/lib/data'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CONFIG
 // ─────────────────────────────────────────────────────────────────────────────
 const FREE_LIMIT = 2
 const SUBSCRIPTION_STORAGE_KEY = 'dgca_lectures_subscription'
+const LIVE_CLASSES_POLL_MS = 60_000
+const LIVE_CLOCK_TICK_MS = 15_000
 
 /**
  * @typedef {{ id: string, label: string, price: number, originalPrice: number,
@@ -42,12 +44,31 @@ const TABS = [
   { id: 'personalysis', label: '🧠 Personalysis' },
 ]
 
+// Access-model badge shown per tab so users know what they're looking at
+// before they click into anything.
+const TAB_ACCESS_NOTE = {
+  lectures: { icon: '🆓', text: `First ${FREE_LIMIT} lectures free, then premium` },
+  shorts: { icon: '🆓', text: 'Always free — no subscription needed' },
+  personalysis: { icon: '👑', text: 'Premium — subscription required' },
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // HELPERS
 // ─────────────────────────────────────────────────────────────────────────────
 function fmtDate(iso) {
   if (!iso) return ''
   return new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
+function fmtDateTime(iso) {
+  if (!iso) return ''
+  return new Date(iso).toLocaleString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+}
+
+function daysRemaining(expiresAt) {
+  if (!expiresAt) return 0
+  const diff = new Date(expiresAt).getTime() - Date.now()
+  return Math.max(0, Math.ceil(diff / 86_400_000))
 }
 
 function extractSrc(iframeCode) {
@@ -63,21 +84,29 @@ function getYtThumb(src) {
   return m ? `https://img.youtube.com/vi/${m[1]}/hqdefault.jpg` : null
 }
 
-// Build SHORT_VIDEOS + PERSONALYSIS lazily from existing LECTURES/SUBJECTS so we
-// don't need a separate data source — short videos reuse the same lecture list
-// (marked free), personalysis is a locked subset. Computed once at module load.
-function buildVariant(list, prefix) {
-  return list.map((l) => ({ ...l, id: `${prefix}-${l.id}`, locked: prefix === 'pa' }))
+// Normalize the dedicated short-video and personalysis datasets from lib/data.js
+// into the shape expected by the lecture page cards and filters.
+function buildSectionItems(sectionData, prefix) {
+  return Object.entries(sectionData).flatMap(([sectionName, section]) =>
+    (section?.videos || []).map((video, index) => ({
+      ...video,
+      id: `${prefix}-${sectionName}-${index + 1}`,
+      subject: video.chapter || sectionName,
+      locked: prefix === 'pa',
+      duration: video.duration || '8 min',
+    })),
+  )
 }
-const SHORT_VIDEOS = buildVariant(LECTURES_ARRAY, 'sv')
-const PERSONALYSIS = buildVariant(LECTURES_ARRAY, 'pa')
+
+const SHORT_VIDEOS = buildSectionItems(SHORT_VIDEOS_DATA, 'sv')
+const PERSONALYSIS = buildSectionItems(PERSONALYSIS_DATA, 'pa')
 
 // Map of lecture ID -> global index across all lectures, so the free limit
 // (first N lectures overall) is enforced correctly regardless of subject filtering.
 const GLOBAL_INDEX_MAP = new Map(LECTURES_ARRAY.map((l, i) => [l.id, i]))
 
 function isLectureFree({ item, idx, tab, subscribed, user }) {
-  if (tab === 'personalysis') return !!user
+  if (tab === 'personalysis') return !!user && subscribed
   if (subscribed) return true
   if (tab === 'shorts') return true // short videos are always free
 
@@ -111,10 +140,35 @@ function saveStoredSubscription(sub) {
   }
 }
 
+// Group a list of lectures by subject, matched against SUBJECTS metadata
+// (icon/color/subtitle) with graceful fallbacks — used to render folder cards.
+function buildSubjectFolders(list, subjectsMeta) {
+  const bySubject = new Map()
+  for (const item of list) {
+    const key = item.subject || 'Other'
+    if (!bySubject.has(key)) bySubject.set(key, [])
+    bySubject.get(key).push(item)
+  }
+  return Array.from(bySubject.entries()).map(([name, items]) => {
+    const meta = subjectsMeta?.find((s) => s.name === name)
+    const total = items.length
+    const filled = items.filter((i) => !!i.iframeCode).length
+    return {
+      name,
+      icon: meta?.icon || '📚',
+      subtitle: meta?.subtitle || '',
+      total,
+      filled,
+      pct: total ? Math.round((filled / total) * 100) : 0,
+    }
+  })
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // GENERIC MODAL SHELL
-// Shared backdrop click-to-close, Escape-to-close, focus, and scroll-lock logic
-// so VideoModal and PaywallModal don't each reimplement it slightly differently.
+// Shared backdrop click-to-close, Escape-to-close, focus, and scroll-lock logic.
+// Only used by PaywallModal now — VideoModal has been removed since all
+// playback happens inline in the player card.
 // ─────────────────────────────────────────────────────────────────────────────
 function Modal({ onClose, children, ariaLabel, maxWidth = 'max-w-xl' }) {
   const dialogRef = useRef(null)
@@ -150,6 +204,179 @@ function Modal({ onClose, children, ariaLabel, maxWidth = 'max-w-xl' }) {
       >
         {children}
       </div>
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LIVE CLASSES SECTION
+// Polls /api/classes every 60s, ticks a local clock every 15s to keep
+// live/countdown state fresh without refetching.
+// ─────────────────────────────────────────────────────────────────────────────
+function LiveClassesSection() {
+  const [classes, setClasses] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const nowRef = useRef(Date.now())
+  const [, forceTick] = useState(0)
+
+  const fetchClasses = useCallback(() => {
+    setError('')
+    fetch('/api/classes')
+      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() })
+      .then((d) => {
+        if (d.success) setClasses(d.events || [])
+        else setError(d.message || 'API returned success:false')
+      })
+      .catch((err) => setError(err.message || 'Failed to load classes'))
+      .finally(() => setLoading(false))
+  }, [])
+
+  useEffect(() => { fetchClasses() }, [fetchClasses])
+  useEffect(() => {
+    const id = setInterval(fetchClasses, LIVE_CLASSES_POLL_MS)
+    return () => clearInterval(id)
+  }, [fetchClasses])
+  useEffect(() => {
+    const id = setInterval(() => { nowRef.current = Date.now(); forceTick((t) => t + 1) }, LIVE_CLOCK_TICK_MS)
+    return () => clearInterval(id)
+  }, [])
+
+  const isLive = (c) => c.startDateTime && c.endDateTime
+    && new Date(c.startDateTime).getTime() <= nowRef.current
+    && nowRef.current <= new Date(c.endDateTime).getTime()
+  const isPast = (c) => c.endDateTime ? new Date(c.endDateTime).getTime() < nowRef.current : false
+  const countdown = (c) => {
+    if (!c.startDateTime) return null
+    const diff = new Date(c.startDateTime).getTime() - nowRef.current
+    if (diff <= 0) return null
+    const totalMins = Math.floor(diff / 60_000)
+    const h = Math.floor(totalMins / 60), m = totalMins % 60
+    if (h > 24) return `in ${Math.floor(h / 24)}d ${h % 24}h`
+    if (h > 0) return `in ${h}h ${m}m`
+    return `in ${m}m`
+  }
+
+  const visible = classes
+    .filter((c) => !isPast(c))
+    .sort((a, b) => {
+      const aLive = isLive(a), bLive = isLive(b)
+      if (aLive && !bLive) return -1
+      if (!aLive && bLive) return 1
+      return new Date(a.startDateTime) - new Date(b.startDateTime)
+    })
+
+  if (loading) {
+    return (
+      <div className="card p-5 mb-5">
+        <div className="space-y-2">
+          <div className="h-16 bg-canvas rounded-xl animate-pulse" />
+          <div className="h-16 bg-canvas rounded-xl animate-pulse" />
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="card p-5 mb-5">
+      <div className="space-y-2">
+        {visible.map((c) => {
+          const live = isLive(c)
+          const timer = countdown(c)
+          const id = c._id ? (typeof c._id === 'object' ? c._id.toString() : c._id) : c.id
+          const endTime = c.endDateTime ? new Date(c.endDateTime).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : null
+          const hasMeetLink = c.meetLink && c.meetLink.startsWith('http')
+          return (
+            <div
+              key={id}
+              className={`flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl ${live ? 'bg-red-50 border border-red-200' : 'bg-canvas'}`}
+            >
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap mb-1">
+                  {live && (
+                    <span className="inline-flex items-center gap-1.5 bg-red-500 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+                      <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" /> LIVE NOW
+                    </span>
+                  )}
+                  {!live && timer && (
+                    <span className="bg-brand-light text-brand text-[10px] font-bold px-2.5 py-0.5 rounded-full">⏰ {timer}</span>
+                  )}
+                  <span className="text-sm font-semibold text-ink">{c.title}</span>
+                </div>
+                <p className="text-xs text-muted">🕐 {fmtDateTime(c.startDateTime)}{endTime && ` → ${endTime}`}</p>
+                {c.description && <p className="text-xs text-muted mt-0.5">{c.description}</p>}
+              </div>
+              {live ? (
+                hasMeetLink ? (
+                  <a
+                    href={c.meetLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 rounded-xl bg-red-500 text-white text-sm font-bold whitespace-nowrap"
+                  >
+                    🔴 Join Now →
+                  </a>
+                ) : (
+                  <div className="text-right shrink-0">
+                    <p className="px-3 py-2 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-semibold">🔴 Class is Live</p>
+                    <p className="text-[10px] text-red-500 mt-1">⚠️ No meeting link added yet</p>
+                  </div>
+                )
+              ) : (
+                <button disabled className="px-4 py-2 rounded-xl bg-canvas text-muted text-sm font-semibold cursor-not-allowed whitespace-nowrap">
+                  ⚫ Join Live {timer ? `(${timer})` : ''}
+                </button>
+              )}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SUBJECT FOLDER GRID
+// Browse a tab's content grouped by subject, with an upload-progress bar per
+// folder. Clicking a folder drills into it (reuses the existing `subject`
+// filter state, so the sidebar chips and this grid always stay in sync).
+// ─────────────────────────────────────────────────────────────────────────────
+function SubjectFolderGrid({ folders, onSelect }) {
+  if (folders.length === 0) {
+    return <div className="card p-8 text-center text-muted">No subjects available yet</div>
+  }
+  return (
+    <div className="grid sm:grid-cols-2 gap-4">
+      {folders.map((f) => (
+        <button
+          key={f.name}
+          onClick={() => onSelect(f.name)}
+          className="card p-4 text-left hover:shadow-md transition-shadow"
+        >
+          <div className="flex items-start gap-3">
+            <div className="w-12 h-12 rounded-xl bg-brand-light flex items-center justify-center text-2xl shrink-0">
+              {f.icon}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between gap-2">
+                <p className="font-display font-bold text-ink text-sm truncate">{f.name}</p>
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-canvas text-muted whitespace-nowrap">
+                  {f.total} videos
+                </span>
+              </div>
+              {f.subtitle && <p className="text-xs text-muted mt-0.5 truncate">{f.subtitle}</p>}
+            </div>
+          </div>
+          <div className="mt-3">
+            <div className="flex items-center justify-between text-[11px] text-muted mb-1">
+              <span>{f.filled}/{f.total} uploaded</span>
+              <span className="font-semibold text-brand">{f.pct}%</span>
+            </div>
+            <ProgressBar value={f.pct} />
+          </div>
+          <p className="mt-3 text-xs font-semibold text-brand">📂 Open {f.name} →</p>
+        </button>
+      ))}
     </div>
   )
 }
@@ -250,79 +477,84 @@ function PaywallModal({ totalLectures, onSuccess, onClose }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// VIDEO MODAL
-// ─────────────────────────────────────────────────────────────────────────────
-function VideoModal({ lecture, onClose }) {
-  const src = extractSrc(lecture.iframeCode)
-
-  return (
-    <Modal onClose={onClose} ariaLabel={lecture.title} maxWidth="max-w-3xl">
-      <div className="flex items-center justify-between p-4 border-b border-canvas">
-        <div>
-          <p className="font-display font-bold text-ink text-sm">{lecture.title}</p>
-          <p className="text-xs text-muted">{lecture.subject}{lecture.chapter ? ` · ${lecture.chapter}` : ''}</p>
-        </div>
-        <button
-          onClick={onClose}
-          aria-label="Close"
-          className="w-8 h-8 rounded-lg bg-canvas flex items-center justify-center text-lg"
-        >
-          ×
-        </button>
-      </div>
-      <div className="relative pb-[56.25%] bg-black">
-        {src ? (
-          <iframe src={src} className="absolute inset-0 w-full h-full border-0" allowFullScreen title={lecture.title} />
-        ) : (
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-muted gap-2">
-            <p className="text-4xl">{lecture.thumb || '🎬'}</p>
-            <p className="text-sm font-semibold">Video coming soon</p>
-          </div>
-        )}
-      </div>
-    </Modal>
-  )
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
 // VIDEO CARD
+// Distinguishes three states: free & playable, locked/premium, and
+// "coming soon" (slot exists but no iframeCode uploaded yet).
+// Clicking a free card now plays inline in the shared player above —
+// it no longer opens a popup modal.
 // ─────────────────────────────────────────────────────────────────────────────
-function VideoCard({ item, isFree, onPlay, onLock }) {
+function VideoCard({ item, idx, isFree, isActive, onPlay, onLock }) {
   const src = extractSrc(item.iframeCode)
   const thumb = getYtThumb(src)
-  const locked = !isFree
+  const hasVideo = !!item.iframeCode
+  const locked = hasVideo && !isFree
+
+  function handleClick() {
+    if (!hasVideo) return
+    if (locked) { onLock(); return }
+    onPlay(item)
+  }
 
   return (
     <button
-      onClick={() => (locked ? onLock() : onPlay(item))}
-      className="card text-left overflow-hidden hover:shadow-md transition-shadow"
+      onClick={handleClick}
+      disabled={!hasVideo}
+      aria-current={isActive}
+      className={`card text-left overflow-hidden transition-shadow ${
+        isActive ? 'ring-2 ring-brand' : ''
+      } ${hasVideo ? 'hover:shadow-md cursor-pointer' : 'opacity-60 cursor-default'}`}
     >
       <div className="relative aspect-video bg-canvas flex items-center justify-center text-4xl overflow-hidden">
-        {thumb ? (
+        {hasVideo && thumb ? (
           <img src={thumb} alt={item.title} className={`w-full h-full object-cover ${locked ? 'opacity-30' : ''}`} />
         ) : (
-          <span>{item.thumb || '🎬'}</span>
+          <span>{hasVideo ? (item.thumb || '🎬') : '⏳'}</span>
         )}
+
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${locked ? 'bg-violet' : 'bg-white/90'}`}>
-            <Icon name={locked ? 'lock' : 'play'} size={16} className={locked ? 'text-white' : 'text-ink'} />
-          </div>
+          {hasVideo ? (
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${locked ? 'bg-violet' : 'bg-white/90'}`}>
+              <Icon name={locked ? 'lock' : 'play'} size={16} className={locked ? 'text-white' : 'text-ink'} />
+            </div>
+          ) : (
+            <span className="bg-black/50 text-white text-[10px] font-semibold px-3 py-1 rounded-full">Coming Soon</span>
+          )}
         </div>
-        <span className={`absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full ${locked ? 'bg-violet text-white' : 'bg-green-500 text-white'}`}>
-          {locked ? '👑 PREMIUM' : '🆓 FREE'}
-        </span>
+
+        {hasVideo && (
+          <span className={`absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full ${locked ? 'bg-violet text-white' : 'bg-green-500 text-white'}`}>
+            {locked ? '👑 PREMIUM' : '🆓 FREE'}
+          </span>
+        )}
+        {typeof idx === 'number' && (
+          <span className="absolute top-2 right-2 bg-black/60 text-white text-[10px] font-semibold px-2 py-0.5 rounded-md">
+            #{idx + 1}
+          </span>
+        )}
+        {item.duration && (
+          <span className="absolute bottom-2 right-2 bg-black/70 text-white text-[10px] font-semibold px-2 py-0.5 rounded-md">
+            {item.duration}
+          </span>
+        )}
       </div>
+
       <div className="p-3">
+        {item.chapter && (
+          <span className="inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full bg-canvas text-muted mb-1.5">
+            {item.chapter}
+          </span>
+        )}
         <p className="text-sm font-semibold text-ink truncate">{item.title}</p>
-        <p className="text-xs text-muted mt-0.5">{item.subject} · {item.duration}</p>
+        <p className="text-xs text-muted mt-0.5">{item.subject}</p>
         {locked && <p className="text-xs text-brand font-semibold mt-2">🔒 Subscribe to watch</p>}
+        {!hasVideo && <p className="text-xs text-muted mt-2">Video will be uploaded soon</p>}
       </div>
     </button>
   )
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// LECTURE PLAYER (main panel on the "Lectures" tab)
+// LECTURE PLAYER (shared main panel across all three tabs)
 // ─────────────────────────────────────────────────────────────────────────────
 function LecturePlayer({ lecture, free, inlinePlaying, onPlay }) {
   const src = extractSrc(lecture.iframeCode)
@@ -373,10 +605,13 @@ export default function LecturesPage() {
   const [subject, setSubject] = useState('All')
   const [search, setSearch] = useState('')
   const [active, setActive] = useState(() => LECTURES_ARRAY[0] ?? null)
-  const [activeVideo, setActiveVideo] = useState(null)
   const [inlinePlaying, setInlinePlaying] = useState(false)
   const [showPaywall, setShowPaywall] = useState(false)
   const [subscription, setSubscription] = useState(null) // { planLabel, expiresAt } | null
+
+  // Ref to the shared player card so we can smooth-scroll to it whenever a
+  // video is chosen from a grid/sidebar list further down the page.
+  const playerRef = useRef(null)
 
   // Restore any previously "purchased" subscription after mount (avoids SSR/client
   // hydration mismatch, since localStorage isn't available on the server).
@@ -385,11 +620,16 @@ export default function LecturesPage() {
   }, [])
 
   const subscribed = !!subscription
+  const remainingDays = subscribed ? daysRemaining(subscription.expiresAt) : 0
 
   const source = useMemo(
     () => ({ lectures: LECTURES_ARRAY, shorts: SHORT_VIDEOS, personalysis: PERSONALYSIS }[tab]),
     [tab],
   )
+
+  // Subject folders for the current tab (used by the browse-by-folder view on
+  // Short Videos / Personalysis). Recomputed only when the tab changes.
+  const folders = useMemo(() => buildSubjectFolders(source, SUBJECTS), [source])
 
   const filtered = useMemo(() => {
     let list = subject === 'All' ? source : source.filter((l) => l.subject === subject)
@@ -411,13 +651,18 @@ export default function LecturesPage() {
     saveStoredSubscription(newSub)
   }, [])
 
+  // Switching tabs now also resets `active` to the first item of the new
+  // tab's dataset, so the shared player always has something sensible to show.
   const handleTabChange = useCallback((t) => {
     setTab(t)
     setSubject('All')
     setSearch('')
     setInlinePlaying(false)
+    const newSource = { lectures: LECTURES_ARRAY, shorts: SHORT_VIDEOS, personalysis: PERSONALYSIS }[t]
+    setActive(newSource[0] ?? null)
   }, [])
 
+  // Every tab now plays inline in the shared card — no more popup modal branch.
   const handlePlay = useCallback((item, idx) => {
     if (tab === 'personalysis' && !user) {
       router.push('/login')
@@ -427,20 +672,22 @@ export default function LecturesPage() {
       setShowPaywall(true)
       return
     }
-    if (tab === 'lectures') {
-      setActive(item)
-      setInlinePlaying(true)
-      return
-    }
-    // Shorts / Personalysis don't have a main inline panel, so they open in the popup modal.
-    setActiveVideo(item)
+    setActive(item)
+    setInlinePlaying(true)
+    // Scroll the player into view in case the click came from a grid/sidebar
+    // item that's below the fold.
+    playerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }, [isItemFree, tab, user, router])
 
   const activeIsFree = active ? isItemFree(active) : false
 
+  // Folder browsing only applies to the two flat-grid tabs, and only while
+  // no subject/search filter has narrowed things down yet.
+  const showFolderGrid = (tab === 'shorts' || tab === 'personalysis') && subject === 'All' && !search
+  const accessNote = TAB_ACCESS_NOTE[tab]
+
   return (
     <AppShell>
-      {activeVideo && <VideoModal lecture={activeVideo} onClose={() => setActiveVideo(null)} />}
       {showPaywall && (
         <PaywallModal
           totalLectures={LECTURES_ARRAY.length}
@@ -455,7 +702,7 @@ export default function LecturesPage() {
           <h2 className="font-display font-bold text-ink text-lg">🎬 Recorded Lectures</h2>
           <p className="text-sm text-muted mt-1">
             {subscribed
-              ? `👑 Premium active — ${subscription.planLabel} plan, expires ${fmtDate(subscription.expiresAt)}`
+              ? `👑 Premium active — ${subscription.planLabel} plan, ${remainingDays} day${remainingDays !== 1 ? 's' : ''} left (expires ${fmtDate(subscription.expiresAt)})`
               : `First ${FREE_LIMIT} lectures free · Short Videos always free · Subscribe to unlock Personalysis`}
           </p>
         </div>
@@ -465,6 +712,9 @@ export default function LecturesPage() {
           </button>
         )}
       </div>
+
+      {/* Live Classes */}
+      <LiveClassesSection />
 
       {/* Search */}
       <div className="flex items-center gap-2 card px-3 py-2">
@@ -486,7 +736,9 @@ export default function LecturesPage() {
       {/* Subscription / free banner */}
       {subscribed ? (
         <div className="card bg-green-50 border border-green-200 p-4 mb-5 mt-5 flex items-center justify-between flex-wrap gap-3">
-          <p className="text-sm font-semibold text-green-700">✅ All content unlocked — {subscription.planLabel} plan</p>
+          <p className="text-sm font-semibold text-green-700">
+            ✅ All content unlocked — {subscription.planLabel} plan · {remainingDays} day{remainingDays !== 1 ? 's' : ''} remaining
+          </p>
           <button onClick={() => setShowPaywall(true)} className="text-xs font-semibold text-green-700 underline">Renew →</button>
         </div>
       ) : (
@@ -511,84 +763,131 @@ export default function LecturesPage() {
       )}
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-canvas rounded-xl p-1 mb-5 w-fit" role="tablist">
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            role="tab"
-            aria-selected={tab === t.id}
-            onClick={() => handleTabChange(t.id)}
-            className={`px-4 py-2 rounded-lg text-xs font-semibold ${tab === t.id ? 'bg-brand text-white' : 'text-muted'}`}
-          >
-            {t.label}
-          </button>
-        ))}
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+        <div className="flex gap-1 bg-canvas rounded-xl p-1 w-fit" role="tablist">
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              role="tab"
+              aria-selected={tab === t.id}
+              onClick={() => handleTabChange(t.id)}
+              className={`px-4 py-2 rounded-lg text-xs font-semibold ${tab === t.id ? 'bg-brand text-white' : 'text-muted'}`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+        {accessNote && (
+          <span className="text-xs font-semibold text-muted bg-canvas px-3 py-1.5 rounded-full">
+            {accessNote.icon} {accessNote.text}
+          </span>
+        )}
       </div>
 
       <div className="grid lg:grid-cols-[1fr_360px] gap-6">
         {/* Player / grid */}
         <div className="space-y-5">
-          {tab === 'lectures' && (
-            active ? (
-              <div className="card overflow-hidden">
-                <LecturePlayer
-                  lecture={active}
-                  free={activeIsFree}
-                  inlinePlaying={inlinePlaying}
-                  onPlay={() => handlePlay(active)}
-                />
-                <div className="p-6">
-                  {/* Chapter + Free/Premium badges — lecture-tab only, mirrors the
-                      richer info shown per-video in the folder/grid version. */}
-                  <div className="flex items-center gap-2 flex-wrap mb-2">
-                    {active.chapter && (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-light text-brand">
-                        {active.chapter}
-                      </span>
-                    )}
-                    <span
-                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                        activeIsFree ? 'bg-green-500 text-white' : 'bg-violet text-white'
-                      }`}
-                    >
-                      {activeIsFree ? '🆓 FREE' : '👑 PREMIUM'}
+          {/* Shared player card — renders for ALL tabs now (lectures, shorts,
+              personalysis). Clicking any playable item anywhere on the page
+              updates `active`/`inlinePlaying` and this card swaps to that video. */}
+          {active ? (
+            <div ref={playerRef} className="card overflow-hidden scroll-mt-4">
+              <LecturePlayer
+                lecture={active}
+                free={activeIsFree}
+                inlinePlaying={inlinePlaying}
+                onPlay={() => handlePlay(active)}
+              />
+              <div className="p-6">
+                <div className="flex items-center gap-2 flex-wrap mb-2">
+                  {active.chapter && (
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-light text-brand">
+                      {active.chapter}
                     </span>
-                  </div>
-                  <h2 className="font-display font-bold text-ink text-lg mb-1">{active.title}</h2>
-                  <p className="text-sm text-muted mb-2">{active.subject} · {active.duration}</p>
-                  {active.description && (
-                    <p className="text-sm text-muted mb-4">{active.description}</p>
                   )}
-                  <ProgressBar value={active.watched} />
-                  <div className="flex items-center justify-between mt-2">
-                    <p className="text-xs text-muted">{active.watched}% watched</p>
-                    {active.uploadedAt && (
-                      <p className="text-xs text-muted">{fmtDate(active.uploadedAt)}</p>
-                    )}
-                  </div>
+                  <span
+                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      activeIsFree ? 'bg-green-500 text-white' : 'bg-violet text-white'
+                    }`}
+                  >
+                    {activeIsFree ? '🆓 FREE' : '👑 PREMIUM'}
+                  </span>
                 </div>
+                <h2 className="font-display font-bold text-ink text-lg mb-1">{active.title}</h2>
+                <p className="text-sm text-muted mb-2">{active.subject} · {active.duration}</p>
+                {active.description && (
+                  <p className="text-sm text-muted mb-4">{active.description}</p>
+                )}
+                {/* Watched-progress bar only makes sense for the Lectures tab */}
+                {tab === 'lectures' && (
+                  <>
+                    <ProgressBar value={active.watched} />
+                    <div className="flex items-center justify-between mt-2">
+                      <p className="text-xs text-muted">{active.watched}% watched</p>
+                      {active.uploadedAt && (
+                        <p className="text-xs text-muted">{fmtDate(active.uploadedAt)}</p>
+                      )}
+                    </div>
+                  </>
+                )}
               </div>
-            ) : (
-              <div className="card p-8 text-center text-muted">No lectures available yet</div>
-            )
+            </div>
+          ) : (
+            <div className="card p-8 text-center text-muted">No videos available yet</div>
           )}
 
           {(tab === 'shorts' || tab === 'personalysis') && (
-            <div className="grid sm:grid-cols-2 gap-4">
-              {filtered.length === 0 ? (
-                <div className="card p-8 text-center text-muted col-span-2">No videos found</div>
-              ) : (
-                filtered.map((item, idx) => (
-                  <VideoCard
-                    key={item.id}
-                    item={item}
-                    isFree={isItemFree(item, idx)}
-                    onPlay={(i) => handlePlay(i, idx)}
-                    onLock={() => setShowPaywall(true)}
-                  />
-                ))
+            <>
+              {/* Stats row — mirrors the section header stats from the folder-based UI */}
+              {subject === 'All' && (
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { icon: '📂', val: folders.length, label: 'Subjects' },
+                    { icon: '✅', val: source.filter((i) => !!i.iframeCode).length, label: 'Uploaded' },
+                    { icon: '⏳', val: source.filter((i) => !i.iframeCode).length, label: 'Coming Soon' },
+                  ].map((s) => (
+                    <div key={s.label} className="card px-3 py-2 flex items-center gap-2">
+                      <span className="text-base">{s.icon}</span>
+                      <div>
+                        <p className="font-bold text-sm text-ink leading-none">{s.val}</p>
+                        <p className="text-[11px] text-muted">{s.label}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               )}
-            </div>
+
+              {subject !== 'All' && (
+                <button
+                  onClick={() => setSubject('All')}
+                  className="text-xs font-semibold text-brand flex items-center gap-1"
+                >
+                  ← All Subjects
+                </button>
+              )}
+
+              {showFolderGrid ? (
+                <SubjectFolderGrid folders={folders} onSelect={setSubject} />
+              ) : (
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {filtered.length === 0 ? (
+                    <div className="card p-8 text-center text-muted col-span-2">No videos found</div>
+                  ) : (
+                    filtered.map((item, idx) => (
+                      <VideoCard
+                        key={item.id}
+                        item={item}
+                        idx={idx}
+                        isFree={isItemFree(item, idx)}
+                        isActive={active?.id === item.id}
+                        onPlay={(i) => handlePlay(i, idx)}
+                        onLock={() => setShowPaywall(true)}
+                      />
+                    ))
+                  )}
+                </div>
+              )}
+            </>
           )}
         </div>
 
@@ -612,17 +911,21 @@ export default function LecturesPage() {
             )}
             {filtered.map((l, idx) => {
               const free = isItemFree(l, idx)
-              const isActive = tab === 'lectures' && active?.id === l.id
+              const isActive = active?.id === l.id
+              const hasVideo = !!l.iframeCode
               return (
                 <button
                   key={l.id}
                   onClick={() => handlePlay(l, idx)}
+                  disabled={!hasVideo}
                   aria-current={isActive}
                   className={`w-full flex items-center gap-3 p-3 rounded-xl text-left transition-colors ${
-                    isActive ? 'bg-brand-light' : 'hover:bg-canvas'
+                    isActive ? 'bg-brand-light' : hasVideo ? 'hover:bg-canvas' : 'opacity-60 cursor-default'
                   }`}
                 >
-                  <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center text-xl shrink-0">{l.thumb}</div>
+                  <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center text-xl shrink-0">
+                    {hasVideo ? l.thumb : '⏳'}
+                  </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-ink truncate">{l.title}</p>
                     <p className="text-xs text-muted">{l.subject} · {l.duration}</p>
@@ -634,7 +937,7 @@ export default function LecturesPage() {
                     )}
                   </div>
                   {/* FREE/PRO badge — lecture-tab only */}
-                  {tab === 'lectures' && (
+                  {tab === 'lectures' && hasVideo && (
                     <span
                       className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${
                         free ? 'bg-green-500 text-white' : 'bg-violet text-white'
@@ -643,7 +946,9 @@ export default function LecturesPage() {
                       {free ? 'FREE' : 'PRO'}
                     </span>
                   )}
-                  {!free ? (
+                  {!hasVideo ? (
+                    <span className="text-[9px] font-bold text-muted shrink-0">SOON</span>
+                  ) : !free ? (
                     <Icon name="lock" size={16} className="text-violet shrink-0" />
                   ) : l.watched === 100 ? (
                     <Icon name="check" size={16} className="text-brand shrink-0" />

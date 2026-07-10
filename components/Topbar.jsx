@@ -16,14 +16,14 @@ export default function Topbar({ title }) {
   const pageTitle = title || NAV_ITEMS.find((n) => pathname?.startsWith(n.href))?.label || 'WeOne aviation'
 
   return (
-    <header className="flex items-center justify-between gap-4 px-6 lg:px-8 pt-6 pb-4">
+    <header className="flex items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-4">
       <div className="flex items-center gap-3">
         {/* hamburger - visible on small screens */}
         <button onClick={() => setMobileNav(true)} className="lg:hidden p-2 rounded-md bg-white/60 mr-2">
           <Icon name="menu" size={18} />
         </button>
         <h1 className="text-2xl font-display font-bold text-ink">{pageTitle}</h1>
-        <div className="hidden md:flex items-center gap-2 bg-white border border-line rounded-full px-3 py-2 w-64 shadow-card">
+        <div className="hidden md:flex items-center gap-2 bg-white border border-line rounded-full px-3 py-2 w-56 sm:w-64 shadow-card">
           <Icon name="search" size={16} className="text-muted" />
           <input
             value={query}
@@ -78,7 +78,7 @@ export default function Topbar({ title }) {
       {mobileNav && (
         <div className="fixed inset-0 z-40">
           <div className="absolute inset-0 bg-ink/30" onClick={() => setMobileNav(false)} />
-          <aside className="absolute left-0 top-0 bottom-0 w-72 bg-white p-6 overflow-auto">
+          <aside className="absolute left-0 top-0 bottom-0 w-full sm:w-80 md:w-72 bg-white p-6 overflow-auto">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-2xl bg-brand flex items-center justify-center text-white font-display font-bold">W</div>

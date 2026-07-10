@@ -5,13 +5,46 @@ import AppShell from '@/components/AppShell'
 import Icon from '@/components/Icon'
 import { MOCK_TESTS } from '@/lib/data'
 
+const SUBJECTS = [
+  'Air Regulations',
+  'Meteorology',
+  'Navigation',
+  'Technical General',
+  'Radio Telephony',
+]
+
 export default function MockTestsPage() {
   const [active, setActive] = useState(null)
+  const [selectedSubject, setSelectedSubject] = useState('All')
+
+  const filteredTests = selectedSubject === 'All'
+    ? MOCK_TESTS
+    : MOCK_TESTS.filter((test) => test.subject === selectedSubject)
 
   return (
     <AppShell>
+      <div className="flex flex-wrap gap-2 mb-5">
+        <button
+          type="button"
+          onClick={() => setSelectedSubject('All')}
+          className={`px-3 py-2 rounded-full text-sm font-semibold ${selectedSubject === 'All' ? 'bg-brand text-white' : 'bg-canvas text-muted'}`}
+        >
+          All
+        </button>
+        {SUBJECTS.map((subject) => (
+          <button
+            key={subject}
+            type="button"
+            onClick={() => setSelectedSubject(subject)}
+            className={`px-3 py-2 rounded-full text-sm font-semibold ${selectedSubject === subject ? 'bg-brand text-white' : 'bg-canvas text-muted'}`}
+          >
+            {subject}
+          </button>
+        ))}
+      </div>
+
       <div className="grid md:grid-cols-2 gap-5">
-        {MOCK_TESTS.map((m) => (
+        {filteredTests.map((m) => (
           <div key={m.id} className="card p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="w-11 h-11 rounded-xl bg-brand-light text-brand flex items-center justify-center">

@@ -28,3 +28,26 @@ h1, h2, h3, h4, .font-display {
 .bg-gradient-page {
   background: linear-gradient(120deg, #EAFBF3 0%, #F3F1FC 45%, #FDF1F6 100%);
 }
+
+/* Responsive container utility used across pages */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* Make .card have comfortable responsive padding by default */
+.card { padding: 1rem; }
+@media (min-width: 768px) { .card { padding: 1.25rem; } }
+@media (min-width: 1024px) { .card { padding: 1.5rem; } }
+
+/* Responsive typographic scale */
+h1 { font-size: 1.5rem; }
+@media (min-width: 768px) { h1 { font-size: 2rem; } }
+@media (min-width: 1024px) { h1 { font-size: 2.25rem; } }
+
+/* Ensure images and iframes are fluid */
+img, iframe, video { max-width: 100%; height: auto; }

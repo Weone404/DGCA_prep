@@ -5,14 +5,16 @@ import AppShell from '@/components/AppShell'
 import Icon from '@/components/Icon'
 import { Badge } from '@/components/UI'
 import { SUBJECTS, SUBJECT_TESTS } from '@/lib/data'
+import { useRouter } from 'next/navigation'
 
 const DIFF_TONE = { Easy: 'brand', Medium: 'violet', Hard: 'coral' }
 
 export default function SubjectTestsPage() {
-  const [activeSubject, setActiveSubject] = useState('All')
+  const [activeSubject, setActiveSubject] = useState('')
   const [filter, setFilter] = useState('all')
   const [selected, setSelected] = useState(null)
   const [studentData, setStudentData] = useState(null)
+  const router = useRouter()
 
   const filtered = useMemo(() => {
     return SUBJECT_TESTS.filter((t) => {
@@ -53,7 +55,7 @@ export default function SubjectTestsPage() {
         </div>
       </div>
       <div className="flex flex-wrap gap-2 mb-6">
-        {['All', ...SUBJECTS.map((s) => s.name)].map((s) => (
+        {SUBJECTS.map((s) => s.name).map((s) => (
           <button
             key={s}
             onClick={() => setActiveSubject(s)}
@@ -99,13 +101,15 @@ export default function SubjectTestsPage() {
                 <button onClick={() => setSelected(t)} className="text-xs font-semibold text-ink underline">Review</button>
               </div>
             ) : (
-              <button onClick={() => setSelected(t)} className="mt-auto bg-brand hover:bg-brand-dark transition-colors text-white text-sm font-semibold py-2.5 rounded-xl">
+              <button onClick={() => router.push(`/subject-tests/${t.id}`)} className="mt-auto bg-brand hover:bg-brand-dark transition-colors text-white text-sm font-semibold py-2.5 rounded-xl">
                 Start Test
               </button>
             )}
           </div>
         ))}
       </div>
+
+      {/* chapter modal removed — subject chips only filter the test list now */}
 
       {selected && (
         <div className="fixed inset-0 bg-ink/40 flex items-center justify-center z-50 p-4" onClick={() => setSelected(null)}>
