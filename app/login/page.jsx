@@ -4,67 +4,41 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth-context'
-import Icon from '@/components/Icon'
-
-const SAMPLE_USERS = [
-  {
-    name: 'Puja',
-    email: 'puja@example.com',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Puja',
-    role: 'VIP',
-    coursesInProgress: 5,
-    coursesComplete: 12,
-  },
-  {
-    name: 'Aman',
-    email: 'aman@example.com',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Aman',
-    role: 'Premium',
-    coursesInProgress: 3,
-    coursesComplete: 8,
-  },
-  {
-    name: 'Martin Nel',
-    email: 'martin@example.com',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop',
-    role: 'VIP',
-    coursesInProgress: 8,
-    coursesComplete: 23,
-  },
-]
+import { PUBLIC_APP_CONFIG } from '@/lib/public-config'
 
 export default function LoginPage() {
   const router = useRouter()
   const { login } = useAuth()
-  const [selectedUser, setSelectedUser] = useState(null)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
-  const handleQuickLogin = (user) => {
-    login(user)
-    router.push('/dashboard')
-  }
-
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault()
     setError('')
+    setSubmitting(true)
 
-    // Find user by email
-    const user = SAMPLE_USERS.find((u) => u.email === email)
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
 
-    if (!user) {
-      setError('User not found. Please select from the quick login options.')
-      return
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data?.error || 'Invalid credentials. Please try again.')
+        return
+      }
+
+      login(data.user)
+      router.push('/dashboard')
+    } catch {
+      setError('Unable to log in right now. Please try again.')
+    } finally {
+      setSubmitting(false)
     }
-
-    if (password.length < 3) {
-      setError('Invalid credentials. Please try again.')
-      return
-    }
-
-    login(user)
-    router.push('/dashboard')
   }
 
   return (
@@ -73,8 +47,9 @@ export default function LoginPage() {
         <div className="card p-8 md:p-10">
           <div className="text-center mb-8">
             <div className="text-5xl mb-4">📚</div>
-            <h1 className="font-display font-bold text-2xl text-ink mb-2">WeOne aviation</h1>
+            <h1 className="font-display font-bold text-2xl text-ink mb-2">{PUBLIC_APP_CONFIG.appName}</h1>
             <p className="text-muted text-sm">Welcome back! Let's continue learning</p>
+            <p className="text-muted text-xs mt-2">Support: {PUBLIC_APP_CONFIG.supportEmail}</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-5 mb-8">
@@ -109,45 +84,19 @@ export default function LoginPage() {
 
             <button
               type="submit"
+              disabled={submitting}
               className="w-full bg-brand hover:bg-brand-dark transition-colors text-white text-sm font-semibold px-6 py-3 rounded-xl mt-6"
             >
-              Sign In
+              {submitting ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
-
-          <div className="relative mb-8">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-line" />
-            </div>
-            <div className="relative flex justify-center text-xs">
-              <span className="px-2 bg-white text-muted">OR</span>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <p className="text-xs text-muted text-center font-medium mb-4">Quick Login</p>
-            {SAMPLE_USERS.map((user) => (
-              <button
-                key={user.email}
-                onClick={() => handleQuickLogin(user)}
-                className="w-full flex items-center gap-3 bg-canvas hover:bg-canvas/80 transition-colors border border-line rounded-xl p-3"
-              >
-                <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full object-cover" />
-                <div className="flex-1 text-left">
-                  <p className="text-sm font-semibold text-ink">{user.name}</p>
-                  <p className="text-xs text-muted">{user.email}</p>
-                </div>
-                <Icon name="arrow-right" size={16} className="text-muted" />
-              </button>
-            ))}
-          </div>
 
           <p className="text-center text-sm mt-4">
             Don't have an account? <Link href="/register" className="text-brand font-semibold">Create account</Link>
           </p>
 
           <p className="text-center text-xs text-muted mt-6">
-            Demo app • All users can log in with any password
+            Login is connected to PostgreSQL via DATABASE_URL
           </p>
         </div>
       </div>

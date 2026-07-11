@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth-context'
-import Icon from '@/components/Icon'
+import { PUBLIC_APP_CONFIG } from '@/lib/public-config'
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -15,6 +15,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [errors, setErrors] = useState([])
+  const [submitting, setSubmitting] = useState(false)
 
   const validate = () => {
     const list = []
@@ -34,18 +35,39 @@ export default function RegisterPage() {
     return list
   }
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault()
     const list = validate()
+
     setErrors(list)
     if (list.length) return
 
-    const avatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`
-    const user = { name, email, avatar, role: 'Student', coursesInProgress: 0, coursesComplete: 0, mobile }
+    setSubmitting(true)
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          email,
+          mobile,
+          password,
+        }),
+      })
 
-    // demo: log in created user
-    login(user)
-    router.push('/dashboard')
+      const data = await res.json()
+      if (!res.ok) {
+        setErrors([data?.error || 'Unable to create account right now.'])
+        return
+      }
+
+      login(data.user)
+      router.push('/dashboard')
+    } catch {
+      setErrors(['Unable to create account right now.'])
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -55,7 +77,8 @@ export default function RegisterPage() {
           <div className="text-center mb-6">
             <div className="text-5xl mb-4">📚</div>
             <h1 className="font-display font-bold text-2xl text-ink mb-2">Create Account</h1>
-            <p className="text-muted text-sm">Join WeOne aviation to start learning</p>
+            <p className="text-muted text-sm">Join {PUBLIC_APP_CONFIG.appName} to start learning</p>
+            <p className="text-muted text-xs mt-2">Support: {PUBLIC_APP_CONFIG.supportEmail}</p>
           </div>
 
           <form onSubmit={handleRegister} className="space-y-4 mb-4">
@@ -94,8 +117,8 @@ export default function RegisterPage() {
               </div>
             )}
 
-            <button type="submit" className="w-full bg-brand hover:bg-brand-dark transition-colors text-white text-sm font-semibold px-6 py-3 rounded-xl mt-2">
-              Begin Training →
+            <button type="submit" disabled={submitting} className="w-full bg-brand hover:bg-brand-dark transition-colors text-white text-sm font-semibold px-6 py-3 rounded-xl mt-2">
+              {submitting ? 'Creating account...' : 'Begin Training →'}
             </button>
           </form>
 
