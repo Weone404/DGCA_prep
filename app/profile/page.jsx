@@ -4,14 +4,17 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import AppShell from '@/components/AppShell'
 import Icon from '@/components/Icon'
+import StudentDocuments from '@/components/StudentDocuments'
 import { useAuth } from '@/lib/auth-context'
 
-const TABS = ['Personal Details', 'Notification', 'Privacy', 'Payment']
+const TABS = ['Personal Details', 'Test Results', 'Notification', 'Privacy', 'Student Documents']
 
 export default function ProfilePage() {
   const router = useRouter()
   const { user } = useAuth()
   const [tab, setTab] = useState('Personal Details')
+  const [testResults, setTestResults] = useState([])
+  const [loadingResults, setLoadingResults] = useState(false)
 
   const FIELDS = [
     { key: 'fullName', label: 'Full Name', value: (user && user.name) || '' },
@@ -29,6 +32,24 @@ export default function ProfilePage() {
   useEffect(() => {
     setForm(Object.fromEntries(FIELDS.map((f) => [f.key, f.value])))
   }, [user])
+
+  useEffect(() => {
+    if (tab === 'Test Results' && user?.email) {
+      setLoadingResults(true)
+      fetch(`/api/results?email=${encodeURIComponent(user.email)}`, {
+        credentials: 'include',
+      })
+        .then(res => res.ok ? res.json() : [])
+        .then(data => {
+          setTestResults(Array.isArray(data) ? data : [])
+          setLoadingResults(false)
+        })
+        .catch(err => {
+          console.error('Error fetching results:', err)
+          setLoadingResults(false)
+        })
+    }
+  }, [tab, user?.email])
 
   // Redirect to login if not authenticated
   if (!user) {
@@ -159,6 +180,55 @@ export default function ProfilePage() {
             </form>
           )}
 
+          {tab === 'Test Results' && (
+            <div>
+              {loadingResults ? (
+                <div className="text-center py-8">
+                  <p className="text-muted">Loading test results...</p>
+                </div>
+              ) : testResults.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-muted">No test results yet. Start taking tests to see your results here.</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-line">
+                        <th className="text-left py-3 px-3 font-semibold text-muted">Chapter</th>
+                        <th className="text-center py-3 px-3 font-semibold text-muted">Subject</th>
+                        <th className="text-center py-3 px-3 font-semibold text-muted">Score</th>
+                        <th className="text-center py-3 px-3 font-semibold text-muted">Percentage</th>
+                        <th className="text-left py-3 px-3 font-semibold text-muted">Date</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {testResults.map((result) => (
+                        <tr key={result.id} className="border-b border-line hover:bg-canvas transition-colors">
+                          <td className="py-3 px-3 text-ink">{result.chapterId}</td>
+                          <td className="py-3 px-3 text-center text-ink">{result.subjectId}</td>
+                          <td className="py-3 px-3 text-center font-semibold text-ink">{result.score}/{result.total}</td>
+                          <td className="py-3 px-3 text-center">
+                            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                              (result.score / result.total * 100) >= 70 
+                                ? 'bg-green-50 text-green-700' 
+                                : (result.score / result.total * 100) >= 50
+                                ? 'bg-yellow-50 text-yellow-700'
+                                : 'bg-red-50 text-red-700'
+                            }`}>
+                              {Math.round(result.score / result.total * 100)}%
+                            </span>
+                          </td>
+                          <td className="py-3 px-3 text-muted text-xs">{new Date(result.date).toLocaleDateString()}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
+
           {tab === 'Notification' && (
             <div className="space-y-4 max-w-md">
               {['Email notifications', 'Live class reminders', 'New resource alerts', 'Weekly progress digest'].map((n) => (
@@ -181,14 +251,13 @@ export default function ProfilePage() {
             </div>
           )}
 
-          {tab === 'Payment' && (
-            <div className="space-y-3 max-w-md">
-              {[{ l: 'Wireframe & Prototype', v: '$120' }, { l: 'MSc in Machine Learning', v: '$140' }].map((p) => (
-                <div key={p.l} className="flex items-center justify-between bg-canvas rounded-xl px-4 py-3">
-                  <span className="text-sm text-ink">{p.l}</span>
-                  <span className="text-sm font-semibold text-ink">{p.v}</span>
-                </div>
-              ))}
+          {tab === 'Student Documents' && (
+            <div className="space-y-4">
+              <div className="rounded-3xl border border-line bg-canvas/70 p-5">
+                <h3 className="font-semibold text-ink mb-3">Student Documents</h3>
+                <p className="text-sm text-muted mb-4">Upload the documents below. Teachers and admins can view these documents.</p>
+                <StudentDocuments />
+              </div>
             </div>
           )}
         </div>

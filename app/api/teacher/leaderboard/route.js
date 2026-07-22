@@ -1,4 +1,4 @@
-import { jsonResponse, supabaseRequest } from '@/lib/supabase'
+import { jsonResponse, supabaseRequest } from '../../../../lib/supabase'
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url)

@@ -1,43 +1,125 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import AppShell from '@/components/AppShell'
 import Icon from '@/components/Icon'
-import { LIVE_CLASSES } from '@/lib/data'
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-const HOURS = ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00']
 
 const TONE = {
   live: { bar: 'bg-brand', bg: 'bg-brand-light', text: 'text-brand' },
   upcoming: { bar: 'bg-brand', bg: 'bg-brand-light', text: 'text-brand' },
   scheduled: { bar: 'bg-brand', bg: 'bg-brand-light', text: 'text-brand' },
+  ended: { bar: 'bg-gray-400', bg: 'bg-gray-100', text: 'text-gray-600' },
 }
 
 function daysInMonth(year, month) {
   return new Date(year, month + 1, 0).getDate()
 }
 
+function formatClassTime(startDateTime, endDateTime) {
+  const start = new Date(startDateTime)
+  if (!Number.isFinite(start.getTime())) return ''
+
+  const startLabel = start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+  if (!endDateTime) return startLabel
+
+  const end = new Date(endDateTime)
+  if (!Number.isFinite(end.getTime())) return startLabel
+
+  const endLabel = end.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+  return `${startLabel} - ${endLabel}`
+}
+
+function getHourLabel(hour) {
+  return new Date(2000, 0, 1, hour, 0).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+}
+
 export default function LiveClassesPage() {
   const today = useMemo(() => new Date(), [])
+  const [liveClasses, setLiveClasses] = useState([])
+  const [loading, setLoading] = useState(true)
   const [monthIdx, setMonthIdx] = useState(today.getMonth())
   const [year] = useState(today.getFullYear())
   const [selectedDate, setSelectedDate] = useState(today.getDate())
   const [joined, setJoined] = useState(null)
   const [miniMonth, setMiniMonth] = useState(today.getMonth())
 
+  useEffect(() => {
+    let active = true
+
+    async function loadClasses() {
+      try {
+        const response = await fetch('/api/live-classes', {
+          credentials: 'include',
+        })
+        if (!response.ok) throw new Error('Failed to load classes')
+        const data = await response.json()
+        if (active) {
+          setLiveClasses(Array.isArray(data) ? data : [])
+        }
+      } catch (error) {
+        console.error('Error loading live classes:', error)
+        if (active) {
+          setLiveClasses([])
+        }
+      } finally {
+        if (active) {
+          setLoading(false)
+        }
+      }
+    }
+
+    loadClasses()
+
+    return () => {
+      active = false
+    }
+  }, [])
+
   const totalDays = daysInMonth(year, monthIdx)
   const stripDays = Array.from({ length: totalDays }, (_, i) => i + 1)
-  const selectedDow = new Date(year, monthIdx, selectedDate).getDay()
 
-  // Map classes onto hour slots for the selected day (cycled across data for demo)
   const dayClasses = useMemo(() => {
-    return LIVE_CLASSES.map((c, i) => ({
-      ...c,
-      hour: HOURS[(i * 2 + 2) % HOURS.length],
-    })).slice(0, 4)
-  }, [])
+    return liveClasses
+      .map((c) => {
+        const classDate = c.start_date_time ? new Date(c.start_date_time) : null
+        if (!classDate || !Number.isFinite(classDate.getTime())) return null
+
+        const sameDay = classDate.getMonth() === monthIdx && classDate.getDate() === selectedDate
+        if (!sameDay) return null
+
+        return {
+          ...c,
+          classDate,
+          hourKey: classDate.getHours(),
+          hourLabel: getHourLabel(classDate.getHours()),
+          displayTime: formatClassTime(c.start_date_time, c.end_date_time),
+        }
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.hourKey - b.hourKey || a.classDate - b.classDate)
+  }, [liveClasses, monthIdx, selectedDate])
+
+  const hourRows = useMemo(() => {
+    const rows = new Map()
+
+    dayClasses.forEach((c) => {
+      if (!rows.has(c.hourKey)) {
+        rows.set(c.hourKey, [])
+      }
+      rows.get(c.hourKey).push(c)
+    })
+
+    return Array.from(rows.entries())
+      .sort(([a], [b]) => a - b)
+      .map(([hourKey, classes]) => ({
+        hourKey,
+        hourLabel: getHourLabel(hourKey),
+        classes,
+      }))
+  }, [dayClasses])
 
   // Mini calendar grid
   const miniTotal = daysInMonth(year, miniMonth)
@@ -48,6 +130,12 @@ export default function LiveClassesPage() {
 
   function handleJoin(c) {
     if (c.status === 'scheduled') return
+
+    if (c.meet_link) {
+      window.open(c.meet_link, '_blank', 'noopener,noreferrer')
+      return
+    }
+
     setJoined(c)
   }
 
@@ -120,30 +208,36 @@ export default function LiveClassesPage() {
 
           {/* Time grid */}
           <div className="px-6 py-4">
-            {HOURS.map((h) => {
-              const slotClass = dayClasses.find((c) => c.hour === h)
-              const tone = slotClass ? TONE[slotClass.status] || TONE.scheduled : null
-              return (
-                <div key={h} className="flex items-start gap-4 py-3 border-b border-dashed border-canvas last:border-0">
-                  <div className={`w-16 shrink-0 text-center text-xs font-semibold py-2 rounded-full ${h === '12:00' ? 'bg-brand text-white' : 'bg-canvas text-ink'}`}>
-                    {h}
+            {loading ? (
+              <div className="text-sm text-muted py-4">Loading classes…</div>
+            ) : hourRows.length > 0 ? (
+              hourRows.map(({ hourKey, hourLabel, classes }) => (
+                <div key={hourKey} className="flex items-start gap-4 py-3 border-b border-dashed border-canvas last:border-0">
+                  <div className={`w-16 shrink-0 text-center text-xs font-semibold py-2 rounded-full ${hourLabel === '12:00 PM' ? 'bg-brand text-white' : 'bg-canvas text-ink'}`}>
+                    {hourLabel}
                   </div>
-                  <div className="flex-1 min-h-[2.5rem]">
-                    {slotClass && (
-                      <button
-                        onClick={() => handleJoin(slotClass)}
-                        className={`w-full text-left rounded-lg ${tone.bg} border-l-4 ${tone.bar} px-4 py-2.5 max-w-md`}
-                      >
-                        <p className={`text-sm font-semibold ${tone.text}`}>{slotClass.title}</p>
-                        <p className="text-xs text-muted flex items-center gap-1 mt-0.5">
-                          <Icon name="clock" size={12} /> {slotClass.time} · {slotClass.teacher}
-                        </p>
-                      </button>
-                    )}
+                  <div className="flex-1 min-h-[2.5rem] space-y-2">
+                    {classes.map((slotClass) => {
+                      const tone = TONE[slotClass.status] || TONE.scheduled
+                      return (
+                        <button
+                          key={slotClass.id || `${hourKey}-${slotClass.title}-${slotClass.batch}`}
+                          onClick={() => handleJoin(slotClass)}
+                          className={`w-full text-left rounded-lg ${tone.bg} border-l-4 ${tone.bar} px-4 py-2.5 max-w-md`}
+                        >
+                          <p className={`text-sm font-semibold ${tone.text}`}>{slotClass.title}</p>
+                          <p className="text-xs text-muted flex items-center gap-1 mt-0.5">
+                            <Icon name="clock" size={12} /> {slotClass.displayTime} · {slotClass.batch || 'All Batches'}
+                          </p>
+                        </button>
+                      )
+                    })}
                   </div>
                 </div>
-              )
-            })}
+              ))
+            ) : (
+              <div className="text-sm text-muted py-4">No classes for this day.</div>
+            )}
           </div>
         </div>
 
@@ -191,11 +285,11 @@ export default function LiveClassesPage() {
 
           <div className="card p-5 flex items-center justify-around text-center">
             <div>
-              <p className="text-2xl font-display font-bold text-violet">{LIVE_CLASSES.filter((c) => c.status !== 'scheduled').length.toString().padStart(2, '0')}</p>
+              <p className="text-2xl font-display font-bold text-violet">{liveClasses.filter((c) => c.status === 'live').length.toString().padStart(2, '0')}</p>
               <p className="text-xs text-muted mt-1">Course in progress</p>
             </div>
             <div>
-              <p className="text-2xl font-display font-bold text-brand">{LIVE_CLASSES.filter((c) => c.status === 'scheduled').length.toString().padStart(2, '0')}</p>
+              <p className="text-2xl font-display font-bold text-brand">{liveClasses.filter((c) => c.status === 'ended').length.toString().padStart(2, '0')}</p>
               <p className="text-xs text-muted mt-1">Course Complete</p>
             </div>
           </div>
@@ -203,14 +297,14 @@ export default function LiveClassesPage() {
           <div className="card p-5">
             <p className="font-display font-bold text-ink mb-4">Reminders</p>
             <div className="space-y-4">
-              {LIVE_CLASSES.slice(0, 2).map((c) => (
+              {liveClasses.slice(0, 2).map((c) => (
                 <div key={c.id} className="flex items-center gap-3">
                   <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${TONE[c.status]?.bg || 'bg-canvas'} ${TONE[c.status]?.text || 'text-muted'}`}>
                     <Icon name="bell" size={14} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-ink truncate">{c.title}</p>
-                    <p className="text-xs text-muted">{c.time}</p>
+                    <p className="text-xs text-muted">{formatClassTime(c.start_date_time, c.end_date_time)}</p>
                   </div>
                   <button className="text-muted px-1">
                     <Icon name="more-horizontal" size={14} />
@@ -229,7 +323,7 @@ export default function LiveClassesPage() {
               <Icon name="video" size={22} />
             </div>
             <h3 className="font-display font-bold text-ink mb-1">{joined.status === 'live' ? 'Joining class…' : 'Reminder set!'}</h3>
-            <p className="text-sm text-muted mb-5">{joined.title} with {joined.teacher} at {joined.time}.</p>
+            <p className="text-sm text-muted mb-5">{joined.title} for {joined.batch || 'all batches'} at {joined.displayTime || formatClassTime(joined.start_date_time, joined.end_date_time)}.</p>
             <button onClick={() => setJoined(null)} className="bg-brand text-white text-sm font-semibold px-6 py-2.5 rounded-xl">Got it</button>
           </div>
         </div>

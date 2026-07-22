@@ -67,7 +67,7 @@ const DEMO_SCHEDULED_CLASSES = [
 const DEMO_LIVE_LINK = { url: 'https://meet.example.com/live', label: 'Join live class', setAt: '2026-07-11T10:00:00' }
 
 const DEMO_ASSIGNED_TESTS = [
-  { id: 'test-1', title: 'Air Regulations Practice', subjectId: 'air-regulations', subjectLabel: 'Air Regulations', chapterId: 'air-reg-1', chapterLabel: 'Regulatory Basics', chapterIds: ['air-reg-1'], numQuestions: 20, durationMins: 30, instructions: 'Attempt all questions.', is_active: true },
+  { id: 'test-1', title: 'Air Regulations Practice', classId: 'a1', className: 'A1', subjectId: 'air-regulations', subjectLabel: 'Air Regulations', chapterId: 'air-reg-1', chapterLabel: 'Regulatory Basics', chapterIds: ['air-reg-1'], numQuestions: 20, durationMins: 30, instructions: 'Attempt all questions.', is_active: true },
 ]
 
 const DEMO_SUBMISSIONS = [
@@ -76,6 +76,17 @@ const DEMO_SUBMISSIONS = [
 
 async function delay(ms = 180) {
   await new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+function formatLocalDateTime(date) {
+  const pad = (value) => String(value).padStart(2, '0')
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:00`
+}
+
+function buildLocalDateTime(dateValue, timeValue) {
+  const [year, month, day] = dateValue.split('-').map(Number)
+  const [hours, minutes] = timeValue.split(':').map(Number)
+  return formatLocalDateTime(new Date(year, month - 1, day, hours, minutes, 0))
 }
 
 async function requestJson(url, options = {}, fallback) {
@@ -130,8 +141,8 @@ function StudentsTab({ students, setStudents, selectedEmail, setSelectedEmail })
         setStudents(payload.students)
         if (!selectedEmail && payload.students.length) setSelectedEmail(payload.students[0].email)
       } else {
-        setStudents(DEMO_STUDENTS)
-        if (!selectedEmail) setSelectedEmail(DEMO_STUDENTS[0].email)
+        setStudents([])
+        setSelectedEmail('')
       }
       setLoading(false)
     }
@@ -672,11 +683,17 @@ function ScheduleTab({ scheduledClasses, setScheduledClasses, liveLink, setLiveL
       return
     }
 
+    const startDateTime = buildLocalDateTime(form.date, form.time)
+    const startMinutes = Number(form.time.split(':')[0]) * 60 + Number(form.time.split(':')[1])
+    const endMinutes = startMinutes + Number(form.duration)
+    const endHours = Math.floor(endMinutes / 60)
+    const endMins = endMinutes % 60
+    const endTime = `${String(endHours).padStart(2, '0')}:${String(endMins).padStart(2, '0')}`
     const newEvent = {
       id: `class-${Date.now()}`,
       ...form,
-      startDateTime: `${form.date}T${form.time}:00`,
-      endDateTime: `${form.date}T${(Number(form.time.split(':')[0]) + Math.floor(form.duration / 60)).toString().padStart(2, '0')}:${String(Number(form.time.split(':')[1]) + (form.duration % 60)).padStart(2, '0')}:00`,
+      startDateTime,
+      endDateTime: buildLocalDateTime(form.date, endTime),
     }
 
     const payload = await requestJson('/api/teacher/schedule', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ event: newEvent }) }, { event: newEvent })
@@ -722,7 +739,7 @@ function ScheduleTab({ scheduledClasses, setScheduledClasses, liveLink, setLiveL
 
       <div className="card p-4 space-y-3">
         <h3 className="font-semibold text-ink">Scheduled classes</h3>
-        {scheduledClasses.map((event) => (
+        {scheduledClasses.length ? scheduledClasses.map((event) => (
           <div key={event.id} className="rounded-lg border border-line p-3 text-sm">
             <div className="flex items-center justify-between">
               <div>
@@ -735,7 +752,7 @@ function ScheduleTab({ scheduledClasses, setScheduledClasses, liveLink, setLiveL
               </div>
             </div>
           </div>
-        ))}
+        )) : <div className="text-sm text-muted">No classes are connected yet.</div>}
       </div>
 
       <div className="card p-4 space-y-3">
@@ -790,9 +807,10 @@ function LiveClassButton({ liveLink }) {
   )
 }
 
-function AssignTestTab({ assignedTests, setAssignedTests, submissions, setSubmissions }) {
+function AssignTestTab({ assignedTests, setAssignedTests, submissions, setSubmissions, students }) {
   const [selectedSubject, setSelectedSubject] = useState(SUBJECT_OPTIONS[0].id)
   const [selectedChapters, setSelectedChapters] = useState([])
+  const [selectedBatch, setSelectedBatch] = useState('A1')
   const [title, setTitle] = useState('')
   const [numQuestions, setNumQuestions] = useState(20)
   const [durationMins, setDurationMins] = useState(30)
@@ -804,6 +822,28 @@ function AssignTestTab({ assignedTests, setAssignedTests, submissions, setSubmis
     const autoTitle = `${SUBJECT_OPTIONS.find((subject) => subject.id === selectedSubject)?.label || ''} ${selectedChapters.map((chapter) => chapter.label).join(', ')}`.trim()
     setTitle(autoTitle)
   }, [selectedChapters, selectedSubject])
+
+  useEffect(() => {
+    let active = true
+
+    const loadAssignedTests = async () => {
+      const payload = await requestJson('/api/teacher/assigned-tests', { method: 'GET' }, null)
+      if (!active) return
+      if (payload?.tests?.length) {
+        setAssignedTests(payload.tests)
+      }
+    }
+
+    loadAssignedTests()
+    return () => {
+      active = false
+    }
+  }, [setAssignedTests])
+
+  const batchOptions = useMemo(() => {
+    const values = Array.from(new Set((students || []).map((student) => student.batch).filter(Boolean)))
+    return values.length ? values : ['A1', 'A2']
+  }, [students])
 
   const toggleChapter = (chapter) => {
     setSelectedChapters((current) => (current.some((entry) => entry.id === chapter.id) ? current.filter((entry) => entry.id !== chapter.id) : [...current, chapter]))
@@ -817,6 +857,10 @@ function AssignTestTab({ assignedTests, setAssignedTests, submissions, setSubmis
       setError('Please provide a title.')
       return
     }
+    if (!selectedChapters.length) {
+      setError('Please select at least one chapter.')
+      return
+    }
     if (numQuestions < 5 || numQuestions > 100) {
       setError('Questions should be between 5 and 100.')
       return
@@ -826,9 +870,11 @@ function AssignTestTab({ assignedTests, setAssignedTests, submissions, setSubmis
       return
     }
 
-    const newTest = {
+    const optimisticTest = {
       id: `test-${Date.now()}`,
       title,
+      classId: selectedBatch.toLowerCase(),
+      className: selectedBatch,
       subjectId: selectedSubject,
       subjectLabel: SUBJECT_OPTIONS.find((subject) => subject.id === selectedSubject)?.label || selectedSubject,
       chapterId: selectedChapters[0]?.id || '',
@@ -837,17 +883,24 @@ function AssignTestTab({ assignedTests, setAssignedTests, submissions, setSubmis
       numQuestions,
       durationMins,
       instructions,
-      is_active: true,
+      isActive: true,
     }
 
-    const payload = await requestJson('/api/teacher/assigned-tests', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ test: newTest }) }, { test: newTest })
-    setAssignedTests((current) => [payload.test || newTest, ...current])
+    const payload = await requestJson('/api/teacher/assigned-tests', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ test: optimisticTest }) }, null)
+    if (payload?.success === false) {
+      setError(payload.error || 'Unable to create the test right now.')
+      return
+    }
+
+    setAssignedTests((current) => [optimisticTest, ...current])
   }
 
   const toggleActive = async (testId) => {
-    const payload = await requestJson('/api/teacher/assigned-tests', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: testId }) }, { test: null })
-    if (payload?.test) {
-      setAssignedTests((current) => current.map((test) => (test.id === testId ? payload.test : test)))
+    const currentTest = assignedTests.find((test) => test.id === testId)
+    const nextActive = !(currentTest?.isActive ?? currentTest?.is_active ?? true)
+    const payload = await requestJson('/api/teacher/assigned-tests', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: testId, isActive: nextActive }) }, null)
+    if (payload?.success !== false) {
+      setAssignedTests((current) => current.map((test) => (test.id === testId ? { ...test, isActive: nextActive } : test)))
     }
   }
 
@@ -860,8 +913,8 @@ function AssignTestTab({ assignedTests, setAssignedTests, submissions, setSubmis
 
   const viewResults = async (testId) => {
     setViewingResultsId(testId)
-    const payload = await requestJson('/api/teacher/assigned-tests/results', { method: 'GET', headers: { 'Content-Type': 'application/json' } }, { submissions: DEMO_SUBMISSIONS.filter((submission) => submission.testId === testId) })
-    setSubmissions(payload.submissions || [])
+    const payload = await requestJson(`/api/teacher/assigned-tests/results?testId=${encodeURIComponent(testId)}`, { method: 'GET' }, null)
+    setSubmissions(payload?.submissions || payload?.results || [])
   }
 
   return (
@@ -884,6 +937,9 @@ function AssignTestTab({ assignedTests, setAssignedTests, submissions, setSubmis
           ))}
         </div>
         <form onSubmit={handleSubmit} className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+          <select value={selectedBatch} onChange={(event) => setSelectedBatch(event.target.value)} className="border border-line rounded-lg px-3 py-2">
+            {batchOptions.map((batch) => <option key={batch} value={batch}>{batch}</option>)}
+          </select>
           <input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Title" className="border border-line rounded-lg px-3 py-2" />
           <input value={numQuestions} onChange={(event) => setNumQuestions(Number(event.target.value))} type="number" placeholder="Questions" className="border border-line rounded-lg px-3 py-2" />
           <input value={durationMins} onChange={(event) => setDurationMins(Number(event.target.value))} type="number" placeholder="Duration" className="border border-line rounded-lg px-3 py-2" />
@@ -900,7 +956,7 @@ function AssignTestTab({ assignedTests, setAssignedTests, submissions, setSubmis
             <div className="flex items-center justify-between">
               <div>
                 <div className="font-semibold">{test.title}</div>
-                <div className="text-muted">{test.subjectLabel} • {test.chapterLabel}</div>
+                <div className="text-muted">{test.subjectLabel} • {test.chapterLabel} • {test.className || test.classId || 'All Classes'}</div>
               </div>
               <div className="flex gap-2">
                 <button type="button" onClick={() => toggleActive(test.id)} className="rounded-lg border border-line px-3 py-1">{test.is_active ? 'Pause' : 'Resume'}</button>
@@ -919,13 +975,13 @@ function AssignTestTab({ assignedTests, setAssignedTests, submissions, setSubmis
                     </tr>
                   </thead>
                   <tbody>
-                    {submissions.map((submission) => (
+                    {submissions.length ? submissions.map((submission) => (
                       <tr key={submission.id} className="border-t border-line">
-                        <td className="py-2">{submission.studentName}</td>
+                        <td className="py-2">{submission.studentName || submission.student_name || submission.studentEmail || submission.student_email}</td>
                         <td className="py-2">{submission.score}/{submission.total}</td>
                         <td className="py-2">{submission.accuracy}%</td>
                       </tr>
-                    ))}
+                    )) : <tr><td colSpan="3" className="py-3 text-sm text-muted">No submissions yet.</td></tr>}
                   </tbody>
                 </table>
               </div>
@@ -1044,27 +1100,43 @@ function LeaderboardTab({ students }) {
 
 export default function TeacherDashboardPage() {
   const [activeTab, setActiveTab] = useState('students')
-  const [students, setStudents] = useState(DEMO_STUDENTS)
-  const [selectedEmail, setSelectedEmail] = useState(DEMO_STUDENTS[0].email)
-  const [attendanceRecords, setAttendanceRecords] = useState(DEMO_ATTENDANCE)
-  const [scheduledClasses, setScheduledClasses] = useState(DEMO_SCHEDULED_CLASSES)
-  const [liveLink, setLiveLink] = useState(DEMO_LIVE_LINK)
-  const [assignedTests, setAssignedTests] = useState(DEMO_ASSIGNED_TESTS)
-  const [submissions, setSubmissions] = useState(DEMO_SUBMISSIONS)
+  const [students, setStudents] = useState([])
+  const [selectedEmail, setSelectedEmail] = useState('')
+  const [attendanceRecords, setAttendanceRecords] = useState([])
+  const [scheduledClasses, setScheduledClasses] = useState([])
+  const [liveLink, setLiveLink] = useState(null)
+  const [assignedTests, setAssignedTests] = useState([])
+  const [submissions, setSubmissions] = useState([])
   const [isAuthed, setIsAuthed] = useState(false)
   const [authChecked, setAuthChecked] = useState(false)
   const [password, setPassword] = useState('')
   const [authError, setAuthError] = useState('')
 
   useEffect(() => {
-    if (typeof window === 'undefined') return
-    const stored = window.localStorage.getItem('teacher_authed')
-    if (stored === '1') setIsAuthed(true)
-    setAuthChecked(true)
+    let active = true
+    const checkAuth = async () => {
+      try {
+        const payload = await requestJson('/api/teacher/login', { method: 'GET' }, { authed: false })
+        if (!active) return
+        setIsAuthed(Boolean(payload?.authed))
+      } catch {
+        setIsAuthed(false)
+      } finally {
+        if (active) setAuthChecked(true)
+      }
+    }
+
+    checkAuth()
+    return () => {
+      active = false
+    }
   }, [])
 
   useEffect(() => {
-    if (!students.length) return
+    if (!students.length) {
+      setSelectedEmail('')
+      return
+    }
     if (!students.some((student) => student.email === selectedEmail)) {
       setSelectedEmail(students[0].email)
     }
@@ -1076,24 +1148,26 @@ export default function TeacherDashboardPage() {
     return { totalStudents: students.length, totalTests, avgAccuracy }
   }, [students])
 
-  const handleLogin = (event) => {
+  const handleLogin = async (event) => {
     event.preventDefault()
-    const expectedPassword = process.env.NEXT_PUBLIC_TEACHER_PASSWORD || 'teacher123'
-    if (password === expectedPassword) {
-      if (typeof window !== 'undefined') {
-        window.localStorage.setItem('teacher_authed', '1')
-      }
+    setAuthError('')
+
+    const payload = await requestJson('/api/teacher/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password }),
+    }, null)
+
+    if (payload?.success) {
       setIsAuthed(true)
-      setAuthError('')
       return
     }
-    setAuthError('Incorrect password.')
+
+    setAuthError(payload?.error || 'Incorrect password.')
   }
 
-  const handleLogout = () => {
-    if (typeof window !== 'undefined') {
-      window.localStorage.removeItem('teacher_authed')
-    }
+  const handleLogout = async () => {
+    await requestJson('/api/teacher/login', { method: 'DELETE' }, null)
     setIsAuthed(false)
     setPassword('')
   }
@@ -1107,7 +1181,7 @@ export default function TeacherDashboardPage() {
       case 'schedule':
         return <ScheduleTab scheduledClasses={scheduledClasses} setScheduledClasses={setScheduledClasses} liveLink={liveLink} setLiveLink={setLiveLink} />
       case 'assigntest':
-        return <AssignTestTab assignedTests={assignedTests} setAssignedTests={setAssignedTests} submissions={submissions} setSubmissions={setSubmissions} />
+        return <AssignTestTab assignedTests={assignedTests} setAssignedTests={setAssignedTests} submissions={submissions} setSubmissions={setSubmissions} students={students} />
       case 'manage':
         return <ManageStudentsTab students={students} setStudents={setStudents} />
       case 'leaderboard':
@@ -1131,7 +1205,7 @@ export default function TeacherDashboardPage() {
       <AppShell>
         <div className="card p-6 max-w-md mx-auto space-y-3">
           <h1 className="text-2xl font-semibold text-ink">Teacher access</h1>
-          <p className="text-sm text-muted">This is a UI-only gate for scaffolding purposes and is not secure authentication.</p>
+          <p className="text-sm text-muted">Sign in with the teacher password configured in the environment.</p>
           <form onSubmit={handleLogin} className="space-y-3">
             <input value={password} onChange={(event) => setPassword(event.target.value)} type="password" placeholder="Teacher password" className="w-full border border-line rounded-lg px-3 py-2" />
             <button type="submit" className="w-full rounded-lg bg-brand px-3 py-2 text-white">Unlock dashboard</button>

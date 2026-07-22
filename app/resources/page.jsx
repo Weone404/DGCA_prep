@@ -4,9 +4,10 @@ import { useMemo, useState } from 'react'
 import AppShell from '@/components/AppShell'
 import Icon from '@/components/Icon'
 import { Badge } from '@/components/UI'
-import { RESOURCES, SUBJECTS } from '@/lib/data'
+import { useAppContent } from '@/lib/use-app-content'
 
 export default function ResourcesPage() {
+  const { resources: RESOURCES, subjects: SUBJECTS } = useAppContent()
   const [subject, setSubject] = useState('All')
   const [query, setQuery] = useState('')
 

@@ -4,9 +4,10 @@ import { useState } from 'react'
 import AppShell from '@/components/AppShell'
 import Icon from '@/components/Icon'
 import { Badge } from '@/components/UI'
-import { INTERVIEWS } from '@/lib/data'
+import { useAppContent } from '@/lib/use-app-content'
 
 export default function InterviewPage() {
+  const { interviews: INTERVIEWS } = useAppContent()
   const [session, setSession] = useState(null)
   const [recording, setRecording] = useState(false)
 

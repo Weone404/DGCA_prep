@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import AppShell from '@/components/AppShell'
 import Icon from '@/components/Icon'
-import { MOCK_TESTS } from '@/lib/data'
+import { useAppContent } from '@/lib/use-app-content'
 
 const SUBJECTS = [
   'Air Regulations',
@@ -14,6 +14,7 @@ const SUBJECTS = [
 ]
 
 export default function MockTestsPage() {
+  const { mockTests: MOCK_TESTS } = useAppContent()
   const [active, setActive] = useState(null)
   const [selectedSubject, setSelectedSubject] = useState('All')
 

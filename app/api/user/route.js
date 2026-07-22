@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
-import pool from '@/lib/db'
-import { createUser, findUserByEmail, findUserByPhone } from '@/lib/queries'
+import pool from '../../../lib/db'
+import { createUser, findUserByEmail, findUserByPhone } from '../../../lib/queries'
 
 export const dynamic = 'force-dynamic'
 

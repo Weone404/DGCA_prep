@@ -1,4 +1,4 @@
-import { jsonResponse, normalizeScheduledClass, supabaseRequest } from '@/lib/supabase'
+import { jsonResponse, normalizeScheduledClass, supabaseRequest } from '../../../../lib/supabase'
 
 const fallbackClasses = [
   { id: 'class-1', title: 'Live Algebra Drill', description: 'Revision class', date: '2026-07-12', time: '18:00', duration: 60, meetLink: 'https://meet.example.com/teacher', batch: 'A1', startDateTime: '2026-07-12T18:00:00', endDateTime: '2026-07-12T19:00:00' },

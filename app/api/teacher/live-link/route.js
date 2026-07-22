@@ -1,4 +1,4 @@
-import { jsonResponse, normalizeLiveLink, supabaseRequest } from '@/lib/supabase'
+import { jsonResponse, normalizeLiveLink, supabaseRequest } from '../../../../lib/supabase'
 
 const fallbackLink = { url: 'https://meet.example.com/live', label: 'Join live class', setAt: new Date().toISOString() }
 

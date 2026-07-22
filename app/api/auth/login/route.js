@@ -1,15 +1,10 @@
 import { NextResponse } from 'next/server'
 import crypto from 'crypto'
-import pool from '@/lib/db'
-import { ensureUsersTable } from '@/lib/queries'
+import pool from '../../../../lib/db'
+import { ensureAuthSchema } from '../../../../lib/queries'
 
 function hashPassword(password) {
   return crypto.createHash('sha256').update(password).digest('hex')
-}
-
-async function ensureAuthColumns() {
-  await ensureUsersTable()
-  await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT`)
 }
 
 export async function POST(request) {
@@ -20,10 +15,10 @@ export async function POST(request) {
       return NextResponse.json({ error: 'email and password are required.' }, { status: 400 })
     }
 
-    await ensureAuthColumns()
+    await ensureAuthSchema()
 
     const result = await pool.query(
-      `SELECT id, name, email, phone, password_hash
+      `SELECT id, name, email, phone, password_hash, role
        FROM users
        WHERE LOWER(email) = LOWER($1)
        LIMIT 1`,
@@ -41,18 +36,34 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Invalid email or password.' }, { status: 401 })
     }
 
-    return NextResponse.json({
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        mobile: user.phone,
-        role: 'Student',
-        coursesInProgress: 0,
-        coursesComplete: 0,
-        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(user.name)}`,
-      },
+    const sessionUser = {
+      id: user.id,
+      email: user.email,
+      role: String(user.role || 'student').toLowerCase(),
+    }
+
+    const responseUser = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      role: String(user.role || 'student').toLowerCase(),
+      coursesInProgress: 0,
+      coursesComplete: 0,
+      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(user.name)}`,
+    }
+
+    const response = NextResponse.json({ user: responseUser })
+    response.cookies.set({
+      name: 'estudy_session',
+      value: JSON.stringify(sessionUser),
+      httpOnly: false,
+      path: '/',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7,
     })
+
+    return response
   } catch (error) {
     console.error('POST /api/auth/login error:', error)
     return NextResponse.json({ error: 'Server error during login.' }, { status: 500 })

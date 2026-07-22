@@ -1,4 +1,4 @@
-import { jsonResponse, normalizeStudent, supabaseRequest } from '@/lib/supabase'
+import { jsonResponse, normalizeStudent, supabaseRequest } from '../../../../lib/supabase'
 
 const fallbackStudents = [
   {

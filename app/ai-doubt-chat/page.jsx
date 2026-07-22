@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import AppShell from '@/components/AppShell'
 import Icon from '@/components/Icon'
-import { CHAT_SUGGESTIONS } from '@/lib/data'
+import { useAppContent } from '@/lib/use-app-content'
 
 const REPLIES = [
   "Great question! Let's break it down step by step so it's easy to remember.",
@@ -13,6 +13,7 @@ const REPLIES = [
 ]
 
 export default function AIDoubtChatPage() {
+  const { chatSuggestions: CHAT_SUGGESTIONS } = useAppContent()
   const [messages, setMessages] = useState([
     { id: 1, role: 'bot', text: "Hi Martin! I'm your AI study buddy. Ask me anything about Physics, Chemistry, Math, Biology or English." },
   ])

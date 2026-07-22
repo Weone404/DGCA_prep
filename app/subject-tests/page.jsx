@@ -1,19 +1,23 @@
 'use client'
 
-import { useMemo, useState, useEffect } from 'react'
+import { useMemo, useState, useEffect, useTransition } from 'react'
 import AppShell from '@/components/AppShell'
 import Icon from '@/components/Icon'
 import { Badge } from '@/components/UI'
-import { SUBJECTS, SUBJECT_TESTS } from '@/lib/data'
+import { useAppContent } from '@/lib/use-app-content'
 import { useRouter } from 'next/navigation'
+import RouteLoadingOverlay from '@/components/RouteLoadingOverlay'
 
 const DIFF_TONE = { Easy: 'brand', Medium: 'violet', Hard: 'coral' }
 
 export default function SubjectTestsPage() {
-  const [activeSubject, setActiveSubject] = useState('')
+  const { subjects: SUBJECTS, subjectTests: SUBJECT_TESTS } = useAppContent()
+  const [activeSubject, setActiveSubject] = useState('Air Regulations')
   const [filter, setFilter] = useState('all')
   const [selected, setSelected] = useState(null)
   const [studentData, setStudentData] = useState(null)
+  const [pendingRoute, setPendingRoute] = useState('')
+  const [isPending, startTransition] = useTransition()
   const router = useRouter()
 
   const filtered = useMemo(() => {
@@ -25,10 +29,22 @@ export default function SubjectTestsPage() {
   }, [activeSubject, filter])
 
   useEffect(() => {
+    if (SUBJECTS.length) {
+      const preferredSubject = SUBJECTS.find((subject) => subject.name === 'Air Regulations')?.name || SUBJECTS[0]?.name || ''
+      setActiveSubject((current) => {
+        if (current && SUBJECTS.some((subject) => subject.name === current)) return current
+        return preferredSubject
+      })
+    }
+  }, [SUBJECTS])
+
+  useEffect(() => {
     let mounted = true
     ;(async () => {
       try {
-        const res = await fetch('/api/students')
+        const res = await fetch('/api/students', {
+          credentials: 'include',
+        })
         if (!mounted) return
         const data = await res.json()
         // expect array
@@ -41,6 +57,19 @@ export default function SubjectTestsPage() {
     return () => (mounted = false)
   }, [])
 
+  useEffect(() => {
+    SUBJECT_TESTS.slice(0, 20).forEach((test) => {
+      router.prefetch(`/subject-tests/${test.id}`)
+    })
+  }, [SUBJECT_TESTS, router])
+
+  function navigateWithLoader(href) {
+    setPendingRoute(href)
+    startTransition(() => {
+      router.push(href)
+    })
+  }
+
   return (
     <AppShell>
       <div className="w-full mb-6">
@@ -51,7 +80,7 @@ export default function SubjectTestsPage() {
             } lessons in the last day.`}</p>
             <p className="text-sm text-white/80">Start your learning today.</p>
           </div>
-          <button onClick={() => window.location.href = '/live-classes'} className="bg-white text-black px-4 py-2 rounded-md font-semibold">Start Learning</button>
+          <button onClick={() => navigateWithLoader('/live-classes')} className="bg-white text-black px-4 py-2 rounded-md font-semibold">Start Learning</button>
         </div>
       </div>
       <div className="flex flex-wrap gap-2 mb-6">
@@ -101,7 +130,7 @@ export default function SubjectTestsPage() {
                 <button onClick={() => setSelected(t)} className="text-xs font-semibold text-ink underline">Review</button>
               </div>
             ) : (
-              <button onClick={() => router.push(`/subject-tests/${t.id}`)} className="mt-auto bg-brand hover:bg-brand-dark transition-colors text-white text-sm font-semibold py-2.5 rounded-xl">
+              <button onClick={() => navigateWithLoader(`/subject-tests/${t.id}`)} className="mt-auto bg-brand hover:bg-brand-dark transition-colors text-white text-sm font-semibold py-2.5 rounded-xl">
                 Start Test
               </button>
             )}
@@ -130,6 +159,13 @@ export default function SubjectTestsPage() {
           </div>
         </div>
       )}
+
+      {isPending ? (
+        <RouteLoadingOverlay
+          title="Preparing your test"
+          subtitle={pendingRoute.includes('/subject-tests/') ? 'Loading questions and test instructions...' : 'Loading the next page...'}
+        />
+      ) : null}
     </AppShell>
   )
 }

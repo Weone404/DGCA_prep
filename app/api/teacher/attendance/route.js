@@ -1,4 +1,4 @@
-import { jsonResponse, normalizeAttendanceRecord, supabaseRequest } from '@/lib/supabase'
+import { jsonResponse, normalizeAttendanceRecord, supabaseRequest } from '../../../../lib/supabase'
 
 const fallbackAttendance = [
   { date: '2026-07-10', batch: 'A1', email: 'kotwaljaydeep369@gmail.com', name: 'Jaydeep Singh', status: 'present', note: 'On time' },

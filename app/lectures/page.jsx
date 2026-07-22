@@ -222,7 +222,7 @@ function LiveClassesSection() {
 
   const fetchClasses = useCallback(() => {
     setError('')
-    fetch('/api/classes')
+    fetch('/api/classes', { credentials: 'include' })
       .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() })
       .then((d) => {
         if (d.success) setClasses(d.events || [])
@@ -784,7 +784,7 @@ export default function LecturesPage() {
         )}
       </div>
 
-      <div className="grid lg:grid-cols-[1fr_360px] gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6">
         {/* Player / grid */}
         <div className="space-y-5">
           {/* Shared player card — renders for ALL tabs now (lectures, shorts,
