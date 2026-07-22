@@ -95,9 +95,7 @@ export default function LoginPage() {
             Don't have an account? <Link href="/register" className="text-brand font-semibold">Create account</Link>
           </p>
 
-          <p className="text-center text-xs text-muted mt-6">
-            Login is connected to PostgreSQL via DATABASE_URL
-          </p>
+          
         </div>
       </div>
     </div>
