@@ -38,13 +38,21 @@ function normalizeLiveClass(record) {
 
 export async function GET() {
   try {
-    const { rows } = await pool.query(`
-      SELECT id, title, description, start_date_time, end_date_time, meet_link, batch
+    const { rows: liveRows } = await pool.query(`
+      SELECT id, title, description, start_date_time, end_date_time, meet_link, batch, created_at
       FROM live_classes
-      ORDER BY start_date_time ASC
     `)
 
-    return NextResponse.json(rows.map(normalizeLiveClass))
+    const { rows: scheduledRows } = await pool.query(`
+      SELECT id, title, description, start_date_time, end_date_time, meet_link, batch, created_at
+      FROM scheduled_classes
+    `)
+
+    const classes = [...liveRows, ...scheduledRows]
+      .map(normalizeLiveClass)
+      .sort((a, b) => new Date(a.start_date_time).getTime() - new Date(b.start_date_time).getTime())
+
+    return NextResponse.json(classes)
   } catch (err) {
     console.error('GET /api/live-classes error:', err)
     return NextResponse.json({ error: 'Server error.' }, { status: 500 })
