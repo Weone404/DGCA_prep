@@ -5,11 +5,21 @@
 
 * { box-sizing: border-box; }
 
+html {
+  min-height: 100%;
+}
+
 body {
+  min-height: 100vh;
   background: #F6F8FB;
   color: #1B2430;
   font-family: 'Inter', sans-serif;
   overflow-x: hidden;
+}
+
+html.dark body {
+  background: #020617;
+  color: #f8fafc;
 }
 
 h1, h2, h3, h4, .font-display {
@@ -26,8 +36,17 @@ h1, h2, h3, h4, .font-display {
   box-shadow: 0 6px 24px rgba(27, 36, 48, 0.06);
 }
 
+html.dark .card {
+  background: #0f172a;
+  box-shadow: 0 10px 30px rgba(2, 6, 23, 0.45);
+}
+
 .bg-gradient-page {
   background: linear-gradient(120deg, #EAFBF3 0%, #F3F1FC 45%, #FDF1F6 100%);
+}
+
+html.dark .bg-gradient-page {
+  background: linear-gradient(120deg, #0f172a 0%, #111827 45%, #1e293b 100%);
 }
 
 /* Responsive container utility used across pages */
@@ -50,5 +69,144 @@ h1 { font-size: 1.5rem; }
 @media (min-width: 768px) { h1 { font-size: 2rem; } }
 @media (min-width: 1024px) { h1 { font-size: 2.25rem; } }
 
-/* Ensure images and iframes are fluid */
-img, iframe, video { max-width: 100%; height: auto; }
+/* Ensure images and embedded content are fluid */
+img, iframe, video, svg, canvas { max-width: 100%; height: auto; }
+
+html.dark .border-line {
+  border-color: #334155;
+}
+
+html.dark .text-muted {
+  color: #94a3b8;
+}
+
+html.dark .text-ink {
+  color: #f8fafc;
+}
+
+html.dark .bg-canvas {
+  background-color: #020617;
+}
+
+html.dark .bg-white {
+  background-color: #0f172a;
+}
+
+html.dark .bg-white\/90,
+html.dark .bg-white\/80,
+html.dark .bg-white\/70,
+html.dark .bg-white\/60 {
+  background-color: rgba(15, 23, 42, 0.95);
+}
+
+html.dark .border-slate-100,
+html.dark .border-slate-200,
+html.dark .border-slate-300 {
+  border-color: #334155;
+}
+
+html.dark .bg-gray-50,
+html.dark .bg-gray-100,
+html.dark .bg-gray-200,
+html.dark .bg-slate-50,
+html.dark .bg-slate-100,
+html.dark .bg-slate-200 {
+  background-color: #1e293b;
+}
+
+html.dark .text-slate-900,
+html.dark .text-slate-800,
+html.dark .text-slate-700,
+html.dark .text-slate-600,
+html.dark .text-slate-500,
+html.dark .text-slate-400,
+html.dark .text-zinc-900,
+html.dark .text-zinc-800,
+html.dark .text-zinc-700,
+html.dark .text-zinc-600,
+html.dark .text-zinc-500,
+html.dark .text-zinc-400,
+html.dark .text-gray-900,
+html.dark .text-gray-800,
+html.dark .text-gray-700,
+html.dark .text-gray-600,
+html.dark .text-gray-500,
+html.dark .text-gray-400 {
+  color: #f8fafc;
+}
+
+html.dark .text-white {
+  color: #f8fafc;
+}
+
+html.dark input,
+html.dark textarea,
+html.dark select,
+html.dark button {
+  background-color: #0f172a;
+  color: #f8fafc;
+  border-color: #334155;
+}
+
+input,
+textarea,
+select,
+button {
+  color: #1B2430;
+}
+
+input::placeholder,
+textarea::placeholder,
+select::placeholder {
+  color: #94a3b8;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder,
+html.dark select::placeholder {
+  color: #cbd5e1;
+}
+
+html.dark .shadow-sm {
+  box-shadow: 0 10px 30px rgba(2, 6, 23, 0.45);
+}
+
+html.dark button.bg-brand,
+html.dark button.text-white {
+  color: #ffffff;
+}
+
+/* Ensure light pastel utility backgrounds used for badges/chips are darkened in dark mode */
+html.dark .bg-rose-50,
+html.dark .bg-pink-50,
+html.dark .bg-red-50,
+html.dark .bg-green-50,
+html.dark .bg-yellow-50,
+html.dark .bg-amber-50,
+html.dark .bg-blue-50,
+html.dark .bg-emerald-50,
+html.dark .bg-rose-100,
+html.dark .bg-pink-100,
+html.dark .bg-red-100,
+html.dark .bg-green-100,
+html.dark .bg-yellow-100,
+html.dark .bg-amber-100,
+html.dark .bg-blue-100,
+html.dark .bg-emerald-100,
+html.dark .bg-white\/20,
+html.dark .bg-white\/15,
+html.dark .bg-white\/10 {
+  background-color: rgba(255,255,255,0.02);
+  color: #e6eef8;
+}
+
+/* Make sure text that used pastel-dark variants remains readable */
+html.dark .text-rose-700,
+html.dark .text-red-600,
+html.dark .text-pink-600,
+html.dark .text-green-700,
+html.dark .text-yellow-700,
+html.dark .text-amber-700,
+html.dark .text-blue-700 {
+  color: #f8fafc;
+}

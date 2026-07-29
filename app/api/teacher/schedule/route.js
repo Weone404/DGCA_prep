@@ -1,34 +1,106 @@
-import { jsonResponse, normalizeScheduledClass, supabaseRequest } from '../../../../lib/supabase'
+import { NextResponse } from 'next/server'
+import pool from '../../../../lib/db'
 
-const fallbackClasses = [
-  { id: 'class-1', title: 'Live Algebra Drill', description: 'Revision class', date: '2026-07-12', time: '18:00', duration: 60, meetLink: 'https://meet.example.com/teacher', batch: 'A1', startDateTime: '2026-07-12T18:00:00', endDateTime: '2026-07-12T19:00:00' },
-]
+function normalizeScheduledClass(record) {
+  return {
+    id: record.id,
+    title: record.title || 'Scheduled Class',
+    description: record.description || '',
+    date: record.date || '',
+    time: record.time || '',
+    duration: Number(record.duration || 60),
+    meetLink: record.meet_link || record.meetLink || '',
+    batch: record.batch || 'A1',
+    startDateTime: record.start_date_time || record.startDateTime || '',
+    endDateTime: record.end_date_time || record.endDateTime || '',
+    createdAt: record.created_at || record.createdAt || '',
+  }
+}
+
+async function ensureScheduledClassesTable() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS scheduled_classes (
+      id TEXT PRIMARY KEY,
+      title TEXT,
+      description TEXT,
+      date TEXT,
+      time TEXT,
+      duration INTEGER DEFAULT 60,
+      meet_link TEXT,
+      batch TEXT,
+      start_date_time TEXT,
+      end_date_time TEXT,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    );
+  `)
+}
 
 export async function GET() {
-  const { data, error } = await supabaseRequest('scheduled_classes', { query: '*' })
-  if (error) return jsonResponse({ classes: fallbackClasses })
-  const classes = Array.isArray(data) ? data.map(normalizeScheduledClass) : fallbackClasses
-  return jsonResponse({ classes })
+  try {
+    await ensureScheduledClassesTable()
+    const { rows } = await pool.query('SELECT * FROM scheduled_classes ORDER BY created_at DESC, date DESC')
+    return NextResponse.json({ classes: rows.map(normalizeScheduledClass) })
+  } catch (error) {
+    console.error('GET /api/teacher/schedule error:', error)
+    return NextResponse.json({ error: 'Unable to load scheduled classes' }, { status: 500 })
+  }
 }
 
 export async function POST(req) {
-  const body = await req.json()
-  const event = body?.event || body
-  const { error } = await supabaseRequest('scheduled_classes', { method: 'POST', body: event })
-  if (error) return jsonResponse({ error }, 500)
+  try {
+    const body = await req.json()
+    const event = body?.event || body
+    const id = event.id || `class-${Date.now()}`
+    const startDateTime = event.startDateTime || event.start_date_time || ''
+    const endDateTime = event.endDateTime || event.end_date_time || ''
 
-  const refreshed = await supabaseRequest('scheduled_classes', { query: '*' })
-  const classes = Array.isArray(refreshed.data) ? refreshed.data.map(normalizeScheduledClass) : [event]
-  return jsonResponse({ classes, event })
+    await ensureScheduledClassesTable()
+    await pool.query(
+      `INSERT INTO scheduled_classes (id, title, description, date, time, duration, meet_link, batch, start_date_time, end_date_time, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW())
+       ON CONFLICT (id) DO UPDATE SET
+         title = EXCLUDED.title,
+         description = EXCLUDED.description,
+         date = EXCLUDED.date,
+         time = EXCLUDED.time,
+         duration = EXCLUDED.duration,
+         meet_link = EXCLUDED.meet_link,
+         batch = EXCLUDED.batch,
+         start_date_time = EXCLUDED.start_date_time,
+         end_date_time = EXCLUDED.end_date_time,
+         created_at = NOW()`,
+      [
+        id,
+        event.title || '',
+        event.description || '',
+        event.date || '',
+        event.time || '',
+        Number(event.duration || 60),
+        event.meetLink || event.meet_link || '',
+        event.batch || 'A1',
+        startDateTime,
+        endDateTime,
+      ]
+    )
+
+    const { rows } = await pool.query('SELECT * FROM scheduled_classes ORDER BY created_at DESC, date DESC')
+    return NextResponse.json({ classes: rows.map(normalizeScheduledClass), event: { ...event, id, startDateTime, endDateTime } })
+  } catch (error) {
+    console.error('POST /api/teacher/schedule error:', error)
+    return NextResponse.json({ error: 'Unable to save scheduled class' }, { status: 500 })
+  }
 }
 
 export async function DELETE(req) {
-  const body = await req.json()
-  const id = body?.id
-  if (!id) return jsonResponse({ error: 'ID required' }, 400)
+  try {
+    const body = await req.json()
+    const id = body?.id
+    if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 })
 
-  const { error } = await supabaseRequest('scheduled_classes', { method: 'DELETE', searchParams: { id: `eq.${encodeURIComponent(id)}` } })
-  if (error) return jsonResponse({ error }, 500)
-
-  return jsonResponse({ id })
+    await pool.query('DELETE FROM scheduled_classes WHERE id = $1', [id])
+    return NextResponse.json({ id })
+  } catch (error) {
+    console.error('DELETE /api/teacher/schedule error:', error)
+    return NextResponse.json({ error: 'Unable to delete scheduled class' }, { status: 500 })
+  }
 }

@@ -306,7 +306,7 @@ export default function ClassTestPage({ params }) {
               </p>
             ) : null}
 
-            <div className="flex gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row">
               <button onClick={() => router.push('/class-test')} className="flex-1 border rounded-lg py-2">Cancel</button>
               <button onClick={startTest} disabled={questions.length === 0} style={{ background: questions.length === 0 ? '#94a3b8' : themeColor }} className="flex-1 text-white rounded-lg py-2">{questions.length === 0 ? 'Unavailable' : 'Start Test'}</button>
             </div>
@@ -323,7 +323,7 @@ export default function ClassTestPage({ params }) {
 
         {screen === 'test' && currentQuestion && classTest && (
           <div className="max-w-3xl w-full">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
               <button onClick={() => setScreen('finish')} className="border rounded-lg px-3 py-1">Finish</button>
               <div className="font-semibold truncate px-3">{classTest.title}</div>
               <div className="font-mono">{String(mins).padStart(2, '0')}:{String(secs).padStart(2, '0')}</div>
@@ -376,7 +376,7 @@ export default function ClassTestPage({ params }) {
                 })}
               </div>
 
-              <div className="flex items-center justify-between mt-4">
+              <div className="flex flex-col gap-3 mt-4 sm:flex-row sm:items-center sm:justify-between">
                 <button
                   onClick={() => setCurrentQ((index) => Math.max(0, index - 1))}
                   disabled={currentQ === 0}
@@ -388,7 +388,7 @@ export default function ClassTestPage({ params }) {
                 {currentQ === total - 1 ? (
                   <button
                     onClick={() => setScreen('finish')}
-                    className="px-4 py-2 rounded text-white"
+                    className="px-4 py-2 rounded text-white w-full sm:w-auto"
                     style={{ background: themeColor }}
                   >
                     Submit
@@ -396,7 +396,7 @@ export default function ClassTestPage({ params }) {
                 ) : (
                   <button
                     onClick={() => setCurrentQ((index) => Math.min(total - 1, index + 1))}
-                    className="px-4 py-2 border rounded"
+                    className="px-4 py-2 border rounded w-full sm:w-auto"
                   >
                     Next
                   </button>
@@ -412,7 +412,7 @@ export default function ClassTestPage({ params }) {
             <div className="text-4xl font-extrabold mb-2" style={{ color: themeColor }}>{score} / {total}</div>
             <p className="text-sm text-muted mb-4">{Math.round((score / Math.max(1, total)) * 100)}%</p>
 
-            <div className="grid grid-cols-3 gap-2 text-xs mb-4">
+            <div className="grid grid-cols-1 gap-2 text-xs mb-4 sm:grid-cols-3">
               <div className="rounded-lg bg-green-50 border border-green-200 p-2">
                 <div className="font-semibold">Correct</div>
                 <div>{score}</div>
@@ -429,7 +429,7 @@ export default function ClassTestPage({ params }) {
 
             {submitting ? <p className="text-xs text-muted mb-3">Saving result...</p> : null}
 
-            <div className="flex gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row">
               <button onClick={() => router.push('/class-test')} className="flex-1 border rounded-lg py-2">Back</button>
               <button
                 onClick={retryTest}

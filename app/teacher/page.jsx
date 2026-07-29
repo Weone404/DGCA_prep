@@ -108,6 +108,30 @@ function isValidUrl(value) {
   }
 }
 
+function formatDisplayDate(value) {
+  if (!value) return '—'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+}
+
+function getStatusTone(status) {
+  switch (status) {
+    case 'present':
+      return 'bg-emerald-50 text-emerald-700'
+    case 'late':
+      return 'bg-amber-50 text-amber-700'
+    default:
+      return 'bg-rose-50 text-rose-700'
+  }
+}
+
+function getScoreTone(score) {
+  if (score >= 80) return 'text-emerald-700'
+  if (score >= 60) return 'text-amber-700'
+  return 'text-rose-700'
+}
+
 function getCountdown(startDateTime) {
   const now = Date.now()
   const start = new Date(startDateTime).getTime()
@@ -151,7 +175,7 @@ function StudentsTab({ students, setStudents, selectedEmail, setSelectedEmail })
     return () => {
       active = false
     }
-  }, [selectedEmail, setSelectedEmail, setStudents])
+  }, [setSelectedEmail, setStudents])
 
   const selectedStudent = students.find((student) => student.email === selectedEmail) || null
 
@@ -181,70 +205,84 @@ function StudentsTab({ students, setStudents, selectedEmail, setSelectedEmail })
 
   return (
     <div className="space-y-4">
-      {loading ? <div>Loading students…</div> : null}
-      {error ? <div className="text-red-600">{error}</div> : null}
+      {loading ? <div className="rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-500">Loading students…</div> : null}
+      {error ? <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">{error}</div> : null}
 
       <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-4">
-        <div className="card p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-ink">Students overview</h3>
-            <div className="text-sm text-muted">{students.length} students</div>
+        <div className="card p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold text-slate-900">Student progress</h3>
+              <p className="text-sm text-slate-500">Track class performance and highlight who needs attention.</p>
+            </div>
+            <div className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-600">{students.length} students</div>
           </div>
-          <table className="min-w-full text-sm">
-            <thead>
-              <tr className="text-left text-muted">
-                <th className="pb-2">Name</th>
-                <th className="pb-2">Batch</th>
-                <th className="pb-2">Tests</th>
-                <th className="pb-2">Avg</th>
-              </tr>
-            </thead>
-            <tbody>
-              {students.map((student) => (
-                <tr key={student.email} className={`border-t border-line ${selectedEmail === student.email ? 'bg-brand/5' : ''}`} onClick={() => setSelectedEmail(student.email)}>
-                  <td className="py-2">{student.name}</td>
-                  <td className="py-2">{student.batch}</td>
-                  <td className="py-2">{student.testsAttempted}</td>
-                  <td className="py-2">{student.avgScore}%</td>
+          <div className="overflow-hidden rounded-2xl border border-slate-200">
+            <table className="min-w-full text-sm">
+              <thead className="bg-slate-50">
+                <tr className="text-left text-slate-500">
+                  <th className="px-3 py-3">Name</th>
+                  <th className="px-3 py-3">Batch</th>
+                  <th className="px-3 py-3">Tests</th>
+                  <th className="px-3 py-3">Avg</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {students.map((student) => (
+                  <tr key={student.email} className={`cursor-pointer border-t border-slate-200 transition ${selectedEmail === student.email ? 'bg-brand/5' : 'hover:bg-slate-50'}`} onClick={() => setSelectedEmail(student.email)}>
+                    <td className="px-3 py-3 font-medium text-slate-800">{student.name}</td>
+                    <td className="px-3 py-3 text-slate-600">{student.batch}</td>
+                    <td className="px-3 py-3 text-slate-600">{student.testsAttempted}</td>
+                    <td className={`px-3 py-3 font-semibold ${getScoreTone(student.avgScore)}`}>{student.avgScore}%</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
-        <div className="card p-4 space-y-3">
-          <h3 className="font-semibold text-ink">Student details</h3>
+        <div className="card p-5 space-y-4">
+          <div>
+            <h3 className="font-semibold text-slate-900">Student snapshot</h3>
+            <p className="text-sm text-slate-500">The latest signal for the selected learner.</p>
+          </div>
           {selectedStudent ? (
             <div className="space-y-3 text-sm">
-              <div>
-                <div className="text-muted">{selectedStudent.name}</div>
-                <div>{selectedStudent.email}</div>
+              <div className="rounded-2xl bg-slate-50 p-3">
+                <div className="font-semibold text-slate-900">{selectedStudent.name}</div>
+                <div className="text-slate-600">{selectedStudent.email}</div>
               </div>
               <div className="grid grid-cols-2 gap-2">
-                <div className="bg-canvas p-2 rounded">Joined {new Date(selectedStudent.joinedAt).toLocaleDateString()}</div>
-                <div className="bg-canvas p-2 rounded">Best {selectedStudent.bestScore}%</div>
+                <div className="rounded-2xl border border-slate-200 bg-white p-3">
+                  <div className="text-xs uppercase tracking-wide text-slate-400">Joined</div>
+                  <div className="mt-1 font-semibold text-slate-700">{formatDisplayDate(selectedStudent.joinedAt)}</div>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-white p-3">
+                  <div className="text-xs uppercase tracking-wide text-slate-400">Best score</div>
+                  <div className="mt-1 font-semibold text-slate-700">{selectedStudent.bestScore}%</div>
+                </div>
               </div>
               <div>
-                <div className="font-semibold">Clear topics</div>
-                <ul className="list-disc ml-4 text-muted">
-                  {topicStats.clear.length ? topicStats.clear.map((entry) => <li key={entry.chapterId}>{entry.title} • {entry.avgPct}%</li>) : <li>No strong topics yet.</li>}
+                <div className="mb-2 font-semibold text-slate-900">Strong topics</div>
+                <ul className="space-y-1 text-slate-600">
+                  {topicStats.clear.length ? topicStats.clear.map((entry) => <li key={entry.chapterId} className="rounded-xl bg-emerald-50 px-2 py-1">{entry.title} • {entry.avgPct}%</li>) : <li className="text-slate-500">No strong topics yet.</li>}
                 </ul>
               </div>
               <div>
-                <div className="font-semibold">Weak topics</div>
-                <ul className="list-disc ml-4 text-muted">
-                  {topicStats.weak.length ? topicStats.weak.map((entry) => <li key={entry.chapterId}>{entry.title} • {entry.avgPct}%</li>) : <li>No weak topics detected.</li>}
+                <div className="mb-2 font-semibold text-slate-900">Needs attention</div>
+                <ul className="space-y-1 text-slate-600">
+                  {topicStats.weak.length ? topicStats.weak.map((entry) => <li key={entry.chapterId} className="rounded-xl bg-amber-50 px-2 py-1">{entry.title} • {entry.avgPct}%</li>) : <li className="text-slate-500">No weak topics detected.</li>}
                 </ul>
               </div>
               <div>
-                <div className="font-semibold">Wrong answers for review</div>
-                <ul className="list-disc ml-4 text-muted">
-                  {wrongAnswers.length ? wrongAnswers.map((answer, index) => <li key={`${answer.resultTitle}-${index}`}>{answer.resultTitle} • {answer.selected} vs {answer.correct}</li>) : <li>No incorrect answers to review.</li>}
+                <div className="mb-2 font-semibold text-slate-900">Review list</div>
+                <ul className="space-y-1 text-slate-600">
+                  {wrongAnswers.length ? wrongAnswers.map((answer, index) => <li key={`${answer.resultTitle}-${index}`} className="rounded-xl bg-rose-50 px-2 py-1">{answer.resultTitle} • {answer.selected} vs {answer.correct}</li>) : <li className="text-slate-500">No incorrect answers to review.</li>}
                 </ul>
               </div>
             </div>
           ) : (
-            <div className="text-muted">Select a student.</div>
+            <div className="rounded-2xl border border-dashed border-slate-200 p-4 text-sm text-slate-500">Select a student to inspect their performance.</div>
           )}
         </div>
       </div>
@@ -291,48 +329,55 @@ function AllResultsTab({ students }) {
 
   return (
     <div className="space-y-4">
-      <div className="card p-4 space-y-3">
+      <div className="card p-5 space-y-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <h3 className="font-semibold text-slate-900">Assessment history</h3>
+            <p className="text-sm text-slate-500">A readable view of every completed result, sorted by performance.</p>
+          </div>
+          <div className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-600">{totals.totalResults} results</div>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search student" className="border border-line rounded-lg px-3 py-2" />
-          <select value={chapterFilter} onChange={(event) => setChapterFilter(event.target.value)} className="border border-line rounded-lg px-3 py-2">
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search student" className="border border-slate-200 rounded-xl px-3 py-2 text-sm" />
+          <select value={chapterFilter} onChange={(event) => setChapterFilter(event.target.value)} className="border border-slate-200 rounded-xl px-3 py-2 text-sm">
             <option value="all">All chapters</option>
             {chapters.map((chapter) => <option key={chapter} value={chapter}>{chapter}</option>)}
           </select>
-          <select value={sortOrder} onChange={(event) => setSortOrder(event.target.value)} className="border border-line rounded-lg px-3 py-2">
+          <select value={sortOrder} onChange={(event) => setSortOrder(event.target.value)} className="border border-slate-200 rounded-xl px-3 py-2 text-sm">
             <option value="score-desc">Score desc</option>
             <option value="score-asc">Score asc</option>
             <option value="date-desc">Date desc</option>
             <option value="date-asc">Date asc</option>
           </select>
-          <div className="bg-canvas rounded-lg px-3 py-2 text-sm text-muted">Stats: {totals.totalResults} results</div>
+          <div className="rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-600">Visible rows: {filteredResults.length}</div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-2 text-sm">
-          <div className="bg-canvas p-2 rounded">Students: {totals.totalStudents}</div>
-          <div className="bg-canvas p-2 rounded">Avg accuracy: {totals.avgAccuracy}%</div>
-          <div className="bg-canvas p-2 rounded">Best score: {totals.bestScore}%</div>
-          <div className="bg-canvas p-2 rounded">Visible rows: {filteredResults.length}</div>
+          <div className="rounded-2xl border border-slate-200 bg-white p-3">Students: {totals.totalStudents}</div>
+          <div className="rounded-2xl border border-slate-200 bg-white p-3">Avg accuracy: {totals.avgAccuracy}%</div>
+          <div className="rounded-2xl border border-slate-200 bg-white p-3">Best score: {totals.bestScore}%</div>
+          <div className="rounded-2xl border border-slate-200 bg-white p-3">Seen in list: {filteredResults.length}</div>
         </div>
       </div>
 
-      <div className="card p-4 overflow-x-auto">
+      <div className="card p-5 overflow-x-auto">
         <table className="min-w-full text-sm">
-          <thead>
-            <tr className="text-left text-muted">
-              <th className="pb-2">Student</th>
-              <th className="pb-2">Chapter</th>
-              <th className="pb-2">Date</th>
-              <th className="pb-2">Score</th>
-              <th className="pb-2">Accuracy</th>
+          <thead className="bg-slate-50">
+            <tr className="text-left text-slate-500">
+              <th className="px-3 py-3">Student</th>
+              <th className="px-3 py-3">Chapter</th>
+              <th className="px-3 py-3">Date</th>
+              <th className="px-3 py-3">Score</th>
+              <th className="px-3 py-3">Accuracy</th>
             </tr>
           </thead>
           <tbody>
             {filteredResults.map((entry) => (
-              <tr key={`${entry.studentEmail}-${entry.id}`} className="border-t border-line">
-                <td className="py-2">{entry.studentName}</td>
-                <td className="py-2">{entry.chapterId}</td>
-                <td className="py-2">{entry.date}</td>
-                <td className="py-2">{entry.score}/{entry.total}</td>
-                <td className="py-2">{entry.pct}%</td>
+              <tr key={`${entry.studentEmail}-${entry.id}`} className="border-t border-slate-200">
+                <td className="px-3 py-3 font-medium text-slate-800">{entry.studentName}</td>
+                <td className="px-3 py-3 text-slate-600">{entry.chapterId}</td>
+                <td className="px-3 py-3 text-slate-600">{formatDisplayDate(entry.date)}</td>
+                <td className="px-3 py-3 text-slate-700">{entry.score}/{entry.total}</td>
+                <td className={`px-3 py-3 font-semibold ${getScoreTone(entry.pct)}`}>{entry.pct}%</td>
               </tr>
             ))}
           </tbody>
@@ -428,38 +473,44 @@ function ManageStudentsTab({ students, setStudents }) {
 
   return (
     <div className="space-y-4">
-      <div className="card p-4">
-        <h3 className="font-semibold text-ink">Add student</h3>
-        <form onSubmit={handleAdd} className="grid grid-cols-1 md:grid-cols-4 gap-3 mt-3">
-          <input value={form.name} onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))} placeholder="Name" className="border border-line rounded-lg px-3 py-2" />
-          <input value={form.email} onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))} placeholder="Email" className="border border-line rounded-lg px-3 py-2" />
-          <input value={form.phone} onChange={(event) => setForm((current) => ({ ...current, phone: event.target.value }))} placeholder="Phone" className="border border-line rounded-lg px-3 py-2" />
-          <input value={form.batch} onChange={(event) => setForm((current) => ({ ...current, batch: event.target.value }))} placeholder="Batch" className="border border-line rounded-lg px-3 py-2" />
-          <button type="submit" className="md:col-span-4 rounded-lg bg-brand px-3 py-2 text-white">Add student</button>
+      <div className="card p-5">
+        <div className="mb-4">
+          <h3 className="font-semibold text-slate-900">Add student</h3>
+          <p className="text-sm text-slate-500">Enrol a new learner and keep their profile aligned with the dashboard.</p>
+        </div>
+        <form onSubmit={handleAdd} className="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <input value={form.name} onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))} placeholder="Name" className="border border-slate-200 rounded-xl px-3 py-2" />
+          <input value={form.email} onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))} placeholder="Email" className="border border-slate-200 rounded-xl px-3 py-2" />
+          <input value={form.phone} onChange={(event) => setForm((current) => ({ ...current, phone: event.target.value }))} placeholder="Phone" className="border border-slate-200 rounded-xl px-3 py-2" />
+          <input value={form.batch} onChange={(event) => setForm((current) => ({ ...current, batch: event.target.value }))} placeholder="Batch" className="border border-slate-200 rounded-xl px-3 py-2" />
+          <button type="submit" className="md:col-span-4 rounded-xl bg-brand px-3 py-2 text-white">Add student</button>
         </form>
-        {error ? <div className="text-sm text-red-600 mt-2">{error}</div> : null}
+        {error ? <div className="mt-2 text-sm text-rose-600">{error}</div> : null}
       </div>
 
-      <div className="card p-4">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-ink">Existing students</h3>
-          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search name/email" className="border border-line rounded-lg px-3 py-2" />
+      <div className="card p-5">
+        <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h3 className="font-semibold text-slate-900">Existing students</h3>
+            <p className="text-sm text-slate-500">Manage cohorts and keep the roster tidy.</p>
+          </div>
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search name/email" className="border border-slate-200 rounded-xl px-3 py-2" />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+        <div className="mb-3 grid grid-cols-1 md:grid-cols-2 gap-3">
           {Object.entries(batchSummary).map(([batch, count]) => (
-            <div key={batch} className="bg-canvas rounded-lg p-2 text-sm">
+            <div key={batch} className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700">
               {batch}: {count} students
             </div>
           ))}
         </div>
         <div className="space-y-2">
           {filteredStudents.map((student) => (
-            <div key={student.email} className="flex items-center justify-between rounded-lg border border-line px-3 py-2">
+            <div key={student.email} className="flex items-center justify-between rounded-2xl border border-slate-200 px-3 py-3">
               <div>
-                <div className="font-semibold">{student.name}</div>
-                <div className="text-sm text-muted">{student.email} • {student.batch}</div>
+                <div className="font-semibold text-slate-900">{student.name}</div>
+                <div className="text-sm text-slate-500">{student.email} • {student.batch}</div>
               </div>
-              <button type="button" onClick={() => handleRemove(student.email)} className="rounded-lg border border-line px-3 py-1 text-sm">Remove</button>
+              <button type="button" onClick={() => handleRemove(student.email)} className="rounded-xl border border-slate-200 px-3 py-1 text-sm text-slate-700">Remove</button>
             </div>
           ))}
         </div>
@@ -558,49 +609,51 @@ function AttendanceTab({ students, attendanceRecords, setAttendanceRecords }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-2">
-        {['mark', 'report', 'student'].map((tab) => (
-          <button key={tab} type="button" onClick={() => setSubTab(tab)} className={`rounded-lg px-3 py-2 ${subTab === tab ? 'bg-brand text-white' : 'bg-canvas text-ink'}`}>
-            {tab === 'mark' ? 'Mark' : tab === 'report' ? 'Report' : 'Student'}
-          </button>
-        ))}
+      <div className="rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
+        <div className="flex gap-2">
+          {['mark', 'report', 'student'].map((tab) => (
+            <button key={tab} type="button" onClick={() => setSubTab(tab)} className={`rounded-xl px-3 py-2 text-sm font-medium capitalize ${subTab === tab ? 'bg-brand text-white shadow-sm' : 'bg-slate-50 text-slate-700'}`}>
+              {tab === 'mark' ? 'Mark' : tab === 'report' ? 'Report' : 'Student'}
+            </button>
+          ))}
+        </div>
       </div>
 
       {subTab === 'mark' ? (
-        <div className="card p-4 space-y-3">
+        <div className="card p-5 space-y-3">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <select value={batch} onChange={(event) => setBatch(event.target.value)} className="border border-line rounded-lg px-3 py-2">
+            <select value={batch} onChange={(event) => setBatch(event.target.value)} className="border border-slate-200 rounded-xl px-3 py-2">
               <option value="A1">A1</option>
               <option value="A2">A2</option>
             </select>
-            <input type="date" value={selectedDate} onChange={(event) => setSelectedDate(event.target.value)} className="border border-line rounded-lg px-3 py-2" />
-            <button type="button" onClick={markAllPresent} className="rounded-lg bg-canvas px-3 py-2">Mark all present</button>
+            <input type="date" value={selectedDate} onChange={(event) => setSelectedDate(event.target.value)} className="border border-slate-200 rounded-xl px-3 py-2" />
+            <button type="button" onClick={markAllPresent} className="rounded-xl bg-slate-100 px-3 py-2 text-sm font-medium text-slate-700">Mark all present</button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-2 text-sm">
-            <div className="bg-canvas rounded-lg p-2">Present: {progress.present}</div>
-            <div className="bg-canvas rounded-lg p-2">Absent: {progress.absent}</div>
-            <div className="bg-canvas rounded-lg p-2">Late: {progress.late}</div>
-            <div className="bg-canvas rounded-lg p-2">Done: {progress.percent}%</div>
+            <div className="rounded-2xl border border-slate-200 bg-white p-3">Present: {progress.present}</div>
+            <div className="rounded-2xl border border-slate-200 bg-white p-3">Absent: {progress.absent}</div>
+            <div className="rounded-2xl border border-slate-200 bg-white p-3">Late: {progress.late}</div>
+            <div className="rounded-2xl border border-slate-200 bg-white p-3">Done: {progress.percent}%</div>
           </div>
 
           <div className="space-y-2">
             {batchStudents.map((student) => (
-              <div key={student.email} className="rounded-lg border border-line p-3">
+              <div key={student.email} className="rounded-2xl border border-slate-200 p-3">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <div className="font-semibold">{student.name}</div>
-                    <div className="text-sm text-muted">{student.email}</div>
+                    <div className="font-semibold text-slate-900">{student.name}</div>
+                    <div className="text-sm text-slate-500">{student.email}</div>
                   </div>
                   <div className="flex gap-2">
                     {['present', 'absent', 'late'].map((status) => (
-                      <button key={status} type="button" onClick={() => setStatuses((current) => ({ ...current, [student.email]: status }))} className={`rounded-lg px-3 py-1 text-sm ${statuses[student.email] === status ? 'bg-brand text-white' : 'bg-canvas text-ink'}`}>
+                      <button key={status} type="button" onClick={() => setStatuses((current) => ({ ...current, [student.email]: status }))} className={`rounded-xl px-3 py-1 text-sm font-medium capitalize ${statuses[student.email] === status ? 'bg-brand text-white' : 'bg-slate-100 text-slate-700'}`}>
                         {status}
                       </button>
                     ))}
                   </div>
                 </div>
-                <input value={notes[student.email] || ''} onChange={(event) => setNotes((current) => ({ ...current, [student.email]: event.target.value }))} placeholder="Note" className="mt-2 w-full border border-line rounded-lg px-3 py-2" />
+                <input value={notes[student.email] || ''} onChange={(event) => setNotes((current) => ({ ...current, [student.email]: event.target.value }))} placeholder="Note" className="mt-2 w-full border border-slate-200 rounded-xl px-3 py-2" />
               </div>
             ))}
           </div>
@@ -722,51 +775,54 @@ function ScheduleTab({ scheduledClasses, setScheduledClasses, liveLink, setLiveL
 
   return (
     <div className="space-y-4">
-      <div className="card p-4">
-        <h3 className="font-semibold text-ink">Schedule class</h3>
-        <form onSubmit={handleCreate} className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
-          <input value={form.title} onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))} placeholder="Title" className="border border-line rounded-lg px-3 py-2" />
-          <input value={form.date} onChange={(event) => setForm((current) => ({ ...current, date: event.target.value }))} type="date" className="border border-line rounded-lg px-3 py-2" />
-          <input value={form.time} onChange={(event) => setForm((current) => ({ ...current, time: event.target.value }))} type="time" className="border border-line rounded-lg px-3 py-2" />
-          <input value={form.duration} onChange={(event) => setForm((current) => ({ ...current, duration: Number(event.target.value) }))} type="number" className="border border-line rounded-lg px-3 py-2" />
-          <input value={form.meetLink} onChange={(event) => setForm((current) => ({ ...current, meetLink: event.target.value }))} placeholder="Meet link" className="border border-line rounded-lg px-3 py-2" />
-          <input value={form.batch} onChange={(event) => setForm((current) => ({ ...current, batch: event.target.value }))} placeholder="Batch" className="border border-line rounded-lg px-3 py-2" />
-          <textarea value={form.description} onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))} placeholder="Description" className="md:col-span-2 border border-line rounded-lg px-3 py-2" />
-          <button type="submit" className="md:col-span-2 rounded-lg bg-brand px-3 py-2 text-white">Create class</button>
+      <div className="card p-5">
+        <div className="mb-4">
+          <h3 className="font-semibold text-slate-900">Schedule class</h3>
+          <p className="text-sm text-slate-500">Create a lesson block and push it to your learners instantly.</p>
+        </div>
+        <form onSubmit={handleCreate} className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <input value={form.title} onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))} placeholder="Title" className="border border-slate-200 rounded-xl px-3 py-2" />
+          <input value={form.date} onChange={(event) => setForm((current) => ({ ...current, date: event.target.value }))} type="date" className="border border-slate-200 rounded-xl px-3 py-2" />
+          <input value={form.time} onChange={(event) => setForm((current) => ({ ...current, time: event.target.value }))} type="time" className="border border-slate-200 rounded-xl px-3 py-2" />
+          <input value={form.duration} onChange={(event) => setForm((current) => ({ ...current, duration: Number(event.target.value) }))} type="number" className="border border-slate-200 rounded-xl px-3 py-2" />
+          <input value={form.meetLink} onChange={(event) => setForm((current) => ({ ...current, meetLink: event.target.value }))} placeholder="Meet link" className="border border-slate-200 rounded-xl px-3 py-2" />
+          <input value={form.batch} onChange={(event) => setForm((current) => ({ ...current, batch: event.target.value }))} placeholder="Batch" className="border border-slate-200 rounded-xl px-3 py-2" />
+          <textarea value={form.description} onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))} placeholder="Description" className="md:col-span-2 border border-slate-200 rounded-xl px-3 py-2" />
+          <button type="submit" className="md:col-span-2 rounded-xl bg-brand px-3 py-2 text-white">Create class</button>
         </form>
-        {formError ? <div className="text-sm text-red-600 mt-2">{formError}</div> : null}
+        {formError ? <div className="mt-2 text-sm text-rose-600">{formError}</div> : null}
       </div>
 
-      <div className="card p-4 space-y-3">
-        <h3 className="font-semibold text-ink">Scheduled classes</h3>
+      <div className="card p-5 space-y-3">
+        <h3 className="font-semibold text-slate-900">Scheduled classes</h3>
         {scheduledClasses.length ? scheduledClasses.map((event) => (
-          <div key={event.id} className="rounded-lg border border-line p-3 text-sm">
+          <div key={event.id} className="rounded-2xl border border-slate-200 p-3 text-sm">
             <div className="flex items-center justify-between">
               <div>
-                <div className="font-semibold">{event.title}</div>
-                <div className="text-muted">{event.date} • {event.time}</div>
+                <div className="font-semibold text-slate-900">{event.title}</div>
+                <div className="text-slate-500">{event.date} • {event.time}</div>
               </div>
               <div className="text-right">
-                <div>{isLive(event.startDateTime, event.endDateTime) ? 'Live now' : getCountdown(event.startDateTime)}</div>
-                <button type="button" onClick={() => deleteClass(event.id)} className="mt-2 rounded-lg border border-line px-3 py-1">Delete</button>
+                <div className="text-slate-700">{isLive(event.startDateTime, event.endDateTime) ? 'Live now' : getCountdown(event.startDateTime)}</div>
+                <button type="button" onClick={() => deleteClass(event.id)} className="mt-2 rounded-xl border border-slate-200 px-3 py-1 text-slate-700">Delete</button>
               </div>
             </div>
           </div>
-        )) : <div className="text-sm text-muted">No classes are connected yet.</div>}
+        )) : <div className="rounded-2xl border border-dashed border-slate-200 p-4 text-sm text-slate-500">No classes are connected yet.</div>}
       </div>
 
-      <div className="card p-4 space-y-3">
-        <h3 className="font-semibold text-ink">Quick live link</h3>
+      <div className="card p-5 space-y-3">
+        <h3 className="font-semibold text-slate-900">Quick live link</h3>
         <form onSubmit={saveLiveLink} className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <input value={quickUrl} onChange={(event) => setQuickUrl(event.target.value)} placeholder="https://..." className="border border-line rounded-lg px-3 py-2" />
-          <input value={quickLabel} onChange={(event) => setQuickLabel(event.target.value)} placeholder="Label (optional)" className="border border-line rounded-lg px-3 py-2" />
-          <button type="submit" className="md:col-span-2 rounded-lg bg-brand px-3 py-2 text-white">Set live link</button>
+          <input value={quickUrl} onChange={(event) => setQuickUrl(event.target.value)} placeholder="https://..." className="border border-slate-200 rounded-xl px-3 py-2" />
+          <input value={quickLabel} onChange={(event) => setQuickLabel(event.target.value)} placeholder="Label (optional)" className="border border-slate-200 rounded-xl px-3 py-2" />
+          <button type="submit" className="md:col-span-2 rounded-xl bg-brand px-3 py-2 text-white">Set live link</button>
         </form>
         {liveLink ? (
-          <div className="rounded-lg border border-line p-3 text-sm">
-            <div className="font-semibold">{liveLink.label}</div>
-            <div className="text-muted">{liveLink.url}</div>
-            <button type="button" onClick={endLiveLink} className="mt-2 rounded-lg border border-line px-3 py-1">End live</button>
+          <div className="rounded-2xl border border-slate-200 p-3 text-sm">
+            <div className="font-semibold text-slate-900">{liveLink.label}</div>
+            <div className="text-slate-500">{liveLink.url}</div>
+            <button type="button" onClick={endLiveLink} className="mt-2 rounded-xl border border-slate-200 px-3 py-1 text-slate-700">End live</button>
           </div>
         ) : null}
       </div>
@@ -817,11 +873,40 @@ function AssignTestTab({ assignedTests, setAssignedTests, submissions, setSubmis
   const [instructions, setInstructions] = useState('')
   const [error, setError] = useState('')
   const [viewingResultsId, setViewingResultsId] = useState(null)
+  const [subjects, setSubjects] = useState(SUBJECT_OPTIONS)
+  const [subjectsLoading, setSubjectsLoading] = useState(false)
 
   useEffect(() => {
     const autoTitle = `${SUBJECT_OPTIONS.find((subject) => subject.id === selectedSubject)?.label || ''} ${selectedChapters.map((chapter) => chapter.label).join(', ')}`.trim()
     setTitle(autoTitle)
   }, [selectedChapters, selectedSubject])
+
+  useEffect(() => {
+    let active = true
+    const loadSubjects = async () => {
+      setSubjectsLoading(true)
+      const payload = await requestJson('/api/teacher/subjects', { method: 'GET' }, null)
+      if (!active) return
+      if (payload?.subjects && payload.subjects.length) {
+        setSubjects(payload.subjects)
+        // if current selectedSubject is not in the new list, pick the first
+        if (!payload.subjects.some((s) => s.id === selectedSubject)) {
+          setSelectedSubject(payload.subjects[0].id)
+        }
+      }
+      if (payload?.warnings && payload.warnings.length) {
+        // surface to console for now – UI could show these later
+        // eslint-disable-next-line no-console
+        console.warn('question-bank warnings:', payload.warnings)
+      }
+      setSubjectsLoading(false)
+    }
+
+    loadSubjects()
+    return () => {
+      active = false
+    }
+  }, [])
 
   useEffect(() => {
     let active = true
@@ -919,69 +1004,147 @@ function AssignTestTab({ assignedTests, setAssignedTests, submissions, setSubmis
 
   return (
     <div className="space-y-4">
-      <div className="card p-4">
-        <h3 className="font-semibold text-ink">Create assigned test</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
-          {SUBJECT_OPTIONS.map((subject) => (
-            <button key={subject.id} type="button" onClick={() => setSelectedSubject(subject.id)} className={`rounded-lg border border-line px-3 py-2 text-left ${selectedSubject === subject.id ? 'bg-brand text-white' : 'bg-canvas text-ink'}`}>
-              {subject.icon} {subject.label}
-            </button>
-          ))}
+      <div className="card p-5">
+        <div className="mb-4 grid gap-4 lg:grid-cols-[1.3fr_0.7fr] lg:items-end">
+          <div>
+            <h3 className="text-2xl font-semibold text-slate-900">Create assigned test</h3>
+            <p className="mt-2 text-sm text-slate-500">Select subject chapters, set the test details, and assign it to your cohort with one click.</p>
+          </div>
+          <div className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+            <div className="font-medium text-slate-900">Quick summary</div>
+            <div className="mt-2 space-y-1">
+              <div>{selectedChapters.length ? `${selectedChapters.length} chapter${selectedChapters.length === 1 ? '' : 's'} selected` : 'No chapters selected yet'}</div>
+              <div>{subjectsLoading ? 'Refreshing subjects…' : `${subjects.length} subjects available`}</div>
+            </div>
+          </div>
         </div>
-        <div className="mt-3 space-y-2">
-          {SUBJECT_OPTIONS.find((subject) => subject.id === selectedSubject)?.chapters.map((chapter) => (
-            <label key={chapter.id} className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={selectedChapters.some((entry) => entry.id === chapter.id)} onChange={() => toggleChapter(chapter)} />
-              {chapter.label}
-            </label>
-          ))}
+
+        <div className="grid gap-4 xl:grid-cols-[1.25fr_0.75fr]">
+          <div className="space-y-4">
+            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+              <div className="mb-4 flex items-center justify-between gap-4">
+                <div>
+                  <h4 className="text-sm font-semibold text-slate-900">Subject selection</h4>
+                  <p className="mt-1 text-sm text-slate-500">Choose the area your test should cover.</p>
+                </div>
+                <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-500 shadow-sm">{subjects.length} subjects</span>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                {subjects.map((subject) => (
+                  <button
+                    key={subject.id}
+                    type="button"
+                    onClick={() => setSelectedSubject(subject.id)}
+                    className={`rounded-3xl border p-4 text-left transition ${selectedSubject === subject.id ? 'border-brand bg-brand text-white shadow-sm' : 'border-slate-200 bg-white text-slate-900 hover:border-slate-300 hover:bg-slate-50'}`}
+                  >
+                    <div className="mb-2 text-lg">{subject.icon || '📚'}</div>
+                    <div className="font-semibold">{subject.label}</div>
+                    <div className="mt-1 text-sm text-slate-500">{subject.chapters?.length ?? 0} chapters</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+              <div className="mb-4">
+                <h4 className="text-sm font-semibold text-slate-900">Chapter selection</h4>
+                <p className="mt-1 text-sm text-slate-500">Pick the chapters to include in this test.</p>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {(subjects.find((subject) => subject.id === selectedSubject)?.chapters || []).map((chapter) => {
+                  const isChecked = selectedChapters.some((entry) => entry.id === chapter.id)
+                  return (
+                    <label
+                      key={chapter.id}
+                      className={`flex cursor-pointer items-center gap-3 rounded-3xl border p-3 transition ${isChecked ? 'border-brand bg-brand/10 text-slate-900' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'}`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => toggleChapter(chapter)}
+                        className="h-4 w-4 rounded border-slate-300 text-brand focus:ring-brand"
+                      />
+                      <span className="text-sm font-medium">{chapter.label}</span>
+                    </label>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="mb-4">
+              <h4 className="text-sm font-semibold text-slate-900">Test details</h4>
+              <p className="mt-1 text-sm text-slate-500">Name the test, choose a batch, and define duration.</p>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">Batch</label>
+                <select value={selectedBatch} onChange={(event) => setSelectedBatch(event.target.value)} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20">
+                  {batchOptions.map((batch) => <option key={batch} value={batch}>{batch}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">Title</label>
+                <input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Use an explicit title for your test" className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20" />
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-slate-700">Questions</label>
+                  <input value={numQuestions} onChange={(event) => setNumQuestions(Number(event.target.value))} type="number" placeholder="20" className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20" />
+                </div>
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-slate-700">Duration (mins)</label>
+                  <input value={durationMins} onChange={(event) => setDurationMins(Number(event.target.value))} type="number" placeholder="30" className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20" />
+                </div>
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">Instructions</label>
+                <textarea value={instructions} onChange={(event) => setInstructions(event.target.value)} placeholder="Add any test instructions or guidance" className="h-28 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20" />
+              </div>
+              <button type="submit" className="inline-flex w-full items-center justify-center rounded-3xl bg-brand px-5 py-3 text-sm font-semibold text-white transition hover:bg-brand-dark">
+                Assign test
+              </button>
+            </div>
+          </div>
         </div>
-        <form onSubmit={handleSubmit} className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
-          <select value={selectedBatch} onChange={(event) => setSelectedBatch(event.target.value)} className="border border-line rounded-lg px-3 py-2">
-            {batchOptions.map((batch) => <option key={batch} value={batch}>{batch}</option>)}
-          </select>
-          <input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Title" className="border border-line rounded-lg px-3 py-2" />
-          <input value={numQuestions} onChange={(event) => setNumQuestions(Number(event.target.value))} type="number" placeholder="Questions" className="border border-line rounded-lg px-3 py-2" />
-          <input value={durationMins} onChange={(event) => setDurationMins(Number(event.target.value))} type="number" placeholder="Duration" className="border border-line rounded-lg px-3 py-2" />
-          <textarea value={instructions} onChange={(event) => setInstructions(event.target.value)} placeholder="Instructions" className="md:col-span-2 border border-line rounded-lg px-3 py-2" />
-          <button type="submit" className="md:col-span-2 rounded-lg bg-brand px-3 py-2 text-white">Assign test</button>
-        </form>
-        {error ? <div className="text-sm text-red-600 mt-2">{error}</div> : null}
+
+        {error ? <div className="mt-3 rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700">{error}</div> : null}
       </div>
 
-      <div className="card p-4 space-y-3">
-        <h3 className="font-semibold text-ink">Assigned tests</h3>
+      <div className="card p-5 space-y-3">
+        <h3 className="font-semibold text-slate-900">Assigned tests</h3>
         {assignedTests.map((test) => (
-          <div key={test.id} className="rounded-lg border border-line p-3 text-sm">
-            <div className="flex items-center justify-between">
+          <div key={test.id} className="rounded-2xl border border-slate-200 p-3 text-sm">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <div className="font-semibold">{test.title}</div>
-                <div className="text-muted">{test.subjectLabel} • {test.chapterLabel} • {test.className || test.classId || 'All Classes'}</div>
+                <div className="font-semibold text-slate-900">{test.title}</div>
+                <div className="text-slate-500">{test.subjectLabel} • {test.chapterLabel} • {test.className || test.classId || 'All Classes'}</div>
               </div>
-              <div className="flex gap-2">
-                <button type="button" onClick={() => toggleActive(test.id)} className="rounded-lg border border-line px-3 py-1">{test.is_active ? 'Pause' : 'Resume'}</button>
-                <button type="button" onClick={() => deleteTest(test.id)} className="rounded-lg border border-line px-3 py-1">Delete</button>
-                <button type="button" onClick={() => viewResults(test.id)} className="rounded-lg bg-brand px-3 py-1 text-white">View results</button>
+              <div className="flex flex-wrap gap-2">
+                <button type="button" onClick={() => toggleActive(test.id)} className="rounded-xl border border-slate-200 px-3 py-1 text-slate-700">{test.is_active ? 'Pause' : 'Resume'}</button>
+                <button type="button" onClick={() => deleteTest(test.id)} className="rounded-xl border border-slate-200 px-3 py-1 text-slate-700">Delete</button>
+                <button type="button" onClick={() => viewResults(test.id)} className="rounded-xl bg-brand px-3 py-1 text-white">View results</button>
               </div>
             </div>
             {viewingResultsId === test.id ? (
               <div className="mt-3 overflow-x-auto">
                 <table className="min-w-full text-sm">
-                  <thead>
-                    <tr className="text-left text-muted">
-                      <th className="pb-2">Student</th>
-                      <th className="pb-2">Score</th>
-                      <th className="pb-2">Accuracy</th>
+                  <thead className="bg-slate-50">
+                    <tr className="text-left text-slate-500">
+                      <th className="px-3 py-2">Student</th>
+                      <th className="px-3 py-2">Score</th>
+                      <th className="px-3 py-2">Accuracy</th>
                     </tr>
                   </thead>
                   <tbody>
                     {submissions.length ? submissions.map((submission) => (
-                      <tr key={submission.id} className="border-t border-line">
-                        <td className="py-2">{submission.studentName || submission.student_name || submission.studentEmail || submission.student_email}</td>
-                        <td className="py-2">{submission.score}/{submission.total}</td>
-                        <td className="py-2">{submission.accuracy}%</td>
+                      <tr key={submission.id} className="border-t border-slate-200">
+                        <td className="px-3 py-2 text-slate-700">{submission.studentName || submission.student_name || submission.studentEmail || submission.student_email}</td>
+                        <td className="px-3 py-2 text-slate-700">{submission.score}/{submission.total}</td>
+                        <td className="px-3 py-2 text-slate-700">{submission.accuracy}%</td>
                       </tr>
-                    )) : <tr><td colSpan="3" className="py-3 text-sm text-muted">No submissions yet.</td></tr>}
+                    )) : <tr><td colSpan="3" className="px-3 py-3 text-sm text-slate-500">No submissions yet.</td></tr>}
                   </tbody>
                 </table>
               </div>
@@ -1038,54 +1201,56 @@ function LeaderboardTab({ students }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-2">
-        <button type="button" onClick={() => setMode('exam')} className={`rounded-lg px-3 py-2 ${mode === 'exam' ? 'bg-brand text-white' : 'bg-canvas text-ink'}`}>Exam leaderboard</button>
-        <button type="button" onClick={() => setMode('mock')} className={`rounded-lg px-3 py-2 ${mode === 'mock' ? 'bg-brand text-white' : 'bg-canvas text-ink'}`}>Mock leaderboard</button>
+      <div className="rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
+        <div className="flex flex-wrap gap-2">
+          <button type="button" onClick={() => setMode('exam')} className={`rounded-xl px-3 py-2 text-sm font-medium ${mode === 'exam' ? 'bg-brand text-white' : 'bg-slate-50 text-slate-700'}`}>Exam leaderboard</button>
+          <button type="button" onClick={() => setMode('mock')} className={`rounded-xl px-3 py-2 text-sm font-medium ${mode === 'mock' ? 'bg-brand text-white' : 'bg-slate-50 text-slate-700'}`}>Mock leaderboard</button>
+        </div>
       </div>
 
       {mode === 'mock' ? (
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {['all', ...SUBJECT_OPTIONS.map((subject) => subject.id)].map((subjectId) => (
-            <button key={subjectId} type="button" onClick={() => setActiveSubject(subjectId)} className={`rounded-lg px-3 py-2 ${activeSubject === subjectId ? 'bg-brand text-white' : 'bg-canvas text-ink'}`}>
+            <button key={subjectId} type="button" onClick={() => setActiveSubject(subjectId)} className={`rounded-xl px-3 py-2 text-sm font-medium ${activeSubject === subjectId ? 'bg-brand text-white' : 'bg-slate-50 text-slate-700'}`}>
               {subjectId === 'all' ? 'All' : SUBJECT_OPTIONS.find((subject) => subject.id === subjectId)?.label}
             </button>
           ))}
         </div>
       ) : null}
 
-      <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search student" className="border border-line rounded-lg px-3 py-2" />
+      <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search student" className="border border-slate-200 rounded-xl px-3 py-2" />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         {podium.map((entry, index) => (
           <div key={entry.email} className="card p-4">
-            <div className="text-muted">#{index + 1}</div>
-            <div className="font-semibold">{entry.name}</div>
-            <div className="text-sm text-muted">{entry.accuracy}%</div>
+            <div className="text-sm font-semibold uppercase tracking-wide text-slate-400">#{index + 1}</div>
+            <div className="mt-2 font-semibold text-slate-900">{entry.name}</div>
+            <div className="text-sm text-slate-500">{entry.accuracy}% accuracy</div>
           </div>
         ))}
       </div>
 
-      <div className="card p-4 overflow-x-auto">
+      <div className="card p-5 overflow-x-auto">
         <table className="min-w-full text-sm">
-          <thead>
-            <tr className="text-left text-muted">
-              <th className="pb-2">Name</th>
-              <th className="pb-2">Accuracy</th>
-              <th className="pb-2">Attempts</th>
+          <thead className="bg-slate-50">
+            <tr className="text-left text-slate-500">
+              <th className="px-3 py-3">Name</th>
+              <th className="px-3 py-3">Accuracy</th>
+              <th className="px-3 py-3">Attempts</th>
             </tr>
           </thead>
           <tbody>
             {sortedEntries.map((entry) => (
               <Fragment key={entry.email}>
-                <tr className="border-t border-line" onClick={() => setExpandedEmail((current) => (current === entry.email ? '' : entry.email))}>
-                  <td className="py-2">{entry.name}</td>
-                  <td className="py-2">{entry.accuracy}%</td>
-                  <td className="py-2">{entry.attempts}</td>
+                <tr className="cursor-pointer border-t border-slate-200" onClick={() => setExpandedEmail((current) => (current === entry.email ? '' : entry.email))}>
+                  <td className="px-3 py-3 font-medium text-slate-800">{entry.name}</td>
+                  <td className="px-3 py-3 font-semibold text-slate-700">{entry.accuracy}%</td>
+                  <td className="px-3 py-3 text-slate-700">{entry.attempts}</td>
                 </tr>
                 {expandedEmail === entry.email ? (
                   <tr>
-                    <td colSpan="3" className="py-2 text-sm text-muted">
-                      {entry.subjectBreakdown.map((item) => <div key={`${item.subject}-${item.chapter}`}>{item.subject} • {item.chapter} • {item.accuracy}% ({item.tests})</div>)}
+                    <td colSpan="3" className="px-3 py-2 text-sm text-slate-600">
+                      {entry.subjectBreakdown.map((item) => <div key={`${item.subject}-${item.chapter}`} className="rounded-xl bg-slate-50 px-2 py-1">{item.subject} • {item.chapter} • {item.accuracy}% ({item.tests})</div>)}
                     </td>
                   </tr>
                 ) : null}
@@ -1109,6 +1274,7 @@ export default function TeacherDashboardPage() {
   const [submissions, setSubmissions] = useState([])
   const [isAuthed, setIsAuthed] = useState(false)
   const [authChecked, setAuthChecked] = useState(false)
+  const [dashboardLoading, setDashboardLoading] = useState(false)
   const [password, setPassword] = useState('')
   const [authError, setAuthError] = useState('')
 
@@ -1133,6 +1299,52 @@ export default function TeacherDashboardPage() {
   }, [])
 
   useEffect(() => {
+    let active = true
+    if (!isAuthed) return
+
+    const loadDashboardData = async () => {
+      setDashboardLoading(true)
+
+      const dashboardPayload = await requestJson('/api/teacher/dashboard', { method: 'GET' }, {
+        students: [],
+        attendance: [],
+        classes: [],
+        link: null,
+        tests: [],
+        submissions: [],
+      })
+
+      if (!active) return
+
+      if (Array.isArray(dashboardPayload?.students)) {
+        setStudents(dashboardPayload.students)
+      }
+      if (Array.isArray(dashboardPayload?.attendance)) {
+        setAttendanceRecords(dashboardPayload.attendance)
+      }
+      if (Array.isArray(dashboardPayload?.classes)) {
+        setScheduledClasses(dashboardPayload.classes)
+      }
+      if (dashboardPayload?.link) {
+        setLiveLink(dashboardPayload.link)
+      }
+      if (Array.isArray(dashboardPayload?.tests)) {
+        setAssignedTests(dashboardPayload.tests)
+      }
+      if (Array.isArray(dashboardPayload?.submissions)) {
+        setSubmissions(dashboardPayload.submissions)
+      }
+
+      setDashboardLoading(false)
+    }
+
+    loadDashboardData()
+    return () => {
+      active = false
+    }
+  }, [isAuthed])
+
+  useEffect(() => {
     if (!students.length) {
       setSelectedEmail('')
       return
@@ -1145,8 +1357,11 @@ export default function TeacherDashboardPage() {
   const summary = useMemo(() => {
     const totalTests = students.reduce((sum, student) => sum + (student.testsAttempted || 0), 0)
     const avgAccuracy = students.length ? Math.round(students.reduce((sum, student) => sum + student.avgScore, 0) / students.length) : 0
-    return { totalStudents: students.length, totalTests, avgAccuracy }
-  }, [students])
+    const liveClasses = scheduledClasses.filter((event) => isLive(event.startDateTime, event.endDateTime)).length
+    const attendanceRate = attendanceRecords.length ? Math.round((attendanceRecords.filter((entry) => entry.status === 'present' || entry.status === 'late').length / attendanceRecords.length) * 100) : 0
+    const activeTests = assignedTests.filter((test) => test.isActive ?? test.is_active ?? true).length
+    return { totalStudents: students.length, totalTests, avgAccuracy, liveClasses, attendanceRate, activeTests }
+  }, [assignedTests, attendanceRecords, scheduledClasses, students])
 
   const handleLogin = async (event) => {
     event.preventDefault()
@@ -1216,45 +1431,60 @@ export default function TeacherDashboardPage() {
     )
   }
 
+  if (dashboardLoading && !students.length && !attendanceRecords.length && !scheduledClasses.length && !assignedTests.length) {
+    return (
+      <AppShell>
+        <div className="p-6">Loading dashboard data from the database…</div>
+      </AppShell>
+    )
+  }
+
   return (
     <AppShell>
       <div className="space-y-6">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-3xl font-display font-bold text-ink">Teacher Dashboard</h1>
-            <p className="text-sm text-muted">Logic-first scaffolding for students, attendance, scheduling, tests, and leaderboard management.</p>
+            <div className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Teacher operations</div>
+            <h1 className="mt-2 text-3xl font-display font-bold text-slate-900">Teacher Dashboard</h1>
+            <p className="mt-1 text-sm text-slate-500">Everything you need to review learners, run classes, and manage assessments in one place.</p>
           </div>
-          <button type="button" onClick={handleLogout} className="rounded-lg border border-line px-3 py-2 text-sm">Logout</button>
+          <button type="button" onClick={handleLogout} className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700">Logout</button>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          {NAV_TABS.map((tab) => (
-            <button key={tab.id} type="button" onClick={() => setActiveTab(tab.id)} className={`rounded-lg px-3 py-2 text-sm ${activeTab === tab.id ? 'bg-brand text-white' : 'bg-canvas text-ink'}`}>
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        <div className="card bg-brand p-6">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="rounded-3xl border border-slate-200 bg-[linear-gradient(115deg,_#f7fbff_0%,_#f8f5ff_55%,_#fff5f8_100%)] p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:[background-image:linear-gradient(115deg,_#111827_0%,_#1f2937_55%,_#0f172a_100%)]">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <h2 className="text-2xl font-display font-bold text-white">Overview</h2>
-              <p className="text-white/80">Quick stats and a single source of truth for the teacher workflow.</p>
+              <h2 className="text-2xl font-display font-bold text-slate-900">Today at a glance</h2>
+              <p className="text-sm text-slate-500">A calm, focused view of the most important teaching metrics.</p>
             </div>
-            <div className="flex gap-3">
-              <div className="rounded-lg bg-white/90 px-4 py-3 text-center">
-                <div className="text-xs text-muted">Students</div>
-                <div className="text-xl font-semibold text-ink">{summary.totalStudents}</div>
+            <div className="flex flex-wrap gap-3">
+              <div className="rounded-2xl bg-white/90 px-4 py-3 text-center shadow-sm">
+                <div className="text-xs uppercase tracking-wide text-slate-400">Students</div>
+                <div className="text-xl font-semibold text-slate-900">{summary.totalStudents}</div>
               </div>
-              <div className="rounded-lg bg-white/90 px-4 py-3 text-center">
-                <div className="text-xs text-muted">Tests</div>
-                <div className="text-xl font-semibold text-ink">{summary.totalTests}</div>
+              <div className="rounded-2xl bg-white/90 px-4 py-3 text-center shadow-sm">
+                <div className="text-xs uppercase tracking-wide text-slate-400">Active tests</div>
+                <div className="text-xl font-semibold text-slate-900">{summary.activeTests}</div>
               </div>
-              <div className="rounded-lg bg-white/90 px-4 py-3 text-center">
-                <div className="text-xs text-muted">Avg accuracy</div>
-                <div className="text-xl font-semibold text-ink">{summary.avgAccuracy}%</div>
+              <div className="rounded-2xl bg-white/90 px-4 py-3 text-center shadow-sm">
+                <div className="text-xs uppercase tracking-wide text-slate-400">Live classes</div>
+                <div className="text-xl font-semibold text-slate-900">{summary.liveClasses}</div>
+              </div>
+              <div className="rounded-2xl bg-white/90 px-4 py-3 text-center shadow-sm">
+                <div className="text-xs uppercase tracking-wide text-slate-400">Attendance</div>
+                <div className="text-xl font-semibold text-slate-900">{summary.attendanceRate}%</div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-white p-2 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+          <div className="flex flex-wrap gap-2">
+            {NAV_TABS.map((tab) => (
+              <button key={tab.id} type="button" onClick={() => setActiveTab(tab.id)} className={`rounded-xl px-3 py-2 text-sm font-medium ${activeTab === tab.id ? 'bg-brand text-white shadow-sm' : 'bg-slate-50 text-slate-700'}`}>
+                {tab.label}
+              </button>
+            ))}
           </div>
         </div>
 

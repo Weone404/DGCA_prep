@@ -2,10 +2,10 @@
 
 export function Badge({ children, tone = 'brand' }) {
   const tones = {
-    brand: 'bg-brand-light text-brand-dark',
-    coral: 'bg-orange-50 text-coral',
-    violet: 'bg-violet-50 text-violet',
-    muted: 'bg-canvas text-muted',
+    brand: 'bg-brand-light text-brand-dark dark:bg-brand/15 dark:text-brand',
+    coral: 'bg-orange-50 text-coral dark:bg-orange-950/40 dark:text-orange-300',
+    violet: 'bg-violet-50 text-violet dark:bg-violet-950/40 dark:text-violet-300',
+    muted: 'bg-canvas text-muted dark:bg-slate-800 dark:text-slate-300',
   }
   return <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${tones[tone] || tones.brand}`}>{children}</span>
 }
@@ -20,10 +20,10 @@ export function ProgressBar({ value, color = '#2BC48A' }) {
 
 export function EmptyState({ icon = '📭', title, subtitle }) {
   return (
-    <div className="flex flex-col items-center justify-center text-center py-16 px-6">
-      <div className="text-4xl mb-3">{icon}</div>
-      <p className="font-display font-semibold text-ink">{title}</p>
-      {subtitle && <p className="text-sm text-muted mt-1 max-w-sm">{subtitle}</p>}
+    <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
+      <div className="mb-3 text-4xl">{icon}</div>
+      <p className="font-display font-semibold text-ink dark:text-slate-100">{title}</p>
+      {subtitle && <p className="mt-1 max-w-sm text-sm text-muted dark:text-slate-400">{subtitle}</p>}
     </div>
   )
 }

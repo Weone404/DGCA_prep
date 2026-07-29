@@ -141,22 +141,22 @@ export default function LiveClassesPage() {
 
   return (
     <AppShell>
-      <div className="grid lg:grid-cols-[1fr_360px] gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_360px]">
         {/* MAIN SCHEDULE */}
         <div className="card overflow-hidden">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 pb-4">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-4 p-6 pb-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-wrap items-center gap-2">
               <h2 className="font-display font-bold text-ink text-lg">{MONTHS[monthIdx]}</h2>
               <span className="text-ink text-lg">{year}</span>
-              <button onClick={() => setMonthIdx((m) => (m === 0 ? 11 : m - 1))} className="w-6 h-6 rounded-full text-muted hover:bg-canvas flex items-center justify-center">
+              <button onClick={() => setMonthIdx((m) => (m === 0 ? 11 : m - 1))} className="w-9 h-9 rounded-full text-muted hover:bg-canvas flex items-center justify-center">
                 <Icon name="chevron-left" size={14} />
               </button>
-              <button onClick={() => setMonthIdx((m) => (m === 11 ? 0 : m + 1))} className="w-6 h-6 rounded-full text-muted hover:bg-canvas flex items-center justify-center">
+              <button onClick={() => setMonthIdx((m) => (m === 11 ? 0 : m + 1))} className="w-9 h-9 rounded-full text-muted hover:bg-canvas flex items-center justify-center">
                 <Icon name="chevron-right" size={14} />
               </button>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <button className="px-3 py-1.5 rounded-lg bg-canvas text-xs font-semibold text-ink flex items-center gap-1">
                 Monthly <Icon name="chevron-down" size={12} />
               </button>
@@ -212,8 +212,8 @@ export default function LiveClassesPage() {
               <div className="text-sm text-muted py-4">Loading classes…</div>
             ) : hourRows.length > 0 ? (
               hourRows.map(({ hourKey, hourLabel, classes }) => (
-                <div key={hourKey} className="flex items-start gap-4 py-3 border-b border-dashed border-canvas last:border-0">
-                  <div className={`w-16 shrink-0 text-center text-xs font-semibold py-2 rounded-full ${hourLabel === '12:00 PM' ? 'bg-brand text-white' : 'bg-canvas text-ink'}`}>
+                <div key={hourKey} className="flex flex-col gap-4 py-3 border-b border-dashed border-canvas last:border-0 sm:flex-row sm:items-start">
+                  <div className={`w-full sm:w-20 shrink-0 text-center text-xs font-semibold py-2 rounded-full ${hourLabel === '12:00 PM' ? 'bg-brand text-white' : 'bg-canvas text-ink'}`}>
                     {hourLabel}
                   </div>
                   <div className="flex-1 min-h-[2.5rem] space-y-2">
@@ -223,10 +223,10 @@ export default function LiveClassesPage() {
                         <button
                           key={slotClass.id || `${hourKey}-${slotClass.title}-${slotClass.batch}`}
                           onClick={() => handleJoin(slotClass)}
-                          className={`w-full text-left rounded-lg ${tone.bg} border-l-4 ${tone.bar} px-4 py-2.5 max-w-md`}
+                          className={`w-full text-left rounded-lg ${tone.bg} border-l-4 ${tone.bar} px-4 py-2.5`}
                         >
                           <p className={`text-sm font-semibold ${tone.text}`}>{slotClass.title}</p>
-                          <p className="text-xs text-muted flex items-center gap-1 mt-0.5">
+                          <p className="text-xs text-muted flex flex-wrap items-center gap-1 mt-0.5">
                             <Icon name="clock" size={12} /> {slotClass.displayTime} · {slotClass.batch || 'All Batches'}
                           </p>
                         </button>
@@ -244,15 +244,15 @@ export default function LiveClassesPage() {
         {/* SIDEBAR */}
         <div className="space-y-5">
           <div className="card p-5">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col gap-4 mb-4 sm:flex-row sm:items-center sm:justify-between">
               <p className="font-display font-bold text-ink">
                 {MONTHS[miniMonth]} <span className="font-normal text-muted">{year}</span>
               </p>
               <div className="flex gap-1">
-                <button onClick={() => setMiniMonth((m) => (m === 0 ? 11 : m - 1))} className="w-7 h-7 rounded-full hover:bg-canvas text-muted flex items-center justify-center">
+                <button onClick={() => setMiniMonth((m) => (m === 0 ? 11 : m - 1))} className="w-9 h-9 rounded-full hover:bg-canvas text-muted flex items-center justify-center">
                   <Icon name="chevron-left" size={14} />
                 </button>
-                <button onClick={() => setMiniMonth((m) => (m === 11 ? 0 : m + 1))} className="w-7 h-7 rounded-full hover:bg-canvas text-muted flex items-center justify-center">
+                <button onClick={() => setMiniMonth((m) => (m === 11 ? 0 : m + 1))} className="w-9 h-9 rounded-full hover:bg-canvas text-muted flex items-center justify-center">
                   <Icon name="chevron-right" size={14} />
                 </button>
               </div>
@@ -283,7 +283,7 @@ export default function LiveClassesPage() {
             <Icon name="plus" size={16} /> Add New Task
           </button>
 
-          <div className="card p-5 flex items-center justify-around text-center">
+          <div className="card p-5 flex flex-col gap-4 text-center sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-2xl font-display font-bold text-violet">{liveClasses.filter((c) => c.status === 'live').length.toString().padStart(2, '0')}</p>
               <p className="text-xs text-muted mt-1">Course in progress</p>

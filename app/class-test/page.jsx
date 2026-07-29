@@ -94,19 +94,19 @@ export default function ClassTestPage() {
 
       {loading ? <p className="text-sm text-muted mb-4">Loading class tests...</p> : null}
 
-      <div className="grid lg:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         {list.map((t) => (
-          <div key={t.id} className="card p-5 flex items-center gap-4">
+          <div key={t.id} className="card p-5 flex flex-col gap-4 sm:flex-row sm:items-center">
             <div className="w-14 h-14 rounded-2xl bg-violet/10 text-violet flex flex-col items-center justify-center shrink-0">
               <span className="text-xs font-semibold leading-none">{new Date(t.createdAt).toLocaleDateString('en-IN', { day: '2-digit' })}</span>
               <span className="text-[10px] uppercase">{new Date(t.createdAt).toLocaleDateString('en-IN', { month: 'short' })}</span>
             </div>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex flex-col gap-2 mb-1 sm:flex-row sm:items-center sm:gap-2">
                 <h3 className="font-display font-semibold text-ink text-sm truncate">{t.title}</h3>
                 <Badge tone="muted">{t.subjectLabel}</Badge>
               </div>
-              <p className="text-xs text-muted flex items-center gap-3">
+              <p className="text-xs text-muted flex flex-wrap gap-3">
                 <span className="flex items-center gap-1"><Icon name="clock" size={13} /> {t.durationMins} mins</span>
                 <span>{t.numQuestions} questions</span>
                 <span>{t.subjectLabel}</span>
@@ -116,7 +116,7 @@ export default function ClassTestPage() {
             {tab === 'upcoming' ? (
               <button
                 onClick={() => openTest(`/class-test/${encodeURIComponent(t.classId || 'all-subjects')}/${encodeURIComponent(String(t.id))}`)}
-                className="bg-brand text-white text-xs font-semibold px-4 py-2 rounded-lg shrink-0"
+                className="bg-brand text-white text-xs font-semibold px-4 py-2 rounded-lg w-full sm:w-auto shrink-0"
               >
                 Start Test
               </button>

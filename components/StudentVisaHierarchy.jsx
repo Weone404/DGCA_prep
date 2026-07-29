@@ -14,7 +14,7 @@ export default function StudentVisaHierarchy({ items, depth = 0, maxDepth = Infi
           <div key={item.id} className="space-y-3">
             <Link
               href={item.href}
-              className={`group flex items-start justify-between gap-3 rounded-2xl border border-line bg-white p-4 shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-md ${depth === 0 ? 'md:p-5' : 'md:p-4'}`}
+              className={`group flex items-start justify-between gap-3 rounded-2xl border border-line bg-white p-4 shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-md dark:border-slate-700 dark:bg-slate-900 dark:shadow-slate-950/40 ${depth === 0 ? 'md:p-5' : 'md:p-4'}`}
             >
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
@@ -23,11 +23,11 @@ export default function StudentVisaHierarchy({ items, depth = 0, maxDepth = Infi
                       <item.icon className="h-4 w-4" />
                     </div>
                   ) : null}
-                  <p className={`font-semibold text-ink ${depth === 0 ? 'text-base' : 'text-sm'}`}>{item.label}</p>
+                  <p className={`font-semibold text-ink dark:text-slate-100 ${depth === 0 ? 'text-base' : 'text-sm'}`}>{item.label}</p>
                 </div>
-                {item.description ? <p className="mt-2 text-sm text-muted">{item.description}</p> : null}
+                {item.description ? <p className="mt-2 text-sm text-muted dark:text-slate-400">{item.description}</p> : null}
               </div>
-              <div className="rounded-full bg-canvas p-2 text-muted transition-colors duration-200 group-hover:bg-brand-light group-hover:text-brand">
+              <div className="rounded-full bg-canvas p-2 text-muted transition-colors duration-200 group-hover:bg-brand-light group-hover:text-brand dark:bg-slate-800 dark:text-slate-300 dark:group-hover:bg-brand/20 dark:group-hover:text-brand">
                 <ArrowRight className="h-4 w-4" />
               </div>
             </Link>

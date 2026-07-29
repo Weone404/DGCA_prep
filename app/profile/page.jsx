@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import AppShell from '@/components/AppShell'
 import Icon from '@/components/Icon'
@@ -11,10 +11,18 @@ const TABS = ['Personal Details', 'Test Results', 'Notification', 'Privacy', 'St
 
 export default function ProfilePage() {
   const router = useRouter()
-  const { user } = useAuth()
+  const { user, updateUser } = useAuth()
   const [tab, setTab] = useState('Personal Details')
   const [testResults, setTestResults] = useState([])
   const [loadingResults, setLoadingResults] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+  const [avatarUrl, setAvatarUrl] = useState('')
+  const [avatarPreview, setAvatarPreview] = useState('')
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const [avatarVersion, setAvatarVersion] = useState(0)
+  const fileInputRef = useRef(null)
+  const avatarPreviewUrlRef = useRef(null)
 
   const FIELDS = [
     { key: 'fullName', label: 'Full Name', value: (user && user.name) || '' },
@@ -30,8 +38,21 @@ export default function ProfilePage() {
   const [saved, setSaved] = useState(false)
 
   useEffect(() => {
-    setForm(Object.fromEntries(FIELDS.map((f) => [f.key, f.value])))
+    const nextForm = Object.fromEntries(FIELDS.map((f) => [f.key, f.value]))
+    setForm(nextForm)
+    setAvatarUrl((user?.avatar || '').replace(/\?t=\d+/g, ''))
+    setAvatarPreview('')
+    setError('')
   }, [user])
+
+  useEffect(() => {
+    return () => {
+      if (avatarPreviewUrlRef.current) {
+        URL.revokeObjectURL(avatarPreviewUrlRef.current)
+        avatarPreviewUrlRef.current = null
+      }
+    }
+  }, [])
 
   useEffect(() => {
     if (tab === 'Test Results' && user?.email) {
@@ -75,12 +96,131 @@ export default function ProfilePage() {
   function update(key, value) {
     setForm((f) => ({ ...f, [key]: value }))
     setSaved(false)
+    setError('')
   }
 
-  function save(e) {
+  function getAvatarSrc() {
+    const base = avatarPreview || avatarUrl || user?.avatar || ''
+    if (!base) return ''
+    if (base.startsWith('blob:')) return base
+    if (base.includes('?')) return base
+    return `${base}?t=${avatarVersion || Date.now()}`
+  }
+
+  async function handleAvatarUpload(file) {
+    if (!file || !user?.id) {
+      setError('Please sign in before uploading a photo.')
+      return
+    }
+
+    if (!file.type.startsWith('image/')) {
+      setError('Please select an image file.')
+      return
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Please choose an image smaller than 5MB.')
+      return
+    }
+
+    const previewUrl = URL.createObjectURL(file)
+    if (avatarPreviewUrlRef.current) {
+      URL.revokeObjectURL(avatarPreviewUrlRef.current)
+      avatarPreviewUrlRef.current = null
+    }
+    avatarPreviewUrlRef.current = previewUrl
+    setAvatarPreview(previewUrl)
+    setUploadingAvatar(true)
+    setError('')
+
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('userId', String(user.id))
+
+      const response = await fetch('/api/profile/avatar', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data?.error || 'Image upload failed.')
+      }
+
+      setAvatarUrl(data.publicUrl)
+      setAvatarPreview('')
+      setAvatarVersion(Date.now())
+      setSaved(false)
+      setError('')
+    } catch (err) {
+      setError(err?.message || 'Failed to upload avatar.')
+      setAvatarPreview('')
+    } finally {
+      setUploadingAvatar(false)
+    }
+  }
+
+  async function save(e) {
     e.preventDefault()
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2500)
+    if (!user?.email) {
+      setError('You need to be signed in before saving your profile.')
+      return
+    }
+
+    setSaving(true)
+    setError('')
+
+    try {
+      const baseUser = {
+        id: user.id,
+        name: form.fullName || user.name || '',
+        email: form.email || user.email || '',
+        address: form.address || '',
+        city: form.city || '',
+        state: form.state || '',
+        zip: form.zip || '',
+        country: form.country || '',
+        avatar: avatarUrl || user.avatar || '',
+      }
+
+      const changedFields = Object.entries(baseUser).reduce((acc, [key, value]) => {
+        const currentValue = user?.[key]
+        if (value !== currentValue) acc[key] = value
+        return acc
+      }, {})
+
+      const payload = {
+        id: user.id,
+        ...(Object.keys(changedFields).length ? changedFields : baseUser),
+      }
+
+      const response = await fetch('/api/user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+
+      const data = await response.json()
+      if (!response.ok) throw new Error(data?.error || 'Unable to save profile.')
+
+      const updatedUser = {
+        ...user,
+        ...payload,
+        name: payload.name || user.name,
+        email: payload.email || user.email,
+        avatar: payload.avatar || user.avatar,
+      }
+
+      updateUser(updatedUser)
+      setSaved(true)
+      setError('')
+    } catch (err) {
+      setError(err?.message || 'Unable to save profile.')
+      setSaved(false)
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -89,7 +229,7 @@ export default function ProfilePage() {
         {/* left summary card */}
         <div className="card p-6">
           <div className="flex flex-col items-center text-center">
-            <img src={user.avatar} alt={user.name} className="w-24 h-24 rounded-full object-cover mb-4" />
+            <img src={getAvatarSrc() || user.avatar} alt={user.name} className="w-24 h-24 rounded-full object-cover mb-4" />
             <h2 className="font-display font-bold text-ink">{user.name}</h2>
             <span className="mt-1 text-xs font-semibold bg-coral/10 text-coral px-2.5 py-1 rounded-full">{user.role || 'Student'}</span>
 
@@ -148,8 +288,24 @@ export default function ProfilePage() {
             <form onSubmit={save}>
               <div className="flex justify-center mb-8">
                 <div className="relative">
-                  <img src={user.avatar} alt="" className="w-24 h-24 rounded-full object-cover" />
-                  <button type="button" className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-violet text-white flex items-center justify-center">
+                  <img src={getAvatarSrc() || user.avatar} alt="" className="w-24 h-24 rounded-full object-cover" />
+                  {uploadingAvatar ? (
+                    <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center text-white text-xs font-semibold">
+                      Uploading...
+                    </div>
+                  ) : null}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      if (file) handleAvatarUpload(file)
+                      e.target.value = ''
+                    }}
+                  />
+                  <button type="button" onClick={() => fileInputRef.current?.click()} className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-violet text-white flex items-center justify-center">
                     <Icon name="camera" size={14} />
                   </button>
                 </div>
@@ -168,14 +324,23 @@ export default function ProfilePage() {
                 ))}
               </div>
 
-              <div className="flex items-center gap-3 mt-7">
-                <button type="submit" className="bg-brand hover:bg-brand-dark transition-colors text-white text-sm font-semibold px-6 py-3 rounded-xl">
-                  Save profile
+              <div className="flex items-center gap-3 mt-7 flex-wrap">
+                <button type="submit" disabled={saving || uploadingAvatar} className="bg-brand hover:bg-brand-dark transition-colors text-white text-sm font-semibold px-6 py-3 rounded-xl disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                  {saving ? <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> : null}
+                  {saving ? 'Saving...' : 'Save profile'}
                 </button>
-                <button type="button" onClick={() => setForm(Object.fromEntries(FIELDS.map((f) => [f.key, f.value])))} className="border border-line text-ink text-sm font-semibold px-6 py-3 rounded-xl">
+                <button type="button" onClick={() => {
+                  setForm(Object.fromEntries(FIELDS.map((f) => [f.key, f.value])))
+                  setAvatarUrl((user?.avatar || '').replace(/\?t=\d+/g, ''))
+                  setAvatarPreview('')
+                  setAvatarVersion(Date.now())
+                  setError('')
+                  setSaved(false)
+                }} className="border border-line text-ink text-sm font-semibold px-6 py-3 rounded-xl">
                   Cancel
                 </button>
                 {saved && <span className="text-brand text-sm font-medium ml-2 flex items-center gap-1"><Icon name="check" size={15} /> Saved</span>}
+                {error ? <span className="text-sm text-coral font-medium">{error}</span> : null}
               </div>
             </form>
           )}

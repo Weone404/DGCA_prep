@@ -39,7 +39,7 @@ const PLANS = {
 }
 
 const TABS = [
-  { id: 'lectures', label: '🎬 Lectures' },
+  
   { id: 'shorts', label: '⚡ Short Videos' },
   { id: 'personalysis', label: '🧠 Personalysis' },
 ]
@@ -91,11 +91,15 @@ function buildSectionItems(sectionData, prefix) {
     (section?.videos || []).map((video, index) => ({
       ...video,
       id: `${prefix}-${sectionName}-${index + 1}`,
-      subject: video.chapter || sectionName,
+      subject: String(video.subject || sectionName || video.chapter || 'Other').trim(),
       locked: prefix === 'pa',
       duration: video.duration || '8 min',
     })),
   )
+}
+
+function buildSubjectOptions(source) {
+  return ['All', ...Array.from(new Set(source.map((item) => String(item.subject || 'Other').trim())))]
 }
 
 const SHORT_VIDEOS = buildSectionItems(SHORT_VIDEOS_DATA, 'sv')
@@ -106,6 +110,9 @@ const PERSONALYSIS = buildSectionItems(PERSONALYSIS_DATA, 'pa')
 const GLOBAL_INDEX_MAP = new Map(LECTURES_ARRAY.map((l, i) => [l.id, i]))
 
 function isLectureFree({ item, idx, tab, subscribed, user }) {
+  // Verified users can view everything
+  if (user?.is_verified) return true
+
   if (tab === 'personalysis') return !!user && subscribed
   if (subscribed) return true
   if (tab === 'shorts') return true // short videos are always free
@@ -601,10 +608,10 @@ function LecturePlayer({ lecture, free, inlinePlaying, onPlay }) {
 export default function LecturesPage() {
   const router = useRouter()
   const { user } = useAuth()
-  const [tab, setTab] = useState('lectures')
+    const [tab, setTab] = useState('shorts')
   const [subject, setSubject] = useState('All')
   const [search, setSearch] = useState('')
-  const [active, setActive] = useState(() => LECTURES_ARRAY[0] ?? null)
+  const [active, setActive] = useState(() => SHORT_VIDEOS[0] ?? null)
   const [inlinePlaying, setInlinePlaying] = useState(false)
   const [showPaywall, setShowPaywall] = useState(false)
   const [subscription, setSubscription] = useState(null) // { planLabel, expiresAt } | null
@@ -622,23 +629,52 @@ export default function LecturesPage() {
   const subscribed = !!subscription
   const remainingDays = subscribed ? daysRemaining(subscription.expiresAt) : 0
 
-  const source = useMemo(
-    () => ({ lectures: LECTURES_ARRAY, shorts: SHORT_VIDEOS, personalysis: PERSONALYSIS }[tab]),
-    [tab],
-  )
+  const verified = !!user?.is_verified
+
+  const source = useMemo(() => {
+    const mapping = { lectures: LECTURES_ARRAY, shorts: SHORT_VIDEOS, personalysis: PERSONALYSIS }
+    if (verified) return mapping[tab]
+    if (tab === 'shorts') return SHORT_VIDEOS
+    if (tab === 'personalysis') return PERSONALYSIS
+    // Non-verified users should not see full lectures; show nothing and prompt verification
+    return []
+  }, [tab, verified])
 
   // Subject folders for the current tab (used by the browse-by-folder view on
   // Short Videos / Personalysis). Recomputed only when the tab changes.
   const folders = useMemo(() => buildSubjectFolders(source, SUBJECTS), [source])
 
+  const subjectOptions = useMemo(() => buildSubjectOptions(source), [source])
+
   const filtered = useMemo(() => {
-    let list = subject === 'All' ? source : source.filter((l) => l.subject === subject)
+    let list
+    if (subject === 'All') {
+      list = source
+    } else {
+      const needle = subject.toLowerCase()
+      list = source.filter((l) => (l.subject || '').toLowerCase().includes(needle))
+    }
+
     if (search) {
       const q = search.toLowerCase()
       list = list.filter((l) => l.title.toLowerCase().includes(q))
     }
+
     return list
   }, [source, subject, search])
+
+  useEffect(() => {
+    if (!filtered.length) {
+      setActive(null)
+      return
+    }
+
+    const isActiveVisible = active && filtered.some((item) => item.id === active.id)
+    if (!isActiveVisible) {
+      setActive(filtered[0])
+      setInlinePlaying(false)
+    }
+  }, [filtered, active])
 
   const isItemFree = useCallback(
     (item, idx) => isLectureFree({ item, idx, tab, subscribed, user }),
@@ -658,7 +694,7 @@ export default function LecturesPage() {
     setSubject('All')
     setSearch('')
     setInlinePlaying(false)
-    const newSource = { lectures: LECTURES_ARRAY, shorts: SHORT_VIDEOS, personalysis: PERSONALYSIS }[t]
+    const newSource = { shorts: SHORT_VIDEOS, personalysis: PERSONALYSIS }[t]
     setActive(newSource[0] ?? null)
   }, [])
 
@@ -713,8 +749,6 @@ export default function LecturesPage() {
         )}
       </div>
 
-      {/* Live Classes */}
-      <LiveClassesSection />
 
       {/* Search */}
       <div className="flex items-center gap-2 card px-3 py-2">
@@ -761,6 +795,13 @@ export default function LecturesPage() {
           </button>
         </div>
       )}
+
+          {tab === 'lectures' && !verified && (
+            <div className="card border border-dashed border-muted p-4 mb-5 text-sm text-ink">
+              <p className="font-semibold mb-2">🔒 Verify your account to access full lectures</p>
+              <p className="text-muted mb-4">Short videos are available to everyone. Verify your account to view recorded lectures and additional content.</p>
+            </div>
+          )}
 
       {/* Tabs */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
@@ -894,7 +935,7 @@ export default function LecturesPage() {
         {/* Sidebar list */}
         <div className="card p-5">
           <div className="flex flex-wrap gap-2 mb-4">
-            {['All', ...SUBJECTS.map((s) => s.name)].map((s) => (
+            {subjectOptions.map((s) => (
               <button
                 key={s}
                 onClick={() => setSubject(s)}

@@ -1,23 +1,26 @@
-import { jsonResponse, normalizeAttendanceRecord, supabaseRequest } from '../../../../lib/supabase'
+import { NextResponse } from 'next/server'
+import { listAttendance, saveAttendance } from '../../../../lib/teacher-data'
 
-const fallbackAttendance = [
-  { date: '2026-07-10', batch: 'A1', email: 'kotwaljaydeep369@gmail.com', name: 'Jaydeep Singh', status: 'present', note: 'On time' },
-]
-
-export async function GET() {
-  const { data, error } = await supabaseRequest('attendance', { query: '*' })
-  if (error) return jsonResponse({ attendance: fallbackAttendance })
-  const attendance = Array.isArray(data) ? data.map(normalizeAttendanceRecord) : fallbackAttendance
-  return jsonResponse({ attendance })
+export async function GET(request) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const payload = await listAttendance({ date: searchParams.get('date') || '', batch: searchParams.get('batch') || '' })
+    return NextResponse.json(payload)
+  } catch (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
 }
 
 export async function POST(req) {
-  const body = await req.json()
-  const records = Array.isArray(body?.records) ? body.records : []
-  const { data, error } = await supabaseRequest('attendance', { method: 'POST', body: records })
-  if (error) return jsonResponse({ error }, 500)
-
-  const refreshed = await supabaseRequest('attendance', { query: '*' })
-  const attendance = Array.isArray(refreshed.data) ? refreshed.data.map(normalizeAttendanceRecord) : records
-  return jsonResponse({ attendance })
+  try {
+    const body = await req.json()
+    const payload = await saveAttendance({
+      date: body?.date,
+      batch: body?.batch,
+      records: body?.records || [],
+    })
+    return NextResponse.json(payload)
+  } catch (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
 }

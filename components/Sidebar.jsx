@@ -63,7 +63,7 @@ export default function Sidebar() {
     if (isGroup) {
       return (
         <div key={item.id} className="space-y-1">
-          <div className={`flex items-center rounded-xl border border-transparent transition-all duration-200 ${active || hasActiveChild ? 'bg-brand-light' : 'hover:bg-canvas'}`}>
+          <div className={`flex items-center rounded-xl border border-transparent transition-all duration-200 ${active || hasActiveChild ? 'bg-brand-light dark:bg-slate-800' : 'hover:bg-canvas dark:hover:bg-slate-800'}`}>
             <Link
               href={item.href}
               className={`flex-1 flex items-center gap-3 px-3 py-2.5 rounded-l-xl text-[14px] font-medium relative transition-all duration-200 ease-out ${active || hasActiveChild ? 'text-brand' : 'text-muted hover:text-ink'}`}
@@ -72,7 +72,7 @@ export default function Sidebar() {
                 className={`absolute left-[-20px] top-1/2 -translate-y-1/2 h-6 w-1 rounded-r-full bg-brand transition-all duration-200 ease-out origin-center ${active || hasActiveChild ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-0'}`}
                 aria-hidden="true"
               />
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/80 text-ink shadow-sm">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/80 text-ink shadow-sm dark:bg-slate-800 dark:text-slate-100">
                 <item.icon size={18} />
               </span>
               <span className="flex-1 text-left">{item.label}</span>
@@ -81,7 +81,7 @@ export default function Sidebar() {
               type="button"
               onClick={() => setExpanded((current) => ({ ...current, [item.id]: !current[item.id] }))}
               aria-label={`${expandedState ? 'Collapse' : 'Expand'} ${item.label}`}
-              className={`mr-1 flex h-9 w-9 items-center justify-center rounded-lg text-muted transition-colors duration-200 hover:bg-white hover:text-ink ${expandedState ? 'text-brand' : ''}`}
+              className={`mr-1 flex h-9 w-9 items-center justify-center rounded-lg text-muted transition-colors duration-200 hover:bg-white hover:text-ink dark:hover:bg-slate-800 dark:hover:text-slate-100 ${expandedState ? 'text-brand' : ''}`}
             >
               <Icon name="chevron-down" size={16} className={`transition-transform duration-200 ${expandedState ? 'rotate-180' : ''}`} />
             </button>
@@ -100,14 +100,14 @@ export default function Sidebar() {
       <Link
         key={item.id}
         href={item.href}
-        className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] font-medium relative transition-all duration-200 ease-out ${active ? 'text-brand bg-brand-light' : 'text-muted hover:bg-canvas hover:text-ink hover:translate-x-0.5'}`}
+        className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] font-medium relative transition-all duration-200 ease-out ${active ? 'text-brand bg-brand-light dark:bg-slate-800' : 'text-muted hover:bg-canvas hover:text-ink hover:translate-x-0.5 dark:hover:bg-slate-800 dark:hover:text-slate-100'}`}
         style={{ marginLeft: depth * 12 }}
       >
         <span
           className={`absolute left-[-20px] top-1/2 -translate-y-1/2 h-6 w-1 rounded-r-full bg-brand transition-all duration-200 ease-out origin-center ${active ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-0'}`}
           aria-hidden="true"
         />
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/80 text-ink shadow-sm">
+        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/80 text-ink shadow-sm dark:bg-slate-800 dark:text-slate-100">
           <item.icon size={18} />
         </span>
         <span>{item.label}</span>
@@ -122,7 +122,7 @@ export default function Sidebar() {
         onClick={() => setOpen(true)}
         aria-label="Open menu"
         aria-expanded={open}
-        className="lg:hidden fixed top-4 left-4 z-40 w-11 h-11 rounded-xl2 bg-white border border-line shadow-sm flex items-center justify-center text-ink active:scale-95 transition-transform duration-150"
+        className="lg:hidden fixed top-4 left-4 z-40 w-11 h-11 rounded-xl2 border border-line bg-white shadow-sm flex items-center justify-center text-ink active:scale-95 transition-transform duration-150 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
       >
         <Icon name="menu" size={20} />
       </button>
@@ -136,7 +136,7 @@ export default function Sidebar() {
       <aside
         role="navigation"
         aria-hidden={!open}
-        className={`flex flex-col w-64 sm:w-72 lg:w-64 shrink-0 bg-white px-5 py-6 h-dvh border-r border-line fixed inset-y-0 left-0 z-50 lg:sticky lg:top-0 lg:z-0 transition-transform duration-300 ease-in-out will-change-transform ${open ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}
+        className={`flex flex-col w-full max-w-[92vw] sm:max-w-sm lg:w-64 shrink-0 border-r border-line bg-white px-5 py-6 min-h-screen fixed inset-y-0 left-0 z-50 overflow-y-auto lg:sticky lg:top-0 lg:z-0 transition-transform duration-300 ease-in-out will-change-transform dark:border-slate-800 dark:bg-slate-900 ${open ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}
       >
         <div className="flex items-center justify-between mb-8">
           <Link href="/dashboard" className="flex items-center gap-3 px-2 group">
@@ -144,8 +144,8 @@ export default function Sidebar() {
               W
             </div>
             <div>
-              <p className="font-display font-bold text-ink leading-none">WeOne aviation</p>
-              <p className="text-xs text-muted mt-1">Learn From Home</p>
+              <p className="font-display font-bold text-ink leading-none dark:text-slate-100">WeOne aviation</p>
+              <p className="mt-1 text-xs text-muted">Learn From Home</p>
             </div>
           </Link>
 
@@ -153,7 +153,7 @@ export default function Sidebar() {
             type="button"
             onClick={() => setOpen(false)}
             aria-label="Close menu"
-            className="lg:hidden w-9 h-9 flex items-center justify-center rounded-lg text-muted hover:text-ink hover:bg-canvas transition-colors duration-150"
+            className="lg:hidden flex h-9 w-9 items-center justify-center rounded-lg text-muted transition-colors duration-150 hover:bg-canvas hover:text-ink dark:hover:bg-slate-800 dark:hover:text-slate-100"
           >
             <Icon name="x" size={18} />
           </button>
@@ -163,8 +163,8 @@ export default function Sidebar() {
           {SIDEBAR_ITEMS.map((item) => renderItem(item))}
         </nav>
 
-        <div className="mt-6 rounded-xl2 bg-gradient-page p-4 text-center transition-shadow duration-300 hover:shadow-md">
-          <div className="w-14 h-14 mx-auto rounded-2xl bg-white/70 flex items-center justify-center overflow-hidden mb-2">
+        <div className="mt-6 rounded-xl2 bg-gradient-page p-4 text-center transition-shadow duration-300 hover:shadow-md dark:bg-slate-800/80">
+          <div className="mb-2 mx-auto flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl bg-white/70 dark:bg-slate-700/70">
             <Image src={encodeURI('/Flying around the world-bro.webp')} alt="Flying around the world" width={56} height={56} className="object-cover" />
           </div>
 

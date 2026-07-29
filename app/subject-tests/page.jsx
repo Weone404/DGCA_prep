@@ -11,11 +11,10 @@ import RouteLoadingOverlay from '@/components/RouteLoadingOverlay'
 const DIFF_TONE = { Easy: 'brand', Medium: 'violet', Hard: 'coral' }
 
 export default function SubjectTestsPage() {
-  const { subjects: SUBJECTS, subjectTests: SUBJECT_TESTS } = useAppContent()
+  const { subjects: SUBJECTS, subjectTests: SUBJECT_TESTS, user: appUser } = useAppContent()
   const [activeSubject, setActiveSubject] = useState('Air Regulations')
   const [filter, setFilter] = useState('all')
   const [selected, setSelected] = useState(null)
-  const [studentData, setStudentData] = useState(null)
   const [pendingRoute, setPendingRoute] = useState('')
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
@@ -39,28 +38,21 @@ export default function SubjectTestsPage() {
   }, [SUBJECTS])
 
   useEffect(() => {
-    let mounted = true
-    ;(async () => {
-      try {
-        const res = await fetch('/api/students', {
-          credentials: 'include',
-        })
-        if (!mounted) return
-        const data = await res.json()
-        // expect array
-        const first = Array.isArray(data) ? data[0] : data
-        setStudentData(first)
-      } catch (err) {
-        // ignore
-      }
-    })()
-    return () => (mounted = false)
-  }, [])
+    if (!SUBJECT_TESTS?.length) return
 
-  useEffect(() => {
-    SUBJECT_TESTS.slice(0, 20).forEach((test) => {
-      router.prefetch(`/subject-tests/${test.id}`)
-    })
+    const prefetchTests = () => {
+      SUBJECT_TESTS.slice(0, 20).forEach((test) => {
+        router.prefetch(`/subject-tests/${test.id}`)
+      })
+    }
+
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      const id = window.requestIdleCallback(prefetchTests)
+      return () => window.cancelIdleCallback?.(id)
+    }
+
+    const timeoutId = window.setTimeout(prefetchTests, 0)
+    return () => window.clearTimeout(timeoutId)
   }, [SUBJECT_TESTS, router])
 
   function navigateWithLoader(href) {
@@ -70,14 +62,14 @@ export default function SubjectTestsPage() {
     })
   }
 
+  const completedLessons = appUser?.completedLessonsLastDay ?? appUser?.completed_lessons_last_day ?? appUser?.completed_lessons ?? 5
+
   return (
     <AppShell>
       <div className="w-full mb-6">
         <div className="w-full bg-black text-white p-4 rounded-lg flex items-center justify-between gap-4">
           <div>
-            <p className="font-semibold">{`You have completed ${
-              (studentData?.completedLessonsLastDay ?? studentData?.completed_lessons_last_day ?? studentData?.completed_lessons ?? 5)
-            } lessons in the last day.`}</p>
+            <p className="font-semibold">{`You have completed ${completedLessons} lessons in the last day.`}</p>
             <p className="text-sm text-white/80">Start your learning today.</p>
           </div>
           <button onClick={() => navigateWithLoader('/live-classes')} className="bg-white text-black px-4 py-2 rounded-md font-semibold">Start Learning</button>

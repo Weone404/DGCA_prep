@@ -45,8 +45,8 @@ export default function ShortVideos({ dataConfig, videoKey = 'videos', accentCol
         <div className="flex items-center gap-3 mb-6">
           <span className="text-3xl">{sectionIcon}</span>
           <div>
-            <h3 className="font-bold text-lg text-ink">{sectionTitle}</h3>
-            <p className="text-sm text-muted">{sectionDesc}</p>
+            <h3 className="text-lg font-bold text-ink dark:text-slate-100">{sectionTitle}</h3>
+            <p className="text-sm text-muted dark:text-slate-400">{sectionDesc}</p>
           </div>
           <span className="ml-auto text-xs font-semibold bg-green-500 text-white px-3 py-1 rounded-full">🆓 Free</span>
         </div>
@@ -68,10 +68,10 @@ export default function ShortVideos({ dataConfig, videoKey = 'videos', accentCol
                 <div className="p-4">
                   <div className="flex items-start justify-between gap-2 mb-3">
                     <div className="text-3xl">{cfg.icon}</div>
-                    <span className="text-xs font-semibold bg-canvas text-muted px-2 py-1 rounded-full">{total} videos</span>
+                    <span className="rounded-full bg-canvas px-2 py-1 text-xs font-semibold text-muted dark:bg-slate-800 dark:text-slate-300">{total} videos</span>
                   </div>
-                  <h4 className="font-bold text-sm text-ink mb-1">{subject}</h4>
-                  {cfg.subtitle && <p className="text-xs text-muted mb-3">{cfg.subtitle}</p>}
+                  <h4 className="mb-1 text-sm font-bold text-ink dark:text-slate-100">{subject}</h4>
+                  {cfg.subtitle && <p className="mb-3 text-xs text-muted dark:text-slate-400">{cfg.subtitle}</p>}
                   {cfg.examTags?.length > 0 && (
                     <div className="flex gap-2 flex-wrap mb-3">
                       {cfg.examTags.map((tag) => (
@@ -81,9 +81,9 @@ export default function ShortVideos({ dataConfig, videoKey = 'videos', accentCol
                       ))}
                     </div>
                   )}
-                  <div className="bg-canvas rounded-lg p-2">
+                  <div className="rounded-lg bg-canvas p-2 dark:bg-slate-800">
                     <div className="flex justify-between text-xs mb-1">
-                      <span className="text-muted">{filled} / {total} uploaded</span>
+                      <span className="text-muted dark:text-slate-400">{filled} / {total} uploaded</span>
                       <span className="font-semibold" style={{ color: cfg.color }}>{Math.round((filled / total) * 100)}%</span>
                     </div>
                     <div className="h-1.5 bg-white rounded-full overflow-hidden">
@@ -110,13 +110,13 @@ export default function ShortVideos({ dataConfig, videoKey = 'videos', accentCol
         <div className="flex items-center gap-3">
           <div className="text-4xl">{selectedCfg.icon}</div>
           <div>
-            <h3 className="font-bold text-lg text-ink">{selectedSubject}</h3>
-            {selectedCfg.subtitle && <p className="text-sm text-muted">{selectedCfg.subtitle}</p>}
+            <h3 className="text-lg font-bold text-ink dark:text-slate-100">{selectedSubject}</h3>
+            {selectedCfg.subtitle && <p className="text-sm text-muted dark:text-slate-400">{selectedCfg.subtitle}</p>}
           </div>
         </div>
         <button
           onClick={() => { setSelectedSubject(null); setSearch(''); }}
-          className="px-4 py-2 text-sm font-semibold bg-canvas text-muted rounded-lg hover:bg-canvas/80"
+          className="rounded-lg bg-canvas px-4 py-2 text-sm font-semibold text-muted hover:bg-canvas/80 dark:bg-slate-800 dark:text-slate-300"
         >
           ← Back
         </button>
@@ -129,7 +129,7 @@ export default function ShortVideos({ dataConfig, videoKey = 'videos', accentCol
           placeholder={`Search in ${selectedSubject}…`}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="bg-transparent outline-none text-sm flex-1 text-ink"
+          className="flex-1 bg-transparent text-sm text-ink outline-none dark:text-slate-100"
         />
         {search && (
           <button onClick={() => setSearch('')} className="text-muted text-lg">×</button>
@@ -140,8 +140,8 @@ export default function ShortVideos({ dataConfig, videoKey = 'videos', accentCol
       {filteredVideos.length === 0 ? (
         <div className="card p-12 text-center">
           <p className="text-4xl mb-3">🔍</p>
-          <p className="text-lg font-semibold text-ink">No videos found</p>
-          <p className="text-sm text-muted mt-1">Try a different search</p>
+          <p className="text-lg font-semibold text-ink dark:text-slate-100">No videos found</p>
+          <p className="mt-1 text-sm text-muted dark:text-slate-400">Try a different search</p>
         </div>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -166,7 +166,7 @@ export default function ShortVideos({ dataConfig, videoKey = 'videos', accentCol
                   {hasVideo && (
                     <>
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/90 dark:bg-slate-800 dark:text-slate-100">
                           ▶
                         </div>
                       </div>
@@ -177,14 +177,14 @@ export default function ShortVideos({ dataConfig, videoKey = 'videos', accentCol
                 <div className="p-3">
                   <div className="flex items-center gap-2 mb-2">
                     {video.chapter && (
-                      <span className="text-xs font-semibold bg-canvas text-muted px-2 py-0.5 rounded-full">{video.chapter}</span>
+                      <span className="rounded-full bg-canvas px-2 py-0.5 text-xs font-semibold text-muted dark:bg-slate-800 dark:text-slate-300">{video.chapter}</span>
                     )}
                     <span className="text-xs font-bold">#{idx + 1}</span>
                   </div>
-                  <p className="text-sm font-semibold text-ink line-clamp-2 mb-1">{video.title}</p>
-                  {video.description && <p className="text-xs text-muted line-clamp-2 mb-2">{video.description}</p>}
+                  <p className="mb-1 line-clamp-2 text-sm font-semibold text-ink dark:text-slate-100">{video.title}</p>
+                  {video.description && <p className="mb-2 line-clamp-2 text-xs text-muted dark:text-slate-400">{video.description}</p>}
                   {!hasVideo && (
-                    <div className="bg-canvas px-2 py-1 rounded text-xs text-muted text-center font-semibold">
+                    <div className="rounded bg-canvas px-2 py-1 text-center text-xs font-semibold text-muted dark:bg-slate-800 dark:text-slate-300">
                       ⏳ Coming Soon
                     </div>
                   )}

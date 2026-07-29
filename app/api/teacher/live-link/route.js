@@ -1,25 +1,30 @@
-import { jsonResponse, normalizeLiveLink, supabaseRequest } from '../../../../lib/supabase'
-
-const fallbackLink = { url: 'https://meet.example.com/live', label: 'Join live class', setAt: new Date().toISOString() }
+import { NextResponse } from 'next/server'
+import { clearLiveLink, getLiveLink, setLiveLink } from '../../../../lib/teacher-data'
 
 export async function GET() {
-  const { data, error } = await supabaseRequest('live_links', { query: '*' })
-  if (error) return jsonResponse({ link: fallbackLink })
-  const first = Array.isArray(data) && data.length ? data[0] : null
-  return jsonResponse({ link: first ? normalizeLiveLink(first) : null })
+  try {
+    const payload = await getLiveLink()
+    return NextResponse.json(payload)
+  } catch (error) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 })
+  }
 }
 
 export async function POST(req) {
-  const body = await req.json()
-  const link = { url: body?.url, label: body?.label || 'Live now', setAt: new Date().toISOString() }
-  const { error } = await supabaseRequest('live_links', { method: 'POST', body: link })
-  if (error) return jsonResponse({ error }, 500)
-
-  return jsonResponse({ link })
+  try {
+    const body = await req.json()
+    const payload = await setLiveLink(body)
+    return NextResponse.json(payload)
+  } catch (error) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 })
+  }
 }
 
 export async function DELETE() {
-  const { error } = await supabaseRequest('live_links', { method: 'DELETE' })
-  if (error) return jsonResponse({ error }, 500)
-  return jsonResponse({ ok: true })
+  try {
+    const payload = await clearLiveLink()
+    return NextResponse.json(payload)
+  } catch (error) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 })
+  }
 }

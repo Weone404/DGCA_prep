@@ -2,11 +2,11 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 
 const SESSION_COOKIE = 'teacher_auth'
+const TEACHER_PASSWORD = 'dgca@teacher2026' // <-- set your password here
 
 function isValidPassword(value) {
-  const expected = process.env.TEACHER_PASSWORD
-  if (!expected || !value) return false
-  return String(value) === String(expected)
+  if (!value) return false
+  return String(value) === String(TEACHER_PASSWORD)
 }
 
 export async function GET() {

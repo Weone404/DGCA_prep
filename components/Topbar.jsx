@@ -48,7 +48,7 @@ function formatAge(ms) {
   return `${days}d ago`
 }
 
-export default function Topbar({ title }) {
+export default function Topbar({ title, theme, toggleTheme }) {
   const [query, setQuery] = useState('')
   const [openMenu, setOpenMenu] = useState(false)
   const [mobileNav, setMobileNav] = useState(false)
@@ -208,26 +208,35 @@ export default function Topbar({ title }) {
     <header className="flex flex-wrap items-center justify-between gap-3 sm:gap-4 px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-4">
       <div className="flex items-center gap-2 sm:gap-3 min-w-0">
         {/* hamburger - visible on small screens */}
-        <button onClick={() => setMobileNav(true)} className="lg:hidden p-2 rounded-md bg-white/60 mr-2">
+        <button onClick={() => setMobileNav(true)} className="mr-2 rounded-md border border-line bg-white/70 p-2 dark:border-slate-700 dark:bg-slate-900/70 lg:hidden">
           <Icon name="menu" size={18} />
         </button>
-        <h1 className="text-xl sm:text-2xl font-display font-bold text-ink truncate">{pageTitle}</h1>
-        <div className="hidden md:flex items-center gap-2 bg-white border border-line rounded-full px-3 py-2 w-52 sm:w-64 shadow-card">
+        <h1 className="truncate text-xl font-display font-bold text-ink dark:text-slate-100 sm:text-2xl">{pageTitle}</h1>
+        <div className="hidden w-52 items-center gap-2 rounded-full border border-line bg-white px-3 py-2 shadow-card dark:border-slate-700 dark:bg-slate-900 sm:w-64 md:flex">
           <Icon name="search" size={16} className="text-muted" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search anything..."
-            className="bg-transparent outline-none text-sm text-ink placeholder:text-muted w-full"
+            className="w-full bg-transparent text-sm text-ink outline-none placeholder:text-muted dark:text-slate-100"
           />
         </div>
       </div>
 
       <div className="flex items-center gap-3 sm:gap-4 ml-auto">
+        <button
+          type="button"
+          onClick={toggleTheme}
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-line bg-white text-ink shadow-card transition-colors duration-300 hover:text-brand dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+          aria-label="Toggle dark mode"
+        >
+          <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={18} />
+        </button>
+
         <div className="relative" ref={notificationRef}>
           <button
             onClick={toggleNotifications}
-            className="relative w-10 h-10 rounded-full bg-white shadow-card flex items-center justify-center text-muted hover:text-brand transition-colors"
+            className="relative flex h-10 w-10 items-center justify-center rounded-full border border-line bg-white text-muted shadow-card transition-colors hover:text-brand dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
             aria-label="Open notifications"
           >
             <Icon name="bell" size={18} />
@@ -235,9 +244,9 @@ export default function Topbar({ title }) {
           </button>
 
           {notificationOpen && (
-            <div className="absolute right-0 mt-2 w-[22rem] max-w-[88vw] bg-white rounded-2xl shadow-card border border-line py-2 z-30">
-              <div className="flex items-center justify-between px-4 py-2 border-b border-line">
-                <p className="text-sm font-semibold text-ink">Notifications</p>
+            <div className="absolute right-0 z-30 mt-2 w-[22rem] max-w-[88vw] rounded-2xl border border-line bg-white py-2 shadow-card dark:border-slate-700 dark:bg-slate-900">
+              <div className="flex items-center justify-between border-b border-line px-4 py-2 dark:border-slate-700">
+                <p className="text-sm font-semibold text-ink dark:text-slate-100">Notifications</p>
                 <p className="text-xs text-muted">{unreadCount > 0 ? `${unreadCount} new` : 'Up to date'}</p>
               </div>
 
@@ -247,9 +256,9 @@ export default function Topbar({ title }) {
                     <button
                       key={item.id}
                       onClick={() => openNotificationTarget(item.href)}
-                      className="w-full text-left px-4 py-3 hover:bg-canvas transition-colors border-b border-line/60"
+                      className="w-full border-b border-line/60 px-4 py-3 text-left transition-colors hover:bg-canvas dark:hover:bg-slate-800"
                     >
-                      <p className="text-sm font-semibold text-ink line-clamp-1">{item.title}</p>
+                      <p className="line-clamp-1 text-sm font-semibold text-ink dark:text-slate-100">{item.title}</p>
                       <p className="text-xs text-muted mt-0.5 line-clamp-1">{item.subtitle || 'Update available'}</p>
                       <p className="text-[11px] text-muted mt-1">{formatAge(item.at)}</p>
                     </button>
@@ -265,13 +274,13 @@ export default function Topbar({ title }) {
         {user ? (
           <div className="relative">
             <button onClick={() => setOpenMenu((v) => !v)} className="flex items-center gap-2">
-              <img src={user.avatar} alt={user.name} className="w-9 h-9 rounded-full object-cover" />
-              <span className="hidden sm:block text-sm font-semibold text-ink">{user.name}</span>
+              <img src={user.avatar} alt={user.name} className="h-9 w-9 rounded-full object-cover" />
+              <span className="hidden text-sm font-semibold text-ink dark:text-slate-100 sm:block">{user.name}</span>
               <Icon name="chevron-down" size={16} className="text-muted" />
             </button>
             {openMenu && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-card border border-line py-2 z-20">
-                <Link href="/profile" className="flex items-center gap-2 px-4 py-2 text-sm text-ink hover:bg-canvas">
+              <div className="absolute right-0 z-20 mt-2 w-48 rounded-xl border border-line bg-white py-2 shadow-card dark:border-slate-700 dark:bg-slate-900">
+                <Link href="/profile" className="flex items-center gap-2 px-4 py-2 text-sm text-ink hover:bg-canvas dark:text-slate-100 dark:hover:bg-slate-800">
                   <Icon name="user" size={15} /> My Profile
                 </Link>
                 <button 
@@ -280,7 +289,7 @@ export default function Topbar({ title }) {
                     setOpenMenu(false)
                     router.push('/')
                   }}
-                  className="w-full flex items-center gap-2 px-4 py-2 text-sm text-coral hover:bg-canvas">
+                  className="flex w-full items-center gap-2 px-4 py-2 text-sm text-coral hover:bg-canvas dark:hover:bg-slate-800">
                   <Icon name="logout" size={15} /> Log out
                 </button>
               </div>
@@ -300,13 +309,13 @@ export default function Topbar({ title }) {
       {mobileNav && (
         <div className="fixed inset-0 z-40">
           <div className="absolute inset-0 bg-ink/30" onClick={() => setMobileNav(false)} />
-          <aside className="absolute left-0 top-0 bottom-0 w-full sm:w-80 md:w-72 bg-white p-6 overflow-auto">
+          <aside className="absolute left-0 top-0 bottom-0 w-full max-w-full overflow-auto bg-white p-6 sm:w-80 md:w-72 dark:border-slate-700 dark:bg-slate-900">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-2xl bg-brand flex items-center justify-center text-white font-display font-bold">W</div>
                 <div>
-                  <p className="font-display font-bold text-ink leading-none">WeOne aviation</p>
-                  <p className="text-xs text-muted mt-1">Learn From Home</p>
+                  <p className="font-display font-bold text-ink leading-none dark:text-slate-100">WeOne aviation</p>
+                  <p className="mt-1 text-xs text-muted">Learn From Home</p>
                 </div>
               </div>
               <button onClick={() => setMobileNav(false)} className="p-2 rounded-md">
@@ -316,7 +325,7 @@ export default function Topbar({ title }) {
 
             <nav className="flex flex-col gap-2">
               {NAV_ITEMS.map((item) => (
-                <Link key={item.href} href={item.href} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] font-medium text-muted hover:bg-canvas hover:text-ink">
+                <Link key={item.href} href={item.href} className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-medium text-muted hover:bg-canvas hover:text-ink dark:hover:bg-slate-800 dark:hover:text-slate-100">
                   <Icon name={item.icon} size={18} />
                   <span>{item.label}</span>
                 </Link>

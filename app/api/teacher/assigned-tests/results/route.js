@@ -1,22 +1,12 @@
-import { jsonResponse, normalizeSubmission, supabaseRequest } from '../../../../../lib/supabase'
+import { NextResponse } from 'next/server'
+import { getAssignedTestResults } from '../../../../../lib/teacher-data'
 
-const fallbackSubmissions = [
-  {
-    id: 'sub-1',
-    testId: 'test-1',
-    studentEmail: 'kotwaljaydeep369@gmail.com',
-    studentName: 'Jaydeep Singh',
-    score: 16,
-    total: 20,
-    accuracy: 80,
-    submittedAt: '2026-07-09T10:00:00',
-  },
-]
-
-export async function GET() {
-  const { data, error } = await supabaseRequest('test_submissions', { query: '*' })
-  if (error) return jsonResponse({ submissions: fallbackSubmissions })
-
-  const submissions = Array.isArray(data) ? data.map(normalizeSubmission) : fallbackSubmissions
-  return jsonResponse({ submissions })
+export async function GET(request) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const payload = await getAssignedTestResults(searchParams.get('testId'))
+    return NextResponse.json(payload)
+  } catch (error) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 })
+  }
 }

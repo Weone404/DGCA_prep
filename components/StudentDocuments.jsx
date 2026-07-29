@@ -128,7 +128,7 @@ export default function StudentDocuments() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl border border-line bg-canvas/50 p-4 sm:p-5">
+      <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl border border-line bg-canvas/50 p-4 sm:p-5 dark:border-slate-700 dark:bg-slate-900/70">
         <div className="grid gap-4 md:grid-cols-[1fr_220px]">
           <div>
             <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-muted">File</label>
@@ -136,7 +136,7 @@ export default function StudentDocuments() {
               type="file"
               accept=".jpg,.jpeg,.png,.webp,.pdf"
               onChange={(event) => setSelectedFile(event.target.files?.[0] || null)}
-              className={`w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm text-ink ${focusRing}`}
+              className={`w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm text-ink dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 ${focusRing}`}
             />
           </div>
           <div>
@@ -144,7 +144,7 @@ export default function StudentDocuments() {
             <select
               value={docType}
               onChange={(event) => setDocType(event.target.value)}
-              className={`w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm text-ink ${focusRing}`}
+              className={`w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm text-ink dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 ${focusRing}`}
             >
               {DOCUMENT_TYPES.map((type) => (
                 <option key={type.value} value={type.value}>{type.label}</option>
@@ -162,16 +162,16 @@ export default function StudentDocuments() {
       </form>
 
       <div className="mt-5">
-        <div className="mb-3 text-sm font-semibold text-ink">Uploaded Documents</div>
+        <div className="mb-3 text-sm font-semibold text-ink dark:text-slate-100">Uploaded Documents</div>
         {loading ? (
-          <div className="rounded-xl border border-line bg-canvas/40 px-4 py-3 text-sm text-muted">Loading documents…</div>
+          <div className="rounded-xl border border-line bg-canvas/40 px-4 py-3 text-sm text-muted dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-400">Loading documents…</div>
         ) : hasDocuments ? (
           <div className="space-y-3">
             {documents.map((document) => (
-              <div key={document.id} className="flex flex-col gap-2 rounded-xl border border-line p-3 sm:flex-row sm:items-center sm:justify-between">
+              <div key={document.id} className="flex flex-col gap-2 rounded-xl border border-line p-3 sm:flex-row sm:items-center sm:justify-between dark:border-slate-700">
                 <div>
-                  <div className="font-medium text-ink">{document.file_name}</div>
-                  <div className="text-sm text-muted">
+                  <div className="font-medium text-ink dark:text-slate-100">{document.file_name}</div>
+                  <div className="text-sm text-muted dark:text-slate-400">
                     {document.doc_type || 'Other'} • {document.mime_type || 'file'} • {document.file_size ? `${Math.round(document.file_size / 1024)} KB` : '—'}
                   </div>
                 </div>
@@ -182,7 +182,7 @@ export default function StudentDocuments() {
             ))}
           </div>
         ) : (
-          <div className="rounded-xl border border-dashed border-line bg-canvas/30 px-4 py-6 text-center text-sm text-muted">
+          <div className="rounded-xl border border-dashed border-line bg-canvas/30 px-4 py-6 text-center text-sm text-muted dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-400">
             No documents uploaded yet.
           </div>
         )}

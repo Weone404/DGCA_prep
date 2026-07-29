@@ -8,8 +8,6 @@ import { useAuth } from '@/lib/auth-context'
 import { useAppContent } from '@/lib/use-app-content'
 import StudentDocuments from '@/components/StudentDocuments'
 
-const ACTIVITY = [3, 5, 2, 6, 4, 7, 5]
-const DAYS = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri']
 const TODAY = new Date(2020, 5, 28) // June 28, 2020 — fixed "today" reference for the demo calendar
 
 const COURSES = [
@@ -37,6 +35,7 @@ export default function DashboardPage() {
   const [activityRange, setActivityRange] = useState('Weekly')
   const [studentData, setStudentData] = useState(null)
   const [isLoadingStats, setIsLoadingStats] = useState(true)
+  const [hoveredBar, setHoveredBar] = useState(null)
   const { user } = useAuth()
   const todayClass = LIVE_CLASSES.find((c) => c.status === 'live')
   const [currentDate, setCurrentDate] = useState(TODAY)
@@ -75,24 +74,28 @@ export default function DashboardPage() {
     return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`
   }
 
-  const manualStudyMinutes = useMemo(() => {
-    const lectureMinutes = LECTURES_ARRAY.reduce(
+  // Real, per-category study minutes derived from the user's actual lecture/test progress.
+  // This replaces the old hardcoded demo numbers and feeds both the summary text and the activity chart.
+  const rawBreakdown = useMemo(() => {
+    const lecture = LECTURES_ARRAY.reduce(
       (sum, lecture) => sum + parseDuration(lecture.duration) * ((lecture.watched ?? 0) / 100),
       0,
     )
-
-    const subjectTestMinutes = SUBJECT_TESTS.filter((test) => test.attempted).reduce(
+    const subjectTest = SUBJECT_TESTS.filter((test) => test.attempted).reduce(
       (sum, test) => sum + test.duration,
       0,
     )
-
-    const mockTestMinutes = MOCK_TESTS.filter((test) => test.attempts > 0).reduce(
+    const mockTest = MOCK_TESTS.filter((test) => test.attempts > 0).reduce(
       (sum, test) => sum + test.duration * test.attempts,
       0,
     )
-
-    return Math.round(lectureMinutes + subjectTestMinutes + mockTestMinutes)
+    return { lecture, subjectTest, mockTest }
   }, [LECTURES_ARRAY, SUBJECT_TESTS, MOCK_TESTS])
+
+  const manualStudyMinutes = useMemo(
+    () => Math.round(rawBreakdown.lecture + rawBreakdown.subjectTest + rawBreakdown.mockTest),
+    [rawBreakdown],
+  )
 
   const activeStudyMinutes = useMemo(() => {
     if (timeRange === 'Today') {
@@ -101,10 +104,32 @@ export default function DashboardPage() {
     return studentData?.time_spent_weekly_minutes ?? studentData?.time_spent_minutes ?? manualStudyMinutes
   }, [timeRange, studentData, manualStudyMinutes])
 
-  const points = useMemo(() => {
-    const max = Math.max(...ACTIVITY)
-    return ACTIVITY.map((v, i) => `${(i / (ACTIVITY.length - 1)) * 100},${100 - (v / max) * 80}`).join(' ')
-  }, [])
+  // My Activity: real breakdown by category (lectures watched, subject tests attempted, mock tests attempted).
+  // The *shape* (relative split between categories) always comes from the user's actual content progress.
+  // The *scale* (total minutes) uses the backend's period total when available (weekly/monthly), so switching
+  // the selector reflects real numbers rather than a static demo curve.
+  const activityChartData = useMemo(() => {
+    const { lecture, subjectTest, mockTest } = rawBreakdown
+    const rawTotal = lecture + subjectTest + mockTest
+
+    const apiTotal =
+      activityRange === 'Weekly'
+        ? studentData?.time_spent_weekly_minutes ?? studentData?.time_spent_minutes
+        : studentData?.time_spent_monthly_minutes ??
+          (studentData?.time_spent_weekly_minutes != null ? studentData.time_spent_weekly_minutes * 4 : undefined)
+
+    const total = apiTotal ?? rawTotal
+    const scale = rawTotal > 0 ? total / rawTotal : 0
+
+    return [
+      { key: 'lectures', label: 'Lectures', minutes: Math.round(lecture * scale), color: '#43B7E9' },
+      { key: 'subjectTests', label: 'Subject Tests', minutes: Math.round(subjectTest * scale), color: '#FF8B6B' },
+      { key: 'mockTests', label: 'Mock Tests', minutes: Math.round(mockTest * scale), color: '#AA96DA' },
+    ]
+  }, [rawBreakdown, activityRange, studentData])
+
+  const activityMax = Math.max(1, ...activityChartData.map((d) => d.minutes))
+  const hasActivity = activityChartData.some((d) => d.minutes > 0)
 
   const daysInMonth = (date) => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
   const firstDayOfMonth = (date) => new Date(date.getFullYear(), date.getMonth(), 1).getDay()
@@ -240,22 +265,51 @@ export default function DashboardPage() {
                   <option>Monthly</option>
                 </select>
               </div>
-              <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full h-20 sm:h-24">
-                <polyline
-                  points={points}
-                  fill="none"
-                  stroke="#43B7E9"
-                  strokeWidth="2"
-                  className="motion-safe:transition-all duration-500"
-                />
-                <circle cx="14.28" cy="66" r="1.5" fill="#43B7E9" />
-                <circle cx="42.84" cy="50" r="1.5" fill="#43B7E9" />
-                <circle cx="71.4" cy="34" r="1.5" fill="#43B7E9" />
-              </svg>
+
+              {isLoadingStats ? (
+                <div className="h-28 flex items-end gap-4 px-2">
+                  {[0, 1, 2].map((i) => (
+                    <div key={i} className="flex-1 h-16 rounded-t-lg bg-line motion-safe:animate-pulse" />
+                  ))}
+                </div>
+              ) : !hasActivity ? (
+                <div className="h-28 flex flex-col items-center justify-center text-center gap-1">
+                  <p className="text-xs text-muted">No activity yet</p>
+                  <p className="text-[11px] text-muted/70">Watch a lecture or attempt a test to see it here.</p>
+                </div>
+              ) : (
+                <div className="h-28 flex items-end justify-between gap-4 px-1">
+                  {activityChartData.map((d) => {
+                    const heightPct = Math.max(4, (d.minutes / activityMax) * 100)
+                    return (
+                      <div
+                        key={d.key}
+                        className="flex-1 h-full flex flex-col items-center justify-end gap-1.5 cursor-default"
+                        onMouseEnter={() => setHoveredBar(d.key)}
+                        onMouseLeave={() => setHoveredBar((k) => (k === d.key ? null : k))}
+                      >
+                        <span
+                          className={`text-[10px] font-semibold text-ink transition-opacity duration-150 ${
+                            hoveredBar === d.key ? 'opacity-100' : 'opacity-0'
+                          }`}
+                        >
+                          {formatDuration(d.minutes)}
+                        </span>
+                        <div
+                          title={`${d.label}: ${formatDuration(d.minutes)}`}
+                          style={{ height: `${heightPct}%`, background: d.color }}
+                          className="w-full max-w-[28px] rounded-t-lg motion-safe:transition-[height] duration-500"
+                        />
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+
               <div className="flex justify-between text-[10px] text-muted mt-2 px-1">
-                {DAYS.map((d) => (
-                  <span key={d} className="flex-1 text-center">
-                    {d}
+                {activityChartData.map((d) => (
+                  <span key={d.key} className="flex-1 text-center truncate">
+                    {d.label}
                   </span>
                 ))}
               </div>
