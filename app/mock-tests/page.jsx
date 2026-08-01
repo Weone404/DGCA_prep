@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import AppShell from '@/components/AppShell'
 import Icon from '@/components/Icon'
 import { Badge, ProgressBar } from '@/components/UI'
@@ -378,7 +378,8 @@ export default function MockTestsPage() {
 
   useEffect(() => {
     if (!user) return
-    const claim = searchParams.get('claim') === '1'
+    const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams('')
+    const claim = params.get('claim') === '1'
     if (!claim) return
     const pending = getMockPendingResult()
     if (!pending || !pending.guestId) return
@@ -412,7 +413,7 @@ export default function MockTestsPage() {
     }
 
     void claimResult()
-  }, [user, searchParams])
+  }, [user])
 
   useEffect(() => {
     if (screen !== SCREEN.TEST) return undefined
