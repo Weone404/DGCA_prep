@@ -349,7 +349,6 @@ function FinishScreen({ subject, result, saveStatus, onReset, leaderboardHref })
 
 export default function MockTestsPage() {
   const router = useRouter()
-  const searchParams = useSearchParams()
   const { user } = useAuth()
 
   const [screen, setScreen] = useState(SCREEN.SUBJECT_SELECT)
