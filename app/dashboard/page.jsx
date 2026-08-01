@@ -97,6 +97,13 @@ export default function DashboardPage() {
     [rawBreakdown],
   )
 
+  // Video = lectures; Assignment = subject tests + mock tests
+  const videoMinutes = useMemo(() => Math.round(rawBreakdown.lecture), [rawBreakdown])
+  const assignmentMinutes = useMemo(() => Math.round(rawBreakdown.subjectTest + rawBreakdown.mockTest), [rawBreakdown])
+  const donutTotal = Math.max(1, videoMinutes + assignmentMinutes)
+  const segVideo = (videoMinutes / donutTotal) * 100
+  const segAssignment = (assignmentMinutes / donutTotal) * 100
+
   const activeStudyMinutes = useMemo(() => {
     if (timeRange === 'Today') {
       return studentData?.time_spent_today_minutes ?? studentData?.time_spent_minutes ?? manualStudyMinutes
@@ -214,9 +221,9 @@ export default function DashboardPage() {
                       cy="18"
                       r="16"
                       fill="none"
-                      stroke="#2BC48A"
+                      stroke="#43B7E9"
                       strokeWidth="3.5"
-                      strokeDasharray="55"
+                      strokeDasharray={`${segVideo} ${100 - segVideo}`}
                       strokeDashoffset="0"
                       strokeLinecap="round"
                       pathLength="100"
@@ -229,8 +236,8 @@ export default function DashboardPage() {
                       fill="none"
                       stroke="#FF8B6B"
                       strokeWidth="3.5"
-                      strokeDasharray="25 100"
-                      strokeDashoffset="-55"
+                      strokeDasharray={`${segAssignment} ${100 - segAssignment}`}
+                      strokeDashoffset={`-${segVideo}`}
                       strokeLinecap="round"
                       pathLength="100"
                       className="motion-safe:transition-[stroke-dasharray] duration-500"
@@ -240,15 +247,13 @@ export default function DashboardPage() {
                     {isLoadingStats ? (
                       <span className="w-10 h-3 rounded-full bg-line motion-safe:animate-pulse" />
                     ) : (
-                      formatDuration(activeStudyMinutes)
+                      formatDuration(videoMinutes + assignmentMinutes)
                     )}
                   </div>
                 </div>
                 <div className="space-y-2 text-xs text-muted">
-                  <p className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-brand shrink-0" /> Reading</p>
-                  <p className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-coral shrink-0" /> Writing</p>
-                  <p className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-violet shrink-0" /> Video</p>
-                  <p className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-ink shrink-0" /> Assignment</p>
+                  <p className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-violet shrink-0" /> Video: {formatDuration(videoMinutes)}</p>
+                  <p className="flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-coral shrink-0" /> Assignment: {formatDuration(assignmentMinutes)}</p>
                 </div>
               </div>
             </div>

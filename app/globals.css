@@ -17,6 +17,22 @@ body {
   overflow-x: hidden;
 }
 
+html:not(.dark) {
+  color-scheme: light;
+}
+
+html:not(.dark) .text-white,
+html:not(.dark) .text-slate-50,
+html:not(.dark) .text-slate-100,
+html:not(.dark) .text-gray-50,
+html:not(.dark) .text-gray-100,
+html:not(.dark) .text-zinc-50,
+html:not(.dark) .text-zinc-100,
+html:not(.dark) .text-neutral-50,
+html:not(.dark) .text-neutral-100 {
+  color: #0F172A !important;
+}
+
 html.dark body {
   background: #020617;
   color: #f8fafc;
