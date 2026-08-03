@@ -148,10 +148,30 @@ export default function ProfilePage() {
         throw new Error(data?.error || 'Image upload failed.')
       }
 
-      setAvatarUrl(data.publicUrl)
+      const normalizedAvatarUrl = String(data.publicUrl || '').replace(/\?t=\d+/g, '')
+      setAvatarUrl(normalizedAvatarUrl)
+
+      const saveAvatarResponse = await fetch('/api/user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: user.id,
+          avatar: normalizedAvatarUrl,
+        }),
+      })
+
+      const saveAvatarData = await saveAvatarResponse.json()
+      if (!saveAvatarResponse.ok) {
+        throw new Error(saveAvatarData?.error || 'Uploaded image but failed to save avatar in profile.')
+      }
+
+      updateUser({
+        ...user,
+        avatar: saveAvatarData?.avatar || normalizedAvatarUrl,
+      })
       setAvatarPreview('')
       setAvatarVersion(Date.now())
-      setSaved(false)
+      setSaved(true)
       setError('')
     } catch (err) {
       setError(err?.message || 'Failed to upload avatar.')

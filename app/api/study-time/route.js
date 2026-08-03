@@ -25,21 +25,44 @@ function mapStudyDay(row) {
   }
 }
 
-function buildFallbackStudyTimeSeries() {
+function toDateKey(date) {
+  return date.toISOString().split('T')[0]
+}
+
+function buildWeekSeries(startDate, rowsMap) {
   const result = []
+  const date = new Date(startDate)
 
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date()
-    d.setDate(d.getDate() - i)
+  for (let i = 0; i < 7; i++) {
+    const current = new Date(date)
+    current.setDate(startDate.getDate() + i)
+    const dateKey = toDateKey(current)
 
-    result.push({
-      day: d.toLocaleString('en-US', { weekday: 'short' }),
-      date: d.toISOString().split('T')[0],
-      hours: 0,
-    })
+    result.push(
+      rowsMap[dateKey] || {
+        day: current.toLocaleString('en-US', { weekday: 'short' }),
+        date: dateKey,
+        hours: 0,
+      }
+    )
   }
 
   return result
+}
+
+function buildFallbackStudyTimeResponse() {
+  const today = new Date()
+  const currentWeekOffset = (today.getDay() + 6) % 7
+  const currentWeekStart = new Date(today)
+  currentWeekStart.setDate(today.getDate() - currentWeekOffset)
+  currentWeekStart.setHours(0, 0, 0, 0)
+
+  return {
+    currentWeek: buildWeekSeries(currentWeekStart, {}),
+    currentWeekTotal: 0,
+    previousWeekTotal: 0,
+    comparison: 0,
+  }
 }
 
 export async function GET(request) {
@@ -53,41 +76,50 @@ export async function GET(request) {
       return NextResponse.json({ error: 'email is required.' }, { status: 400 })
     }
 
+    const today = new Date()
+    const currentWeekOffset = (today.getDay() + 6) % 7
+    const currentWeekStart = new Date(today)
+    currentWeekStart.setDate(today.getDate() - currentWeekOffset)
+    currentWeekStart.setHours(0, 0, 0, 0)
+
+    const previousWeekStart = new Date(currentWeekStart)
+    previousWeekStart.setDate(currentWeekStart.getDate() - 7)
+    previousWeekStart.setHours(0, 0, 0, 0)
+
+    const windowEnd = new Date(currentWeekStart)
+    windowEnd.setDate(currentWeekStart.getDate() + 14)
+    windowEnd.setHours(0, 0, 0, 0)
+
     const { rows } = await pool.query(
       `SELECT 
-         TO_CHAR(date, 'YYYY-MM-DD') as date,
-         TO_CHAR(date, 'Dy') as day,
-         ROUND(SUM(seconds) / 3600.0, 2) as hours_sum
+         date::date AS date,
+         TO_CHAR(date::date, 'Dy') AS day,
+         ROUND(SUM(seconds) / 3600.0, 2) AS hours_sum
        FROM study_time
        WHERE LOWER(student_email) = LOWER($1)
-         AND date >= NOW() - INTERVAL '7 days'
-       GROUP BY TO_CHAR(date, 'YYYY-MM-DD'), TO_CHAR(date, 'Dy')
-       ORDER BY date ASC`,
-      [email.trim()]
+         AND date >= $2
+         AND date < $3
+       GROUP BY date::date
+       ORDER BY date::date ASC`,
+      [email.trim(), previousWeekStart.toISOString(), windowEnd.toISOString()]
     )
 
     const dateMap = Object.fromEntries(rows.map((r) => [r.date, mapStudyDay(r)]))
-    const result = []
+    const currentWeek = buildWeekSeries(currentWeekStart, dateMap)
+    const previousWeek = buildWeekSeries(previousWeekStart, dateMap)
 
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date()
-      d.setDate(d.getDate() - i)
-      const dateStr = d.toISOString().split('T')[0]
-      const dayName = d.toLocaleString('en-US', { weekday: 'short' })
+    const currentWeekTotal = currentWeek.reduce((sum, day) => sum + day.hours, 0)
+    const previousWeekTotal = previousWeek.reduce((sum, day) => sum + day.hours, 0)
 
-      result.push(
-        dateMap[dateStr] || {
-          day: dayName,
-          date: dateStr,
-          hours: 0,
-        }
-      )
-    }
-
-    return NextResponse.json(result)
+    return NextResponse.json({
+      currentWeek,
+      currentWeekTotal,
+      previousWeekTotal,
+      comparison: parseFloat((currentWeekTotal - previousWeekTotal).toFixed(2)),
+    })
   } catch (err) {
     console.error('GET /api/study-time error:', err)
-    return NextResponse.json(buildFallbackStudyTimeSeries())
+    return NextResponse.json(buildFallbackStudyTimeResponse())
   }
 }
 

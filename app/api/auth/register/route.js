@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server'
+import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
 import pool from '../../../../lib/db'
 import { ensureAuthSchema } from '../../../../lib/queries'
 
 function hashPassword(password) {
-  return crypto.createHash('sha256').update(password).digest('hex')
+  return bcrypt.hashSync(password, 12)
 }
 
 async function getUsersColumns() {
@@ -131,6 +132,7 @@ export async function POST(request) {
       email: user.email,
       phone: user.phone,
       role: 'student',
+      is_verified: user.is_verified ?? false,
       coursesInProgress: 0,
       coursesComplete: 0,
       avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(user.name)}`,

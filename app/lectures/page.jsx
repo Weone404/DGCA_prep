@@ -720,7 +720,9 @@ export default function LecturesPage() {
   // Folder browsing only applies to the two flat-grid tabs, and only while
   // no subject/search filter has narrowed things down yet.
   const showFolderGrid = (tab === 'shorts' || tab === 'personalysis') && subject === 'All' && !search
-  const accessNote = TAB_ACCESS_NOTE[tab]
+  const accessNote = verified
+    ? { icon: '✅', text: 'Verified account — Personalysis unlocked' }
+    : TAB_ACCESS_NOTE[tab]
 
   return (
     <AppShell>
@@ -782,6 +784,12 @@ export default function LecturesPage() {
         </div>
       )}
 
+      {verified && tab === 'personalysis' && (
+        <div className="card bg-green-50 border border-green-200 p-4 mb-5 mt-5 flex items-center justify-between flex-wrap gap-3">
+          <p className="text-sm font-semibold text-green-700">✅ Verified account active — Personalysis videos unlocked</p>
+        </div>
+      )}
+
       {tab === 'personalysis' && !user && (
         <div className="card border border-dashed border-brand-light p-4 mb-5 text-sm text-ink">
           <p className="font-semibold mb-2">🔒 Personalysis videos require login</p>
@@ -793,6 +801,13 @@ export default function LecturesPage() {
           >
             Log in to continue
           </button>
+
+      {tab === 'personalysis' && verified && (
+        <div className="card bg-green-50 border border-green-200 p-4 mb-5 text-sm text-green-700">
+          <p className="font-semibold mb-1">✅ Verified account detected</p>
+          <p>Personalysis videos are unlocked for this account.</p>
+        </div>
+      )}
         </div>
       )}
 

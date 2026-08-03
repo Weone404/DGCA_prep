@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import AppShell from '@/components/AppShell'
 import Icon from '@/components/Icon'
 import { Badge, ProgressBar } from '@/components/UI'
@@ -33,14 +32,35 @@ const saveStatusTone = {
   error: 'coral',
 }
 
+const TOTAL_TIME_SECONDS = Number(DEFAULT_MOCK_TEST_SETTINGS.totalTimeSeconds) || 6000
+
 function formatTime(seconds) {
+  if (!Number.isFinite(seconds) || seconds < 0) {
+    return '00:00'
+  }
   const mins = Math.floor(seconds / 60)
   const secs = seconds % 60
   return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
 }
 
-function formatCount(count, label) {
-  return `${count} ${label}${count === 1 ? '' : 's'}`
+function getDurationMinutes(totalTimeSeconds) {
+  return Math.floor(totalTimeSeconds / 60)
+}
+
+function getNestedCategories(category) {
+  if (Array.isArray(category?.subcategories)) return category.subcategories
+  if (Array.isArray(category?.children)) return category.children
+  return []
+}
+
+function getDotState({ screen, index, currentIndex, answers, pool }) {
+  if (screen === SCREEN.FINISH) {
+    if (answers[index] === undefined) return 'unanswered'
+    return answers[index] === pool[index]?.correct ? 'correct' : 'wrong'
+  }
+  if (index === currentIndex) return 'active'
+  if (answers[index] !== undefined) return 'answered'
+  return 'default'
 }
 
 function computeResults(pool, answers) {
@@ -59,10 +79,12 @@ function computeResults(pool, answers) {
 }
 
 function SubjectCard({ subject, selectedId, onSelect }) {
+  const nestedCategories = getNestedCategories(subject)
+
   return (
     <button
       type="button"
-      onClick={() => onSelect(subject.id)}
+      onClick={() => onSelect(subject)}
       className={`group card p-5 text-left transition-shadow border ${selectedId === subject.id ? 'border-brand shadow-xl' : 'border-line hover:border-brand/70'} rounded-3xl`}
     >
       <div className="flex items-center justify-between gap-3 mb-4">
@@ -80,50 +102,20 @@ function SubjectCard({ subject, selectedId, onSelect }) {
       <div className="text-sm text-muted">
         {subject.chapterIds === null
           ? 'All chapters included'
+          : nestedCategories.length > 0
+            ? `${nestedCategories.length} sub-category${nestedCategories.length === 1 ? '' : 'ies'}`
           : Array.isArray(subject.chapterIds)
             ? `${subject.chapterIds.length} chapter${subject.chapterIds.length === 1 ? '' : 's'}`
-            : `${subject.children?.length ?? 0} sub-subject${subject.children?.length === 1 ? '' : 's'}`}
+            : 'Custom set'}
       </div>
-      {subject.children?.length ? (
-        <div className="mt-4 text-sm space-y-2">
-          <div className="text-xs uppercase tracking-[0.18em] text-muted">Sub-subjects</div>
-          <div className="grid gap-2">
-            {subject.children.map((child) => (
-              <div key={child.id} className="rounded-2xl border border-line p-3 bg-surface">
-                <div className="flex items-center justify-between gap-2">
-                  <div>
-                    <p className="font-medium text-ink">{child.title}</p>
-                    <p className="text-xs text-muted">{child.stats?.questions ?? 0} questions</p>
-                  </div>
-                  <div
-                    role="button"
-                    tabIndex={0}
-                    onClick={(event) => {
-                      event.stopPropagation()
-                      onSelect(child.id)
-                    }}
-                    onKeyDown={(event) => {
-                      if (event.key === 'Enter' || event.key === ' ') {
-                        event.preventDefault()
-                        event.stopPropagation()
-                        onSelect(child.id)
-                      }
-                    }}
-                    className="rounded-full bg-brand px-3 py-1 text-xs font-semibold text-white cursor-pointer"
-                  >
-                    Choose
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : null}
+      {nestedCategories.length > 0 ? <div className="mt-4 text-xs font-semibold text-brand">Open category</div> : null}
     </button>
   )
 }
 
-function IntroScreen({ subject, questionCount, durationMinutes, warning, onStart, onBack }) {
+function IntroScreen({ subject, questionCount, totalTimeSeconds, warning, onStart, onBack }) {
+  const durationMinutes = getDurationMinutes(totalTimeSeconds)
+
   return (
     <div className="space-y-6">
       <div className="card p-6">
@@ -175,6 +167,8 @@ function IntroScreen({ subject, questionCount, durationMinutes, warning, onStart
 }
 
 function TestScreen({
+  screen,
+  pool,
   subject,
   currentQuestion,
   currentIndex,
@@ -187,18 +181,54 @@ function TestScreen({
   onSubmit,
   remainingSeconds,
 }) {
+  const options = Array.isArray(currentQuestion?.options) ? currentQuestion.options : []
+
+  if (!currentQuestion) {
+    return (
+      <div className="space-y-6">
+        <div className="card p-6">
+          <h2 className="font-display text-xl font-bold">No questions available</h2>
+          <p className="mt-2 text-sm text-muted">This test does not currently have any questions in its pool.</p>
+        </div>
+      </div>
+    )
+  }
+
   const selectedAnswer = answers[currentIndex]
-  const answeredCount = Object.keys(answers).filter((key) => answers[key] !== undefined).length
+  const answeredCount = Object.keys(answers).length
 
   return (
     <div className="space-y-6">
+      <div className="card p-2.5">
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+          <div className="text-[11px] text-muted">Answered {answeredCount} / {total}</div>
+          <div className="text-[11px] font-semibold text-ink">{formatTime(remainingSeconds)} remaining</div>
+        </div>
+
+        <div className="grid grid-cols-10 gap-1 overflow-x-auto pb-0.5">
+          {Array.from({ length: total }).map((_, index) => {
+            const state = getDotState({ screen, index, currentIndex, answers, pool })
+            return (
+              <button
+                key={index}
+                type="button"
+                onClick={() => onJumpToQuestion(index)}
+                className={`h-6 w-6 rounded-full text-[10px] font-semibold transition ${state === 'active' ? 'border-2 border-brand bg-brand/10 text-brand' : state === 'answered' ? 'bg-brand/20 text-brand' : 'bg-slate-100 text-muted hover:bg-slate-200'}`}
+              >
+                {index + 1}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
       <div className="card p-6">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-5">
           <div>
             <p className="text-sm font-semibold text-muted">{subject.title}</p>
             <h2 className="font-display text-xl font-bold">Question {currentIndex + 1} of {total}</h2>
           </div>
-          <div className="rounded-3xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white">
+          <div className="min-w-[108px] rounded-3xl bg-slate-900 px-4 py-3 text-center text-sm font-semibold tabular-nums text-white">
             {formatTime(remainingSeconds)}
           </div>
         </div>
@@ -214,7 +244,7 @@ function TestScreen({
         </div>
 
         <div className="grid gap-3 mt-5">
-          {currentQuestion.options.map((option, index) => {
+          {options.map((option, index) => {
             const isSelected = selectedAnswer === index
             return (
               <button
@@ -231,30 +261,12 @@ function TestScreen({
             )
           })}
         </div>
-      </div>
 
-      <div className="card p-5">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
-          <div className="text-sm text-muted">Answered {answeredCount} / {total}</div>
-          <div className="text-sm font-semibold text-ink">{formatTime(remainingSeconds)} remaining</div>
-        </div>
-
-        <div className="grid grid-cols-10 gap-2 overflow-x-auto pb-2">
-          {Array.from({ length: total }).map((_, index) => {
-            const isCurrent = index === currentIndex
-            const isAnswered = answers[index] !== undefined
-            return (
-              <button
-                key={index}
-                type="button"
-                onClick={() => onJumpToQuestion(index)}
-                className={`h-8 w-8 rounded-full text-xs font-semibold transition ${isCurrent ? 'border-2 border-brand bg-brand/10 text-brand' : isAnswered ? 'bg-brand/20 text-brand' : 'bg-slate-100 text-muted hover:bg-slate-200'}`}
-              >
-                {index + 1}
-              </button>
-            )
-          })}
-        </div>
+        {options.length === 0 ? (
+          <div className="mt-4 rounded-3xl border border-coral/30 bg-coral/10 p-4 text-sm text-coral">
+            This question is missing options and cannot be answered.
+          </div>
+        ) : null}
       </div>
 
       <div className="flex flex-wrap gap-3">
@@ -294,16 +306,18 @@ function LoginRequiredScreen({ onReset, loginHref }) {
   )
 }
 
-function FinishScreen({ subject, result, saveStatus, onReset, leaderboardHref }) {
+function FinishScreen({ subject, result, answers, pool, saveStatus, onReset, leaderboardHref }) {
   const saveLabel = saveStatus === 'saving' ? 'Saving…' : saveStatus === 'saved' ? 'Saved' : saveStatus === 'error' ? 'Save failed' : 'Not saved'
   const saveTone = saveStatusTone[saveStatus] || 'muted'
+  const reviewLength = pool.length || result.perQuestion?.length || result.total || 0
+  const subjectLabel = subject?.title || result.subjectLabel || 'Mock Test'
 
   return (
     <div className="space-y-6">
       <div className="card p-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <p className="text-sm text-muted">{subject.title}</p>
+            <p className="text-sm text-muted">{subjectLabel}</p>
             <h1 className="font-display text-3xl font-bold">{result.correct} / {result.total}</h1>
             <p className="text-muted mt-1">{result.accuracy}% accuracy</p>
           </div>
@@ -328,8 +342,16 @@ function FinishScreen({ subject, result, saveStatus, onReset, leaderboardHref })
 
       <div className="card p-5">
         <div className="grid gap-2 sm:grid-cols-3">
-          {result.perQuestion.map((item, index) => {
-            const tone = item.isSkipped ? 'bg-slate-100 text-slate-500' : item.isCorrect ? 'bg-emerald-100 text-emerald-700' : 'bg-coral-100 text-coral-700'
+          {Array.from({ length: reviewLength }).map((_, index) => {
+            const fallbackState = result.perQuestion?.[index]?.isSkipped
+              ? 'unanswered'
+              : result.perQuestion?.[index]?.isCorrect
+                ? 'correct'
+                : 'wrong'
+            const state = pool.length > 0
+              ? getDotState({ screen: SCREEN.FINISH, index, currentIndex: -1, answers, pool })
+              : fallbackState
+            const tone = state === 'unanswered' ? 'bg-slate-100 text-slate-500' : state === 'correct' ? 'bg-emerald-100 text-emerald-700' : 'bg-coral-100 text-coral-700'
             return (
               <div key={index} className={`${tone} rounded-3xl border border-line p-3 text-center text-xs font-semibold`}>Q{index + 1}</div>
             )
@@ -348,16 +370,16 @@ function FinishScreen({ subject, result, saveStatus, onReset, leaderboardHref })
 }
 
 export default function MockTestsPage() {
-  const router = useRouter()
   const { user } = useAuth()
 
   const [screen, setScreen] = useState(SCREEN.SUBJECT_SELECT)
+  const [categoryTrail, setCategoryTrail] = useState([])
   const [subject, setSubject] = useState(null)
   const [pool, setPool] = useState([])
   const [questionWarning, setQuestionWarning] = useState('')
   const [answers, setAnswers] = useState({})
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
-  const [remainingSeconds, setRemainingSeconds] = useState(DEFAULT_MOCK_TEST_SETTINGS.durationMinutes * 60)
+  const [remainingSeconds, setRemainingSeconds] = useState(TOTAL_TIME_SECONDS)
   const [submissionResult, setSubmissionResult] = useState(null)
   const [saveStatus, setSaveStatus] = useState('idle')
   const [submitError, setSubmitError] = useState('')
@@ -381,7 +403,7 @@ export default function MockTestsPage() {
     const claim = params.get('claim') === '1'
     if (!claim) return
     const pending = getMockPendingResult()
-    if (!pending || !pending.guestId) return
+    if (!pending) return
     if (pendingResultRef.current?.claimed) return
 
     const claimResult = async () => {
@@ -392,6 +414,7 @@ export default function MockTestsPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             ...pending,
+            guestId: pending.guestId || undefined,
             email: user.email,
             name: user.name || user.email,
           }),
@@ -441,6 +464,9 @@ export default function MockTestsPage() {
 
   const currentQuestion = pool[currentQuestionIndex]
   const questionCount = pool.length
+  const activeCategories = categoryTrail.length > 0
+    ? getNestedCategories(categoryTrail[categoryTrail.length - 1])
+    : MOCK_TEST_SUBJECTS
 
   const resetMock = () => {
     if (timerRef.current) {
@@ -449,11 +475,12 @@ export default function MockTestsPage() {
     }
     clearMockPendingResult()
     setScreen(SCREEN.SUBJECT_SELECT)
+    setCategoryTrail([])
     setSubject(null)
     setPool([])
     setAnswers({})
     setCurrentQuestionIndex(0)
-    setRemainingSeconds(DEFAULT_MOCK_TEST_SETTINGS.durationMinutes * 60)
+    setRemainingSeconds(TOTAL_TIME_SECONDS)
     setSubmissionResult(null)
     setSaveStatus('idle')
     setSubmitError('')
@@ -461,16 +488,22 @@ export default function MockTestsPage() {
     pendingResultRef.current = null
   }
 
-  const handleSelectSubject = (subjectId) => {
-    const selected = MOCK_TEST_SUBJECTS.find((item) => item.id === subjectId) || MOCK_TEST_SUBJECTS.flatMap((item) => item.children || []).find((item) => item.id === subjectId)
+  const handleSelectSubject = (selected) => {
     if (!selected) return
-    const { pool: builtPool, totalAvailable, warning } = buildQuestionPool(subjectId)
+
+    const nested = getNestedCategories(selected)
+    if (nested.length > 0) {
+      setCategoryTrail((prev) => [...prev, selected])
+      return
+    }
+
+    const { pool: builtPool, warning } = buildQuestionPool(selected.id)
     setSubject(selected)
     setPool(builtPool)
     setQuestionWarning(warning)
     setAnswers({})
     setCurrentQuestionIndex(0)
-    setRemainingSeconds(DEFAULT_MOCK_TEST_SETTINGS.durationMinutes * 60)
+    setRemainingSeconds(TOTAL_TIME_SECONDS)
     setSubmissionResult(null)
     setSaveStatus('idle')
     setSubmitError('')
@@ -508,9 +541,13 @@ export default function MockTestsPage() {
     }, 275)
 
     setAnswers((prev) => {
-      const existing = prev[currentQuestionIndex]
-      const nextValue = existing === optionIndex ? undefined : optionIndex
-      return { ...prev, [currentQuestionIndex]: nextValue }
+      const next = { ...prev }
+      if (next[currentQuestionIndex] === optionIndex) {
+        delete next[currentQuestionIndex]
+      } else {
+        next[currentQuestionIndex] = optionIndex
+      }
+      return next
     })
   }
 
@@ -559,26 +596,10 @@ export default function MockTestsPage() {
     }
 
     const guestId = getOrCreateMockGuestId()
-    setSaveStatus('saving')
     try {
-      const response = await fetch('/api/mock-leaderboard', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...payloadBase,
-          guestId,
-          name: 'Guest',
-        }),
-      })
-      const data = await response.json()
-      if (!response.ok || !data.success) {
-        setSaveStatus('error')
-        setSubmitError(data?.error || 'Unable to save your result locally.')
-        return
-      }
       saveMockPendingResult({ ...payloadBase, guestId, name: 'Guest' })
       setSubmissionResult(payloadBase)
-      setSaveStatus('saved')
+      setSaveStatus('idle')
       setScreen(SCREEN.LOGIN_REQUIRED)
     } catch (error) {
       setSaveStatus('error')
@@ -596,15 +617,34 @@ export default function MockTestsPage() {
           <IntroScreen
             subject={subject}
             questionCount={questionCount}
-            durationMinutes={DEFAULT_MOCK_TEST_SETTINGS.durationMinutes}
+            totalTimeSeconds={TOTAL_TIME_SECONDS}
             warning={questionWarning}
             onStart={handleStart}
             onBack={() => setScreen(SCREEN.SUBJECT_SELECT)}
           />
         )
       case SCREEN.TEST:
+        if (!currentQuestion) {
+          return (
+            <div className="card p-6">
+              <h2 className="font-display text-xl font-bold">No questions available</h2>
+              <p className="mt-2 text-sm text-muted">Go back and select another subject to continue.</p>
+              <div className="mt-4">
+                <button
+                  type="button"
+                  onClick={resetMock}
+                  className="rounded-3xl border border-line px-5 py-3 text-sm font-semibold text-ink"
+                >
+                  Choose another subject
+                </button>
+              </div>
+            </div>
+          )
+        }
         return (
           <TestScreen
+            screen={screen}
+            pool={pool}
             subject={subject}
             currentQuestion={currentQuestion}
             currentIndex={currentQuestionIndex}
@@ -625,6 +665,8 @@ export default function MockTestsPage() {
           <FinishScreen
             subject={subject}
             result={submissionResult}
+            answers={answers}
+            pool={pool}
             saveStatus={saveStatus}
             onReset={resetMock}
             leaderboardHref={leaderboardHref}
@@ -634,7 +676,7 @@ export default function MockTestsPage() {
         return (
           <div className="space-y-6">
             <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-              {MOCK_TEST_SUBJECTS.map((item) => (
+              {activeCategories.map((item) => (
                 <SubjectCard
                   key={item.id}
                   subject={item}
@@ -646,7 +688,7 @@ export default function MockTestsPage() {
           </div>
         )
     }
-  }, [screen, subject, questionCount, questionWarning, currentQuestion, currentQuestionIndex, answers, remainingSeconds, submissionResult, saveStatus])
+  }, [screen, subject, questionCount, questionWarning, currentQuestion, currentQuestionIndex, answers, remainingSeconds, submissionResult, saveStatus, pool, activeCategories])
 
   return (
     <AppShell>
@@ -657,9 +699,22 @@ export default function MockTestsPage() {
             <h1 className="font-display text-3xl font-bold">Practice with full mock tests</h1>
           </div>
           {screen === SCREEN.SUBJECT_SELECT ? (
-            <div className="rounded-3xl border border-line px-4 py-3 text-sm text-muted">{DEFAULT_MOCK_TEST_SETTINGS.count} Questions · {DEFAULT_MOCK_TEST_SETTINGS.durationMinutes} Mins</div>
+            <div className="rounded-3xl border border-line px-4 py-3 text-sm text-muted">{DEFAULT_MOCK_TEST_SETTINGS.count} Questions · {getDurationMinutes(TOTAL_TIME_SECONDS)} Mins</div>
           ) : null}
         </header>
+
+        {screen === SCREEN.SUBJECT_SELECT && categoryTrail.length > 0 ? (
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-line px-4 py-3">
+            <p className="text-sm text-muted">{categoryTrail.map((item) => item.title).join(' / ')}</p>
+            <button
+              type="button"
+              onClick={() => setCategoryTrail((prev) => prev.slice(0, -1))}
+              className="rounded-2xl border border-line px-3 py-1 text-sm font-semibold text-ink"
+            >
+              Back one level
+            </button>
+          </div>
+        ) : null}
 
         {screen !== SCREEN.SUBJECT_SELECT && screen !== SCREEN.FINISH ? (
           <div className="flex flex-wrap items-center justify-between gap-3">

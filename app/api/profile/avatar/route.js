@@ -1,7 +1,30 @@
 import { NextResponse } from 'next/server'
 import { getSupabaseAdminClient, SUPABASE_STORAGE_BUCKET, SUPABASE_AVATARS_BUCKET } from '../../../../lib/documents'
+import { existsSync, mkdirSync, writeFileSync } from 'fs'
+import path from 'path'
 
 export const dynamic = 'force-dynamic'
+
+function getSafeExtension(fileName = '', mimeType = '') {
+  const normalized = String(fileName || '').toLowerCase()
+  if (normalized.endsWith('.png')) return 'png'
+  if (normalized.endsWith('.webp')) return 'webp'
+  if (normalized.endsWith('.gif')) return 'gif'
+  if (normalized.endsWith('.jpg') || normalized.endsWith('.jpeg')) return 'jpg'
+
+  if (mimeType === 'image/png') return 'png'
+  if (mimeType === 'image/webp') return 'webp'
+  if (mimeType === 'image/gif') return 'gif'
+  return 'jpg'
+}
+
+function encodePath(pathValue) {
+  return String(pathValue)
+    .split('/')
+    .filter(Boolean)
+    .map((segment) => encodeURIComponent(segment))
+    .join('/')
+}
 
 export async function POST(request) {
   try {
@@ -26,42 +49,40 @@ export async function POST(request) {
       return NextResponse.json({ error: 'File size must be 5MB or less.' }, { status: 400 })
     }
 
-    const supabase = getSupabaseAdminClient()
-    if (!supabase) {
-      return NextResponse.json({ error: 'Supabase storage is not configured.' }, { status: 500 })
-    }
-
     const bucketName = SUPABASE_AVATARS_BUCKET || SUPABASE_STORAGE_BUCKET || 'documents'
-    const storagePath = `avatars/${userId}/profile.jpg`
+    const extension = getSafeExtension(file.name, mimeType)
+    const storagePath = `avatars/${userId}/profile.${extension}`
     const buffer = Buffer.from(await file.arrayBuffer())
-    const { error: storageError } = await supabase.storage.from(bucketName).upload(storagePath, buffer, {
-      contentType: mimeType,
-      upsert: true,
-    })
 
-    if (storageError) {
-      console.error('Avatar upload failed:', {
+    const supabase = getSupabaseAdminClient()
+    if (supabase) {
+      const { error: storageError } = await supabase.storage.from(bucketName).upload(storagePath, buffer, {
+        contentType: mimeType,
+        upsert: true,
+      })
+
+      if (!storageError) {
+        const supabaseBaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
+        const publicUrl = `${supabaseBaseUrl}/storage/v1/object/public/${encodeURIComponent(bucketName)}/${encodePath(storagePath)}?t=${Date.now()}`
+        return NextResponse.json({ publicUrl })
+      }
+
+      console.error('Avatar upload failed in Supabase. Falling back to local storage:', {
         message: storageError.message,
         status: storageError.status,
         statusCode: storageError.statusCode,
         bucketName,
-        supabaseUrlConfigured: !!(process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL),
-        serviceRoleKeyConfigured: !!(process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY),
       })
-      return NextResponse.json(
-        {
-          error: storageError.message || 'Avatar upload failed.',
-          storageError: {
-            status: storageError.status,
-            statusCode: storageError.statusCode,
-            bucketName,
-          },
-        },
-        { status: 500 }
-      )
     }
 
-    const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL}/storage/v1/object/public/${encodeURIComponent(bucketName)}/${encodeURIComponent(storagePath)}?t=${Date.now()}`
+    const avatarDir = path.join(process.cwd(), 'public', 'uploads', 'avatars', userId)
+    if (!existsSync(avatarDir)) {
+      mkdirSync(avatarDir, { recursive: true })
+    }
+    const localFileName = `profile.${extension}`
+    const localFilePath = path.join(avatarDir, localFileName)
+    writeFileSync(localFilePath, buffer)
+    const publicUrl = `/uploads/avatars/${encodeURIComponent(userId)}/${encodeURIComponent(localFileName)}?t=${Date.now()}`
     return NextResponse.json({ publicUrl })
   } catch (error) {
     console.error('POST /api/profile/avatar error:', error)

@@ -6,11 +6,23 @@ import { ProgressBar } from '@/components/UI'
 import { useAppContent } from '@/lib/use-app-content'
 import { useAuth } from '@/lib/auth-context'
 
+function formatDuration(hours = 0) {
+  const totalMinutes = Math.round(hours * 60)
+  const h = Math.floor(totalMinutes / 60)
+  const m = totalMinutes % 60
+  return `${h}h ${m.toString().padStart(2, '0')}m`
+}
+
 export default function MyProgressPage() {
   const { progressSubjects: PROGRESS_SUBJECTS, user: USER } = useAppContent()
   const { user: authUser } = useAuth()
   const [testResults, setTestResults] = useState([])
-  const [weeklyHours, setWeeklyHours] = useState([])
+  const [weeklyHours, setWeeklyHours] = useState({
+    currentWeek: [],
+    currentWeekTotal: 0,
+    previousWeekTotal: 0,
+    comparison: 0,
+  })
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -33,7 +45,16 @@ export default function MyProgressPage() {
 
         if (studyTimeRes.ok) {
           const studyTimeData = await studyTimeRes.json()
-          setWeeklyHours(Array.isArray(studyTimeData) ? studyTimeData : [])
+          setWeeklyHours(
+            studyTimeData && !Array.isArray(studyTimeData)
+              ? studyTimeData
+              : {
+                  currentWeek: [],
+                  currentWeekTotal: 0,
+                  previousWeekTotal: 0,
+                  comparison: 0,
+                }
+          )
         }
       } catch (error) {
         console.error('Error fetching data:', error)
@@ -45,13 +66,21 @@ export default function MyProgressPage() {
     fetchData()
   }, [authUser?.email])
 
+  const currentWeek = weeklyHours.currentWeek || []
+
   const max = useMemo(() => {
-    if (!weeklyHours || weeklyHours.length === 0) return 1
-    const maxVal = Math.max(...weeklyHours.map((d) => d.hours || 0))
+    if (!currentWeek || currentWeek.length === 0) return 1
+    const maxVal = Math.max(...currentWeek.map((d) => d.hours || 0))
     return maxVal > 0 ? maxVal : 1
-  }, [weeklyHours])
-  
-  const totalHours = weeklyHours.reduce((a, b) => a + (b.hours || 0), 0).toFixed(1)
+  }, [currentWeek])
+
+  const comparison = weeklyHours.comparison || 0
+  const comparisonLabel = comparison === 0
+    ? 'Same as last week'
+    : `${comparison > 0 ? '+' : ''}${comparison.toFixed(1)}h vs last week`
+
+  const currentWeekLabel = formatDuration(weeklyHours.currentWeekTotal)
+  const totalHours = weeklyHours.currentWeekTotal.toFixed(1)
   const avgScore = testResults.length > 0 ? Math.round(testResults.reduce((sum, r) => sum + (r.score / r.total * 100), 0) / testResults.length) : 0
   const totalTests = testResults.length
 
@@ -61,7 +90,7 @@ export default function MyProgressPage() {
         {[
           { label: 'Courses in progress', value: USER.coursesInProgress, color: 'text-violet' },
           { label: 'Courses completed', value: USER.coursesComplete, color: 'text-brand' },
-          { label: 'Hours this week', value: `${totalHours}h`, color: 'text-coral' },
+          { label: 'Hours this week', value: currentWeekLabel, color: 'text-coral' },
         ].map((s) => (
           <div key={s.label} className="card p-6">
             <p className={`text-3xl font-display font-bold ${s.color}`}>{s.value}</p>
@@ -72,19 +101,41 @@ export default function MyProgressPage() {
 
       <div className="grid lg:grid-cols-[1.3fr_1fr] gap-6">
         <div className="card p-6">
-          <h3 className="font-display font-semibold text-ink mb-6">Weekly Study Hours</h3>
-          <div className="flex items-end gap-4 h-48">
-            {weeklyHours.map((d) => (
-              <div key={d.date} className="flex-1 flex flex-col items-center gap-2">
-                <div className="w-full rounded-t-lg bg-brand-light relative" style={{ height: '100%' }}>
-                  <div
-                    className="absolute bottom-0 w-full rounded-t-lg bg-brand transition-all"
-                    style={{ height: `${(d.hours / max) * 100}%` }}
-                  />
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h3 className="font-display font-semibold text-ink">Weekly Study Hours</h3>
+              <p className="mt-2 text-sm text-muted">Mon–Sun time spent across study sessions</p>
+            </div>
+            <div className="rounded-2xl border border-line bg-canvas px-4 py-3 text-sm">
+              <p className="text-[11px] uppercase tracking-[0.24em] text-muted">Compared to last week</p>
+              <p className={`mt-2 text-lg font-semibold ${comparison >= 0 ? 'text-emerald' : 'text-coral'}`}>{comparisonLabel}</p>
+            </div>
+          </div>
+
+          <div className="mt-6 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-4xl font-display font-bold text-ink">{currentWeekLabel}</p>
+              <p className="text-sm text-muted mt-2">Total hours logged this week</p>
+            </div>
+            <div className="rounded-2xl bg-brand-light px-4 py-3 text-sm text-ink">
+              <p className="font-semibold">{totalHours}h tracked</p>
+              <p className="text-xs text-muted mt-1">Study time from active sessions</p>
+            </div>
+          </div>
+
+          <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-7">
+            {currentWeek.map((d) => {
+              const height = d.hours > 0 ? `${(d.hours / max) * 100}%` : '4%'
+              return (
+                <div key={d.date} className="flex flex-col items-center gap-2">
+                  <div className="relative flex h-28 w-full items-end overflow-hidden rounded-3xl bg-canvas">
+                    <div className="absolute bottom-0 left-0 right-0 rounded-t-3xl bg-brand transition-all" style={{ height }} />
+                  </div>
+                  <span className="text-xs font-semibold text-ink">{d.day}</span>
+                  <span className="text-[11px] text-muted">{d.hours ? `${d.hours.toFixed(1)}h` : '—'}</span>
                 </div>
-                <span className="text-xs text-muted">{d.day}</span>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
 
