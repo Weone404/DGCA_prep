@@ -211,7 +211,9 @@ export default function Topbar({ title, theme, toggleTheme }) {
         <button onClick={() => setMobileNav(true)} className="mr-2 rounded-md border border-line bg-white/70 p-2 dark:border-slate-700 dark:bg-slate-900/70 lg:hidden">
           <Icon name="menu" size={18} />
         </button>
-        <h1 className="truncate text-xl font-display font-bold text-ink dark:text-slate-100 sm:text-2xl">{pageTitle}</h1>
+        <h1 className="inline-flex max-w-[14rem] items-center rounded-full border border-line bg-white/80 px-3 py-1.5 text-sm font-display font-bold tracking-tight text-ink shadow-sm backdrop-blur-sm dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-100 sm:max-w-[18rem] sm:text-base lg:max-w-[22rem]">
+          <span className="truncate">{pageTitle}</span>
+        </h1>
         <div className="hidden w-52 items-center gap-2 rounded-full border border-line bg-white px-3 py-2 shadow-card dark:border-slate-700 dark:bg-slate-900 sm:w-64 md:flex">
           <Icon name="search" size={16} className="text-muted" />
           <input

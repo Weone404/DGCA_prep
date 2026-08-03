@@ -179,19 +179,19 @@ export default function TestPage({ params }) {
 
   return (
     <AppShell>
-      <div className="min-h-screen flex items-center justify-center p-6">
+      <div className="min-h-screen flex items-center justify-center p-6 text-ink">
         {screen === 'start' && (
-          <div className="card p-6 max-w-lg w-full" style={{ borderLeft: `6px solid ${themeColor}` }}>
-            <h2 className="font-bold text-xl mb-2">{chapterMeta.title}</h2>
+          <div className="card p-6 max-w-lg w-full text-ink" style={{ borderLeft: `6px solid ${themeColor}` }}>
+            <h2 className="font-bold text-xl mb-2 text-ink">{chapterMeta.title}</h2>
             <p className="text-sm text-muted mb-4">{chapterMeta.part} · {chapterMeta.totalQuestions} questions · {test.duration} minutes</p>
-            <p className="text-sm mb-6">You'll have {test.duration} minutes. Once started, timer can't be paused.</p>
+            <p className="text-sm text-ink mb-6">You'll have {test.duration} minutes. Once started, timer can't be paused.</p>
             {questions.length === 0 ? (
               <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-4">
                 No questions are currently available from the question bank for this chapter.
               </p>
             ) : null}
             <div className="flex gap-3">
-              <button onClick={() => router.push('/subject-tests')} className="flex-1 border rounded-lg py-2">Cancel</button>
+              <button onClick={() => router.push('/subject-tests')} className="flex-1 border rounded-lg py-2 text-ink">Cancel</button>
               <button onClick={startTest} disabled={questions.length === 0} style={{ background: questions.length === 0 ? '#94a3b8' : themeColor }} className="flex-1 text-white rounded-lg py-2">{questions.length === 0 ? 'Unavailable' : 'Start Test'}</button>
             </div>
           </div>
@@ -206,15 +206,15 @@ export default function TestPage({ params }) {
         )}
 
         {screen === 'test' && q && (
-          <div className="max-w-2xl w-full">
+          <div className="max-w-2xl w-full text-ink">
             <div className="flex items-center justify-between mb-4">
-              <button onClick={() => router.push('/subject-tests')} className="border rounded-lg px-3 py-1">Exit</button>
-              <div className="font-semibold">{chapterMeta.title}</div>
-              <div className="font-mono">{String(mins).padStart(2,'0')}:{String(secs).padStart(2,'0')}</div>
+              <button onClick={() => router.push('/subject-tests')} className="border rounded-lg px-3 py-1 text-ink">Exit</button>
+              <div className="font-semibold text-ink">{chapterMeta.title}</div>
+              <div className="font-mono text-ink">{String(mins).padStart(2,'0')}:{String(secs).padStart(2,'0')}</div>
             </div>
-            <div className="card p-5">
+            <div className="card p-5 text-ink">
               <div className="text-sm text-muted mb-2">Question {currentQ + 1} of {total}</div>
-              <div className="font-bold text-lg mb-4">{q.question}</div>
+              <div className="font-bold text-lg mb-4 text-ink">{q.question}</div>
               <div className="flex flex-col gap-3">
                 {q.options.map((opt, idx) => {
                   const cls = `p-3 rounded-lg border ${selected !== undefined ? (idx === q.correct ? 'bg-green-50 border-green-300' : (idx === selected ? 'bg-red-50 border-red-300' : 'opacity-60')) : 'hover:bg-gray-50'}`
@@ -222,7 +222,7 @@ export default function TestPage({ params }) {
                     <button key={idx} className={cls} onClick={() => handleAnswer(idx)} disabled={selected !== undefined}>
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-white border flex items-center justify-center">{['A','B','C','D'][idx]}</div>
-                        <div>{opt}</div>
+                        <div className="text-ink">{opt}</div>
                       </div>
                     </button>
                   )

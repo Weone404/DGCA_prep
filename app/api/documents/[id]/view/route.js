@@ -6,6 +6,21 @@ import { getSupabaseAdminClient, SUPABASE_STORAGE_BUCKET } from '../../../../../
 
 export const dynamic = 'force-dynamic'
 
+function toPublicUrl(storagePath = '') {
+  const normalized = String(storagePath || '').replace(/^\/+/, '')
+  if (!normalized) return ''
+
+  if (normalized.startsWith('uploads/')) {
+    return `/${normalized
+      .split('/')
+      .filter(Boolean)
+      .map((segment) => encodeURIComponent(segment))
+      .join('/')}`
+  }
+
+  return ''
+}
+
 export async function GET(request, { params }) {
   try {
     await ensureAuthSchema()
@@ -33,9 +48,14 @@ export async function GET(request, { params }) {
       return NextResponse.json({ error: access.error || 'Not allowed.' }, { status: 403 })
     }
 
+    const localUrl = toPublicUrl(document.storage_path)
+    if (localUrl) {
+      return NextResponse.json({ url: localUrl, fileName: document.file_name, mimeType: document.mime_type })
+    }
+
     const supabase = getSupabaseAdminClient()
     if (!supabase) {
-      return NextResponse.json({ error: 'Supabase storage is not configured.' }, { status: 500 })
+      return NextResponse.json({ error: 'Document storage is not configured.' }, { status: 500 })
     }
 
     const bucketName = SUPABASE_STORAGE_BUCKET || 'documents'

@@ -2,7 +2,7 @@
 
 import AppShell from '@/components/AppShell'
 import Icon from '@/components/Icon'
-import { Fragment, useEffect, useMemo, useState } from 'react'
+import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 
 const NAV_TABS = [
   { id: 'students', label: 'Students' },
@@ -21,6 +21,67 @@ const SUBJECT_OPTIONS = [
   { id: 'technical-general', label: 'Technical General', icon: '⚙️', color: 'bg-violet-100', chapters: [{ id: 'tech-1', label: 'Aircraft Systems' }, { id: 'tech-2', label: 'Maintenance Basics' }] },
   { id: 'radio-telephony', label: 'Radio Telephony', icon: '📡', color: 'bg-rose-100', chapters: [{ id: 'rt-1', label: 'Phraseology' }, { id: 'rt-2', label: 'Communication Procedures' }] },
 ]
+
+const MOCK_SUBJECTS = [
+  { id: 'all', label: 'All', icon: '🎯', color: '#8B5CF6' },
+  { id: 'air-regulations', label: 'Air Regs', icon: '📋', color: '#1D4ED8' },
+  { id: 'meteorology', label: 'Meteorology', icon: '🌦️', color: '#0EA5E9' },
+  { id: 'navigation', label: 'Navigation', icon: '🗺️', color: '#10B981' },
+  { id: 'technical-general', label: 'Technical', icon: '🔧', color: '#F59E0B' },
+  { id: 'radio-telephony', label: 'Radio Tel.', icon: '📻', color: '#EF4444' },
+]
+
+const SUBJECT_COLOR_MAP = {
+  'Air Regulations': '#1D4ED8',
+  Meteorology: '#0EA5E9',
+  Navigation: '#10B981',
+  'General Navigation': '#6366F1',
+  'Instrument Navigation': '#EC4899',
+  'Radio Navigation': '#EF4444',
+  'Technical General': '#F59E0B',
+  Technical: '#F59E0B',
+  'Radio Tel.': '#EF4444',
+  'Radio Telephony': '#EF4444',
+}
+
+const AVATAR_COLORS = [
+  ['#dbeafe', '#2563eb'],
+  ['#dcfce7', '#16a34a'],
+  ['#fef3c7', '#b45309'],
+  ['#f3e8ff', '#7c3aed'],
+  ['#ffe4e6', '#be123c'],
+]
+
+function subjectColor(subject) {
+  return SUBJECT_COLOR_MAP[subject] || '#8B5CF6'
+}
+
+function accuracyColor(pct) {
+  if (pct >= 80) return '#10B981'
+  if (pct >= 50) return '#F59E0B'
+  return '#EF4444'
+}
+
+function hexA(hex, alpha) {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return `rgba(${r},${g},${b},${alpha})`
+}
+
+function initials(name) {
+  return String(name || '')
+    .split(' ')
+    .filter(Boolean)
+    .map((word) => word[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2)
+}
+
+function avatarColors(index) {
+  return AVATAR_COLORS[index % AVATAR_COLORS.length]
+}
 
 const DEMO_STUDENTS = [
   {
@@ -872,14 +933,21 @@ function AssignTestTab({ assignedTests, setAssignedTests, submissions, setSubmis
   const [durationMins, setDurationMins] = useState(30)
   const [instructions, setInstructions] = useState('')
   const [error, setError] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
   const [viewingResultsId, setViewingResultsId] = useState(null)
   const [subjects, setSubjects] = useState(SUBJECT_OPTIONS)
   const [subjectsLoading, setSubjectsLoading] = useState(false)
 
+  const getSubjectLabel = (subjectId) => {
+    return subjects.find((subject) => subject.id === subjectId)?.label
+      || SUBJECT_OPTIONS.find((subject) => subject.id === subjectId)?.label
+      || subjectId
+  }
+
   useEffect(() => {
-    const autoTitle = `${SUBJECT_OPTIONS.find((subject) => subject.id === selectedSubject)?.label || ''} ${selectedChapters.map((chapter) => chapter.label).join(', ')}`.trim()
+    const autoTitle = `${getSubjectLabel(selectedSubject)} ${selectedChapters.map((chapter) => chapter.label).join(', ')}`.trim()
     setTitle(autoTitle)
-  }, [selectedChapters, selectedSubject])
+  }, [selectedChapters, selectedSubject, subjects])
 
   useEffect(() => {
     let active = true
@@ -937,6 +1005,7 @@ function AssignTestTab({ assignedTests, setAssignedTests, submissions, setSubmis
   const handleSubmit = async (event) => {
     event.preventDefault()
     setError('')
+    setSuccessMessage('')
 
     if (!title.trim()) {
       setError('Please provide a title.')
@@ -961,7 +1030,7 @@ function AssignTestTab({ assignedTests, setAssignedTests, submissions, setSubmis
       classId: selectedBatch.toLowerCase(),
       className: selectedBatch,
       subjectId: selectedSubject,
-      subjectLabel: SUBJECT_OPTIONS.find((subject) => subject.id === selectedSubject)?.label || selectedSubject,
+      subjectLabel: getSubjectLabel(selectedSubject),
       chapterId: selectedChapters[0]?.id || '',
       chapterLabel: selectedChapters[0]?.label || '',
       chapterIds: selectedChapters.map((chapter) => chapter.id),
@@ -971,13 +1040,36 @@ function AssignTestTab({ assignedTests, setAssignedTests, submissions, setSubmis
       isActive: true,
     }
 
-    const payload = await requestJson('/api/teacher/assigned-tests', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ test: optimisticTest }) }, null)
+    const payload = await requestJson(
+      '/api/teacher/assigned-tests',
+      { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ test: optimisticTest }) },
+      { success: false, error: 'Unable to create the test right now.' }
+    )
     if (payload?.success === false) {
       setError(payload.error || 'Unable to create the test right now.')
       return
     }
 
-    setAssignedTests((current) => [optimisticTest, ...current])
+    const created = payload?.test
+      ? {
+        id: payload.test.id,
+        title: payload.test.title || optimisticTest.title,
+        classId: payload.test.classId || optimisticTest.classId,
+        className: payload.test.className || optimisticTest.className,
+        subjectId: payload.test.subjectId || payload.test.subject_id || optimisticTest.subjectId,
+        subjectLabel: payload.test.subjectLabel || payload.test.subject_label || optimisticTest.subjectLabel,
+        chapterId: payload.test.chapterId || payload.test.chapter_id || optimisticTest.chapterId,
+        chapterLabel: payload.test.chapterLabel || payload.test.chapter_label || optimisticTest.chapterLabel,
+        chapterIds: payload.test.chapterIds || payload.test.chapter_ids || optimisticTest.chapterIds,
+        numQuestions: payload.test.numQuestions || payload.test.num_questions || optimisticTest.numQuestions,
+        durationMins: payload.test.durationMins || payload.test.duration_mins || optimisticTest.durationMins,
+        instructions: payload.test.instructions || optimisticTest.instructions,
+        isActive: payload.test.isActive ?? payload.test.is_active ?? optimisticTest.isActive,
+      }
+      : optimisticTest
+
+    setAssignedTests((current) => [created, ...current])
+    setSuccessMessage('Test uploaded successfully.')
   }
 
   const toggleActive = async (testId) => {
@@ -1102,7 +1194,7 @@ function AssignTestTab({ assignedTests, setAssignedTests, submissions, setSubmis
                 <label className="mb-2 block text-sm font-medium text-slate-700">Instructions</label>
                 <textarea value={instructions} onChange={(event) => setInstructions(event.target.value)} placeholder="Add any test instructions or guidance" className="h-28 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20" />
               </div>
-              <button type="submit" className="inline-flex w-full items-center justify-center rounded-3xl bg-brand px-5 py-3 text-sm font-semibold text-white transition hover:bg-brand-dark">
+              <button type="button" onClick={handleSubmit} className="inline-flex w-full items-center justify-center rounded-3xl bg-brand px-5 py-3 text-sm font-semibold text-white transition hover:bg-brand-dark">
                 Assign test
               </button>
             </div>
@@ -1110,6 +1202,7 @@ function AssignTestTab({ assignedTests, setAssignedTests, submissions, setSubmis
         </div>
 
         {error ? <div className="mt-3 rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700">{error}</div> : null}
+        {successMessage ? <div className="mt-3 rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{successMessage}</div> : null}
       </div>
 
       <div className="card p-5 space-y-3">
@@ -1158,16 +1251,26 @@ function AssignTestTab({ assignedTests, setAssignedTests, submissions, setSubmis
 
 function LeaderboardTab({ students }) {
   const [mode, setMode] = useState('exam')
-  const [activeSubject, setActiveSubject] = useState('all')
   const [query, setQuery] = useState('')
   const [expandedEmail, setExpandedEmail] = useState('')
   const [entries, setEntries] = useState([])
+  const [entriesLoading, setEntriesLoading] = useState(true)
+
+  const [mockBoard, setMockBoard] = useState([])
+  const [mockLoading, setMockLoading] = useState(true)
+  const [mockSearch, setMockSearch] = useState('')
+  const [activeMockSubject, setActiveMockSubject] = useState('all')
+  const [expandedMockRow, setExpandedMockRow] = useState(null)
+  const [mockLastRefresh, setMockLastRefresh] = useState(null)
 
   useEffect(() => {
     let active = true
+    if (mode !== 'exam') return () => {}
+
     const load = async () => {
+      setEntriesLoading(true)
       await delay()
-      const payload = await requestJson(`/api/teacher/leaderboard?mode=${mode}&subject=${activeSubject}`, { method: 'GET' }, null)
+      const payload = await requestJson('/api/teacher/leaderboard?mode=exam&subject=all', { method: 'GET' }, null)
       if (!active) return
       if (payload?.entries) {
         setEntries(payload.entries)
@@ -1183,13 +1286,37 @@ function LeaderboardTab({ students }) {
         }))
         setEntries(derived)
       }
+      setEntriesLoading(false)
     }
 
     load()
     return () => {
       active = false
     }
-  }, [activeSubject, mode, students])
+  }, [mode, students])
+
+  const fetchMockBoard = useCallback(async (subject) => {
+    setMockLoading(true)
+    try {
+      const url = subject === 'all' ? '/api/mock-leaderboard' : `/api/mock-leaderboard?subject=${encodeURIComponent(subject)}`
+      const response = await fetch(url)
+      const data = await response.json()
+      if (data?.success) {
+        setMockBoard(Array.isArray(data.entries) ? data.entries : [])
+        setMockLastRefresh(new Date())
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Mock leaderboard fetch failed:', error)
+    } finally {
+      setMockLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (mode !== 'mock') return
+    void fetchMockBoard(activeMockSubject)
+  }, [activeMockSubject, fetchMockBoard, mode])
 
   const filteredEntries = useMemo(() => {
     const lowerQuery = query.toLowerCase()
@@ -1197,7 +1324,32 @@ function LeaderboardTab({ students }) {
   }, [entries, query])
 
   const sortedEntries = useMemo(() => [...filteredEntries].sort((a, b) => b.accuracy - a.accuracy), [filteredEntries])
-  const podium = sortedEntries.slice(0, 3)
+
+  const mockFiltered = useMemo(() => {
+    const term = mockSearch.trim().toLowerCase()
+    if (!term) return mockBoard
+    return mockBoard.filter((entry) => String(entry.name || '').toLowerCase().includes(term))
+  }, [mockBoard, mockSearch])
+
+  const mockPodium = useMemo(() => mockFiltered.slice(0, 3), [mockFiltered])
+
+  const mockStats = useMemo(() => {
+    const avg = mockBoard.length
+      ? Math.round(mockBoard.reduce((sum, entry) => sum + Number(entry.accuracy || 0), 0) / mockBoard.length)
+      : 0
+    const totalTests = mockBoard.reduce((sum, entry) => sum + Number(entry.attempts || 0), 0)
+    return {
+      students: mockBoard.length,
+      topScore: mockBoard[0]?.accuracy ?? 0,
+      avg,
+      totalTests,
+      topStudent: mockBoard[0] || null,
+    }
+  }, [mockBoard])
+
+  const medals = { 1: '🥇', 2: '🥈', 3: '🥉' }
+  const podiumColors = { 1: '#F59E0B', 2: '#1D4ED8', 3: '#8B5CF6' }
+  const ringCircumference = 2 * Math.PI * 11
 
   return (
     <div className="space-y-4">
@@ -1208,57 +1360,319 @@ function LeaderboardTab({ students }) {
         </div>
       </div>
 
-      {mode === 'mock' ? (
-        <div className="flex flex-wrap gap-2">
-          {['all', ...SUBJECT_OPTIONS.map((subject) => subject.id)].map((subjectId) => (
-            <button key={subjectId} type="button" onClick={() => setActiveSubject(subjectId)} className={`rounded-xl px-3 py-2 text-sm font-medium ${activeSubject === subjectId ? 'bg-brand text-white' : 'bg-slate-50 text-slate-700'}`}>
-              {subjectId === 'all' ? 'All' : SUBJECT_OPTIONS.find((subject) => subject.id === subjectId)?.label}
-            </button>
-          ))}
-        </div>
+      {mode === 'exam' ? (
+        <>
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search student" className="border border-slate-200 rounded-xl px-3 py-2" />
+
+          {entriesLoading ? <div className="rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-500">Loading leaderboard…</div> : null}
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {sortedEntries.slice(0, 3).map((entry, index) => (
+              <div key={entry.email} className="card p-4">
+                <div className="text-sm font-semibold uppercase tracking-wide text-slate-400">#{index + 1}</div>
+                <div className="mt-2 font-semibold text-slate-900">{entry.name}</div>
+                <div className="text-sm text-slate-500">{entry.accuracy}% accuracy</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="card p-5 overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead className="bg-slate-50">
+                <tr className="text-left text-slate-500">
+                  <th className="px-3 py-3">Name</th>
+                  <th className="px-3 py-3">Accuracy</th>
+                  <th className="px-3 py-3">Attempts</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sortedEntries.map((entry) => (
+                  <Fragment key={entry.email}>
+                    <tr className="cursor-pointer border-t border-slate-200" onClick={() => setExpandedEmail((current) => (current === entry.email ? '' : entry.email))}>
+                      <td className="px-3 py-3 font-medium text-slate-800">{entry.name}</td>
+                      <td className="px-3 py-3 font-semibold text-slate-700">{entry.accuracy}%</td>
+                      <td className="px-3 py-3 text-slate-700">{entry.attempts}</td>
+                    </tr>
+                    {expandedEmail === entry.email ? (
+                      <tr>
+                        <td colSpan="3" className="px-3 py-2 text-sm text-slate-600">
+                          {entry.subjectBreakdown.map((item) => <div key={`${item.subject}-${item.chapter}`} className="rounded-xl bg-slate-50 px-2 py-1">{item.subject} • {item.chapter} • {item.accuracy}% ({item.tests})</div>)}
+                        </td>
+                      </tr>
+                    ) : null}
+                  </Fragment>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       ) : null}
 
-      <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search student" className="border border-slate-200 rounded-xl px-3 py-2" />
+      {mode === 'mock' ? (
+        <>
+          <div className="card p-4 space-y-3">
+            <div className="flex flex-wrap items-center gap-2">
+              {MOCK_SUBJECTS.map((subject) => {
+                const active = activeMockSubject === subject.id
+                return (
+                  <button
+                    key={subject.id}
+                    type="button"
+                    onClick={() => {
+                      setActiveMockSubject(subject.id)
+                      setExpandedMockRow(null)
+                    }}
+                    className="rounded-full border px-3 py-2 text-sm font-medium transition"
+                    style={active
+                      ? { borderColor: subject.color, borderWidth: 2, backgroundColor: hexA(subject.color, 0.1), color: '#0f172a' }
+                      : { borderColor: '#e2e8f0', backgroundColor: '#ffffff', color: '#334155' }}
+                  >
+                    {subject.icon} {subject.label}
+                    {active ? <span className="ml-2 rounded-full bg-white px-2 py-0.5 text-xs font-semibold text-slate-600">{mockFiltered.length}</span> : null}
+                  </button>
+                )
+              })}
+            </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        {podium.map((entry, index) => (
-          <div key={entry.email} className="card p-4">
-            <div className="text-sm font-semibold uppercase tracking-wide text-slate-400">#{index + 1}</div>
-            <div className="mt-2 font-semibold text-slate-900">{entry.name}</div>
-            <div className="text-sm text-slate-500">{entry.accuracy}% accuracy</div>
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <input
+                value={mockSearch}
+                onChange={(event) => setMockSearch(event.target.value)}
+                placeholder="Search by student name"
+                className="w-full md:max-w-sm rounded-xl border border-slate-200 px-3 py-2"
+              />
+              <div className="flex items-center gap-3">
+                <button type="button" onClick={() => fetchMockBoard(activeMockSubject)} className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700">
+                  Refresh
+                </button>
+                <span className="text-xs text-slate-500">
+                  {mockLastRefresh ? `Last refresh ${mockLastRefresh.toLocaleTimeString()}` : 'Not refreshed yet'}
+                </span>
+              </div>
+            </div>
           </div>
-        ))}
-      </div>
 
-      <div className="card p-5 overflow-x-auto">
-        <table className="min-w-full text-sm">
-          <thead className="bg-slate-50">
-            <tr className="text-left text-slate-500">
-              <th className="px-3 py-3">Name</th>
-              <th className="px-3 py-3">Accuracy</th>
-              <th className="px-3 py-3">Attempts</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sortedEntries.map((entry) => (
-              <Fragment key={entry.email}>
-                <tr className="cursor-pointer border-t border-slate-200" onClick={() => setExpandedEmail((current) => (current === entry.email ? '' : entry.email))}>
-                  <td className="px-3 py-3 font-medium text-slate-800">{entry.name}</td>
-                  <td className="px-3 py-3 font-semibold text-slate-700">{entry.accuracy}%</td>
-                  <td className="px-3 py-3 text-slate-700">{entry.attempts}</td>
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <div className="card p-4">
+              <div className="text-xs uppercase tracking-wide text-slate-500">👥 Students</div>
+              <div className="mt-2 text-2xl font-semibold text-slate-900">{mockStats.students}</div>
+            </div>
+            <div className="card p-4">
+              <div className="text-xs uppercase tracking-wide text-slate-500">🥇 Top Score</div>
+              <div className="mt-2 text-2xl font-semibold text-slate-900">{mockStats.topScore}%</div>
+            </div>
+            <div className="card p-4">
+              <div className="text-xs uppercase tracking-wide text-slate-500">🎯 Avg Accuracy</div>
+              <div className="mt-2 text-2xl font-semibold text-slate-900">{mockStats.avg}%</div>
+            </div>
+            <div className="card p-4">
+              <div className="text-xs uppercase tracking-wide text-slate-500">📝 Total Tests</div>
+              <div className="mt-2 text-2xl font-semibold text-slate-900">{mockStats.totalTests}</div>
+            </div>
+          </div>
+
+          {mockStats.topStudent ? (
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+              Top Student: <span className="font-semibold">{mockStats.topStudent.name}</span> • {mockStats.topStudent.accuracy}% • {mockStats.topStudent.subjectLabel}
+            </div>
+          ) : null}
+
+          {!mockLoading && !mockSearch.trim() && mockPodium.length >= 2 ? (
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:items-end">
+              {(mockPodium.length >= 3
+                ? [{ e: mockPodium[1], rank: 2, h: 80 }, { e: mockPodium[0], rank: 1, h: 110 }, { e: mockPodium[2], rank: 3, h: 60 }]
+                : [{ e: mockPodium[1], rank: 2, h: 80 }, { e: mockPodium[0], rank: 1, h: 110 }]
+              ).map(({ e, rank, h }) => {
+                const strongest = Array.isArray(e.subjectBreakdown) && e.subjectBreakdown.length
+                  ? [...e.subjectBreakdown].sort((a, b) => b.accuracy - a.accuracy)[0]
+                  : null
+                return (
+                  <div key={e.email} className="card p-4 text-center">
+                    <div className="text-2xl">{medals[rank]}</div>
+                    <div className="mt-2 font-semibold text-slate-900">{e.name}</div>
+                    <div className="text-sm text-slate-500">{e.accuracy}% accuracy</div>
+                    {strongest ? (
+                      <div className="mt-2 inline-flex rounded-full px-2 py-1 text-xs font-semibold" style={{ backgroundColor: hexA(subjectColor(strongest.subject), 0.15), color: subjectColor(strongest.subject) }}>
+                        ⭐ {strongest.subject}
+                      </div>
+                    ) : null}
+                    <div className="mx-auto mt-3 w-20 rounded-t-xl" style={{ height: `${h}px`, backgroundColor: podiumColors[rank] }} />
+                  </div>
+                )
+              })}
+            </div>
+          ) : null}
+
+          <div className="card overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead className="bg-slate-50 text-slate-500">
+                <tr>
+                  <th className="px-3 py-3 text-left">Rank</th>
+                  <th className="px-3 py-3 text-left">Student</th>
+                  <th className="px-3 py-3 text-left">Details</th>
+                  <th className="px-3 py-3 text-left">Score</th>
+                  <th className="px-3 py-3 text-left">Accuracy</th>
+                  <th className="px-3 py-3 text-left">Expand</th>
                 </tr>
-                {expandedEmail === entry.email ? (
+              </thead>
+              <tbody>
+                {mockLoading ? Array.from({ length: 5 }).map((_, index) => (
+                  <tr key={`skeleton-${index}`} className="border-t border-slate-200">
+                    <td className="px-3 py-4"><div className="h-6 w-10 animate-pulse rounded bg-slate-100" /></td>
+                    <td className="px-3 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 animate-pulse rounded-full bg-slate-100" />
+                        <div className="space-y-2">
+                          <div className="h-3 w-28 animate-pulse rounded bg-slate-100" />
+                          <div className="h-3 w-20 animate-pulse rounded bg-slate-100" />
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-3 py-4"><div className="h-4 w-36 animate-pulse rounded bg-slate-100" /></td>
+                    <td className="px-3 py-4"><div className="h-6 w-14 animate-pulse rounded bg-slate-100" /></td>
+                    <td className="px-3 py-4"><div className="h-6 w-20 animate-pulse rounded bg-slate-100" /></td>
+                    <td className="px-3 py-4"><div className="h-4 w-12 animate-pulse rounded bg-slate-100" /></td>
+                  </tr>
+                )) : null}
+
+                {!mockLoading && !mockFiltered.length ? (
                   <tr>
-                    <td colSpan="3" className="px-3 py-2 text-sm text-slate-600">
-                      {entry.subjectBreakdown.map((item) => <div key={`${item.subject}-${item.chapter}`} className="rounded-xl bg-slate-50 px-2 py-1">{item.subject} • {item.chapter} • {item.accuracy}% ({item.tests})</div>)}
+                    <td colSpan="6" className="px-3 py-10 text-center text-slate-500">
+                      <div className="text-2xl">📭</div>
+                      <div className="mt-2">
+                        {mockSearch.trim() ? 'No students match your search.' : 'No mock leaderboard entries available for this subject.'}
+                      </div>
                     </td>
                   </tr>
                 ) : null}
-              </Fragment>
-            ))}
-          </tbody>
-        </table>
-      </div>
+
+                {!mockLoading ? mockFiltered.map((entry, index) => {
+                  const rank = index + 1
+                  const [avatarBg, avatarText] = avatarColors(index)
+                  const expandOpen = expandedMockRow === entry.email
+                  const breakdown = Array.isArray(entry.subjectBreakdown) ? entry.subjectBreakdown : []
+                  const topTwo = breakdown.slice(0, 2)
+                  const overflow = Math.max(0, breakdown.length - 2)
+                  const rowStyle = rank === 1
+                    ? { backgroundColor: '#FFFBEB' }
+                    : expandOpen
+                      ? { backgroundColor: '#F8FAFF' }
+                      : undefined
+
+                  return (
+                    <Fragment key={entry.email}>
+                      <tr
+                        className="cursor-pointer border-t border-slate-200 transition hover:bg-slate-50"
+                        style={rowStyle}
+                        onClick={() => setExpandedMockRow((current) => (current === entry.email ? null : entry.email))}
+                      >
+                        <td className="px-3 py-3 font-semibold text-slate-800">{rank <= 3 ? medals[rank] : `#${rank}`}</td>
+                        <td className="px-3 py-3">
+                          <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold" style={{ backgroundColor: avatarBg, color: avatarText }}>
+                              {initials(entry.name)}
+                            </div>
+                            <div>
+                              <div className="font-semibold text-slate-900">{entry.name}</div>
+                              <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                                <span className="rounded-full px-2 py-0.5" style={{ backgroundColor: hexA(subjectColor(entry.subjectLabel), 0.14), color: subjectColor(entry.subjectLabel) }}>{entry.subjectLabel}</span>
+                                <span>{entry.attempts} attempt{entry.attempts !== 1 ? 's' : ''}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-3 py-3">
+                          {entry.lastChapter ? <div className="mb-2 text-xs text-slate-600">📖 Last chapter: {entry.lastChapter}</div> : null}
+                          <div className="flex flex-wrap gap-2">
+                            {topTwo.map((item) => (
+                              <span key={`${entry.email}-${item.subject}-${item.chapter}`} className="rounded-full px-2 py-1 text-xs" style={{ backgroundColor: hexA(subjectColor(item.subject), 0.15), color: subjectColor(item.subject) }}>
+                                {item.subject} · {item.chapter} · {item.accuracy}% · {item.tests}
+                              </span>
+                            ))}
+                            {overflow > 0 ? <span className="rounded-full bg-slate-100 px-2 py-1 text-xs text-slate-600">+{overflow} more</span> : null}
+                          </div>
+                        </td>
+                        <td className="px-3 py-3 font-semibold text-slate-800">{entry.score}/{entry.total}</td>
+                        <td className="px-3 py-3">
+                          <div className="flex items-center gap-2">
+                            <span style={{ color: accuracyColor(entry.accuracy) }} className="font-semibold">{entry.accuracy}%</span>
+                            <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true">
+                              <circle cx="14" cy="14" r="11" fill="none" stroke="#e2e8f0" strokeWidth="3" />
+                              <circle
+                                cx="14"
+                                cy="14"
+                                r="11"
+                                fill="none"
+                                stroke={accuracyColor(entry.accuracy)}
+                                strokeWidth="3"
+                                strokeLinecap="round"
+                                strokeDasharray={`${(ringCircumference * Math.min(entry.accuracy, 100)) / 100} ${ringCircumference}`}
+                                style={{ transform: 'rotate(-90deg)', transformOrigin: '14px 14px' }}
+                              />
+                            </svg>
+                          </div>
+                        </td>
+                        <td className="px-3 py-3 text-xs font-semibold text-slate-500">{expandOpen ? '▲ less' : '▼ detail'}</td>
+                      </tr>
+                      {expandOpen ? (
+                        <tr className="border-t border-slate-100 bg-slate-50/70">
+                          <td colSpan="6" className="px-4 py-4">
+                            {breakdown.length ? (
+                              <div className="space-y-4">
+                                <div className="space-y-2">
+                                  {breakdown.map((item) => (
+                                    <div key={`${entry.email}-${item.subject}-${item.chapter}-bar`}>
+                                      <div className="mb-1 flex items-center justify-between text-xs text-slate-600">
+                                        <span>{item.subject} • {item.chapter}</span>
+                                        <span>{item.accuracy}%</span>
+                                      </div>
+                                      <div className="h-2 rounded-full bg-slate-200">
+                                        <div className="h-2 rounded-full" style={{ width: `${Math.min(item.accuracy, 100)}%`, backgroundColor: accuracyColor(item.accuracy) }} />
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+
+                                <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+                                  <table className="min-w-full text-xs">
+                                    <thead className="bg-slate-100 text-slate-500">
+                                      <tr>
+                                        <th className="px-3 py-2 text-left">CHAPTER</th>
+                                        <th className="px-3 py-2 text-left">SUBJECT</th>
+                                        <th className="px-3 py-2 text-left">ACC</th>
+                                        <th className="px-3 py-2 text-left">TESTS</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {breakdown.map((item, idx) => (
+                                        <tr key={`${entry.email}-${item.subject}-${item.chapter}-table`} className={idx % 2 ? 'bg-slate-50' : 'bg-white'}>
+                                          <td className="px-3 py-2 text-slate-700">
+                                            <span className="mr-2 inline-block h-2 w-2 rounded-full" style={{ backgroundColor: subjectColor(item.subject) }} />
+                                            {item.chapter}
+                                          </td>
+                                          <td className="px-3 py-2 text-slate-700">{item.subject}</td>
+                                          <td className="px-3 py-2 font-semibold" style={{ color: accuracyColor(item.accuracy) }}>{item.accuracy}%</td>
+                                          <td className="px-3 py-2 text-slate-700">{item.tests}</td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="text-sm text-slate-600">No chapter breakdown available yet.</div>
+                            )}
+                          </td>
+                        </tr>
+                      ) : null}
+                    </Fragment>
+                  )
+                }) : null}
+              </tbody>
+            </table>
+          </div>
+        </>
+      ) : null}
     </div>
   )
 }

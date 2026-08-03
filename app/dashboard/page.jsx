@@ -6,7 +6,6 @@ import { ProgressBar, Badge } from '@/components/UI'
 import { useMemo, useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { useAppContent } from '@/lib/use-app-content'
-import StudentDocuments from '@/components/StudentDocuments'
 
 const TODAY = new Date(2020, 5, 28) // June 28, 2020 — fixed "today" reference for the demo calendar
 
@@ -75,7 +74,8 @@ export default function DashboardPage() {
   }
 
   // Real, per-category study minutes derived from the user's actual lecture/test progress.
-  // This replaces the old hardcoded demo numbers and feeds both the summary text and the activity chart.
+  // This replaces the old hardcoded demo numbers and feeds bo
+  // th the summary text and the activity chart.
   const rawBreakdown = useMemo(() => {
     const lecture = LECTURES_ARRAY.reduce(
       (sum, lecture) => sum + parseDuration(lecture.duration) * ((lecture.watched ?? 0) / 100),
@@ -174,7 +174,7 @@ export default function DashboardPage() {
               {isLoadingStats ? (
                 <div className="h-4 w-56 max-w-full rounded-full bg-white/20 motion-safe:animate-pulse" />
               ) : (
-                <p className="text-white/85 text-sm leading-relaxed transition-opacity duration-300">
+                <p className="text-ink/80 text-sm leading-relaxed transition-opacity duration-300">
                   {studentData
                     ? `You've spent ${formatDuration(activeStudyMinutes)} on the site ${timeRange === 'Today' ? 'today' : 'this week'}. Keep going!`
                     : 'Track your learning time across tests, lectures, and mock practice.'}
@@ -320,8 +320,6 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
-
-          <StudentDocuments />
 
           {/* My Courses */}
           <div>

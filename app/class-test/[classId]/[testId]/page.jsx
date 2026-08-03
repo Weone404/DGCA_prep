@@ -261,25 +261,25 @@ export default function ClassTestPage({ params }) {
 
   return (
     <AppShell>
-      <div className="min-h-screen flex items-center justify-center p-6">
+      <div className="min-h-screen flex items-center justify-center p-6 text-ink">
         {screen === 'loading' && (
-          <div className="card p-6 max-w-md w-full text-center">
-            <h2 className="font-bold text-xl mb-2">Loading class test</h2>
+          <div className="card p-6 max-w-md w-full text-center text-ink">
+            <h2 className="font-bold text-xl mb-2 text-ink">Loading class test</h2>
             <p className="text-sm text-muted">Preparing your questions...</p>
           </div>
         )}
 
         {screen === 'error' && (
-          <div className="card p-6 max-w-md w-full text-center">
-            <h2 className="font-bold text-xl mb-2">Unable to start</h2>
+          <div className="card p-6 max-w-md w-full text-center text-ink">
+            <h2 className="font-bold text-xl mb-2 text-ink">Unable to start</h2>
             <p className="text-sm text-muted mb-4">{error || 'Something went wrong.'}</p>
-            <button onClick={() => router.push('/class-test')} className="px-4 py-2 border rounded-lg">Back to Class Tests</button>
+            <button onClick={() => router.push('/class-test')} className="px-4 py-2 border rounded-lg text-ink">Back to Class Tests</button>
           </div>
         )}
 
         {screen === 'start' && classTest && (
-          <div className="card p-6 max-w-lg w-full" style={{ borderLeft: `6px solid ${themeColor}` }}>
-            <h2 className="font-bold text-xl mb-3">{classTest.title}</h2>
+          <div className="card p-6 max-w-lg w-full text-ink" style={{ borderLeft: `6px solid ${themeColor}` }}>
+            <h2 className="font-bold text-xl mb-3 text-ink">{classTest.title}</h2>
 
             <div className="flex flex-wrap items-center gap-2 mb-3">
               <span className="inline-flex items-center px-3 py-1 text-xs rounded-full border" style={{ borderColor: `${themeColor}55`, color: themeColor }}>
@@ -294,7 +294,7 @@ export default function ClassTestPage({ params }) {
               {classTest.numQuestions} questions · {classTest.durationMins} minutes
             </p>
 
-            <p className="text-sm mb-2">
+            <p className="text-sm text-ink mb-2">
               {classTest.instructions || `You'll have ${classTest.durationMins} minutes. Once started, timer can't be paused.`}
             </p>
 
@@ -307,31 +307,31 @@ export default function ClassTestPage({ params }) {
             ) : null}
 
             <div className="flex flex-col gap-3 sm:flex-row">
-              <button onClick={() => router.push('/class-test')} className="flex-1 border rounded-lg py-2">Cancel</button>
+              <button onClick={() => router.push('/class-test')} className="flex-1 border rounded-lg py-2 text-ink">Cancel</button>
               <button onClick={startTest} disabled={questions.length === 0} style={{ background: questions.length === 0 ? '#94a3b8' : themeColor }} className="flex-1 text-white rounded-lg py-2">{questions.length === 0 ? 'Unavailable' : 'Start Test'}</button>
             </div>
           </div>
         )}
 
         {screen === 'test' && questions.length === 0 && classTest && (
-          <div className="card p-6 max-w-md w-full text-center">
-            <h3 className="text-xl font-bold mb-2">No bank questions available</h3>
+          <div className="card p-6 max-w-md w-full text-center text-ink">
+            <h3 className="text-xl font-bold mb-2 text-ink">No bank questions available</h3>
             <p className="text-sm text-muted mb-4">This test has no question-bank entries to load right now.</p>
-            <button onClick={() => router.push('/class-test')} className="px-4 py-2 border rounded-lg">Back to class tests</button>
+            <button onClick={() => router.push('/class-test')} className="px-4 py-2 border rounded-lg text-ink">Back to class tests</button>
           </div>
         )}
 
         {screen === 'test' && currentQuestion && classTest && (
-          <div className="max-w-3xl w-full">
+          <div className="max-w-3xl w-full text-ink">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
-              <button onClick={() => setScreen('finish')} className="border rounded-lg px-3 py-1">Finish</button>
-              <div className="font-semibold truncate px-3">{classTest.title}</div>
-              <div className="font-mono">{String(mins).padStart(2, '0')}:{String(secs).padStart(2, '0')}</div>
+              <button onClick={() => setScreen('finish')} className="border rounded-lg px-3 py-1 text-ink">Finish</button>
+              <div className="font-semibold truncate px-3 text-ink">{classTest.title}</div>
+              <div className="font-mono text-ink">{String(mins).padStart(2, '0')}:{String(secs).padStart(2, '0')}</div>
             </div>
 
-            <div className="card p-5">
+            <div className="card p-5 text-ink">
               <div className="text-sm text-muted mb-3">Question {currentQ + 1} of {total}</div>
-              <div className="font-bold text-lg mb-4">{currentQuestion.question}</div>
+              <div className="font-bold text-lg mb-4 text-ink">{currentQuestion.question}</div>
 
               <div className="flex flex-col gap-3">
                 {currentQuestion.options.map((option, index) => {
@@ -352,7 +352,7 @@ export default function ClassTestPage({ params }) {
                         <div className="w-8 h-8 rounded-full bg-white border flex items-center justify-center">
                           {['A', 'B', 'C', 'D'][index]}
                         </div>
-                        <div>{option}</div>
+                        <div className="text-ink">{option}</div>
                       </div>
                     </button>
                   )
@@ -380,7 +380,7 @@ export default function ClassTestPage({ params }) {
                 <button
                   onClick={() => setCurrentQ((index) => Math.max(0, index - 1))}
                   disabled={currentQ === 0}
-                  className="px-3 py-2 border rounded"
+                  className="px-3 py-2 border rounded text-ink"
                 >
                   Previous
                 </button>
@@ -396,7 +396,7 @@ export default function ClassTestPage({ params }) {
                 ) : (
                   <button
                     onClick={() => setCurrentQ((index) => Math.min(total - 1, index + 1))}
-                    className="px-4 py-2 border rounded w-full sm:w-auto"
+                    className="px-4 py-2 border rounded w-full sm:w-auto text-ink"
                   >
                     Next
                   </button>
@@ -407,8 +407,8 @@ export default function ClassTestPage({ params }) {
         )}
 
         {screen === 'finish' && classTest && (
-          <div className="card p-6 max-w-md w-full text-center">
-            <h3 className="text-2xl font-bold mb-2">Result</h3>
+          <div className="card p-6 max-w-md w-full text-center text-ink">
+            <h3 className="text-2xl font-bold mb-2 text-ink">Result</h3>
             <div className="text-4xl font-extrabold mb-2" style={{ color: themeColor }}>{score} / {total}</div>
             <p className="text-sm text-muted mb-4">{Math.round((score / Math.max(1, total)) * 100)}%</p>
 
@@ -430,7 +430,7 @@ export default function ClassTestPage({ params }) {
             {submitting ? <p className="text-xs text-muted mb-3">Saving result...</p> : null}
 
             <div className="flex flex-col gap-3 sm:flex-row">
-              <button onClick={() => router.push('/class-test')} className="flex-1 border rounded-lg py-2">Back</button>
+              <button onClick={() => router.push('/class-test')} className="flex-1 border rounded-lg py-2 text-ink">Back</button>
               <button
                 onClick={retryTest}
                 className="flex-1 rounded-lg py-2"

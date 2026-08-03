@@ -24,6 +24,135 @@ async function ensureTable() {
   `)
 }
 
+function normalizeSubjectId(subject) {
+  const value = String(subject || '').trim().toLowerCase()
+  if (!value || value === 'all') return 'all'
+  return value.replace(/_/g, '-')
+}
+
+function toNumber(value) {
+  const num = Number(value)
+  return Number.isFinite(num) ? num : 0
+}
+
+export async function GET(request) {
+  try {
+    await ensureTable()
+
+    const { searchParams } = new URL(request.url)
+    const subject = normalizeSubjectId(searchParams.get('subject'))
+
+    const result = await pool.query(
+      `WITH filtered AS (
+         SELECT
+           id,
+           guest_id,
+           email,
+           name,
+           subject,
+           subject_label,
+           score,
+           total,
+           accuracy,
+           submitted_at,
+           COALESCE(NULLIF(LOWER(email), ''), CONCAT('guest:', COALESCE(NULLIF(guest_id, ''), name, id::text))) AS entity_key
+         FROM mock_leaderboard
+         WHERE $1 = 'all' OR subject = $1
+       ),
+       ranked AS (
+         SELECT
+           *,
+           ROW_NUMBER() OVER (
+             PARTITION BY entity_key
+             ORDER BY accuracy DESC, score DESC, total DESC, submitted_at DESC, id DESC
+           ) AS rn
+         FROM filtered
+       ),
+       best_rows AS (
+         SELECT
+           entity_key,
+           email,
+           name,
+           subject,
+           subject_label,
+           score,
+           total,
+           accuracy
+         FROM ranked
+         WHERE rn = 1
+       ),
+       attempts AS (
+         SELECT entity_key, COUNT(*)::int AS attempts
+         FROM filtered
+         GROUP BY entity_key
+       ),
+       breakdown AS (
+         SELECT
+           entity_key,
+           COALESCE(NULLIF(subject_label, ''), 'General') AS breakdown_subject,
+           MAX(accuracy)::int AS breakdown_accuracy,
+           COUNT(*)::int AS breakdown_tests
+         FROM filtered
+         GROUP BY entity_key, COALESCE(NULLIF(subject_label, ''), 'General')
+       )
+       SELECT
+         b.entity_key,
+         b.email,
+         b.name,
+         b.subject,
+         b.subject_label,
+         b.score,
+         b.total,
+         b.accuracy,
+         a.attempts,
+         COALESCE(
+           JSON_AGG(
+             JSON_BUILD_OBJECT(
+               'subject', d.breakdown_subject,
+               'chapter', 'Overall',
+               'accuracy', d.breakdown_accuracy,
+               'tests', d.breakdown_tests
+             )
+             ORDER BY d.breakdown_accuracy DESC, d.breakdown_subject ASC
+           ) FILTER (WHERE d.entity_key IS NOT NULL),
+           '[]'::json
+         ) AS subject_breakdown
+       FROM best_rows b
+       JOIN attempts a ON a.entity_key = b.entity_key
+       LEFT JOIN breakdown d ON d.entity_key = b.entity_key
+       GROUP BY
+         b.entity_key,
+         b.email,
+         b.name,
+         b.subject,
+         b.subject_label,
+         b.score,
+         b.total,
+         b.accuracy,
+         a.attempts
+       ORDER BY b.accuracy DESC, a.attempts DESC, b.score DESC, b.total DESC, b.name ASC`,
+      [subject]
+    )
+
+    const entries = result.rows.map((row) => ({
+      email: row.email || row.entity_key,
+      name: row.name || 'Guest',
+      accuracy: toNumber(row.accuracy),
+      score: toNumber(row.score),
+      total: toNumber(row.total),
+      subject: row.subject || 'all',
+      subjectLabel: row.subject_label || 'General',
+      attempts: toNumber(row.attempts),
+      subjectBreakdown: Array.isArray(row.subject_breakdown) ? row.subject_breakdown : [],
+    }))
+
+    return NextResponse.json({ success: true, entries })
+  } catch (error) {
+    console.error('GET /api/mock-leaderboard error:', error)
+    return NextResponse.json({ success: false, entries: [], error: 'Unable to load mock leaderboard.' }, { status: 500 })
+  }
+}
+
 export async function POST(request) {
   try {
     await ensureTable()

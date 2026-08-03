@@ -91,7 +91,9 @@ export async function POST(request) {
     )
 
     if (!insertResult.rows[0]) {
-      await supabase.storage.from('documents').remove([storagePath])
+      if (supabase && uploadedUrl.startsWith('/api/documents/')) {
+        await supabase.storage.from(bucketName).remove([storagePath])
+      }
       return NextResponse.json({ error: 'Failed to save document metadata.' }, { status: 500 })
     }
 
