@@ -64,7 +64,7 @@ export async function POST(request) {
         return NextResponse.json({ publicUrl })
       }
 
-      console.error('Avatar upload failed in Supabase. Falling back to local storage:', {
+      console.error('Avatar upload failed in Supabase:', {
         message: storageError.message,
         status: storageError.status,
         statusCode: storageError.statusCode,

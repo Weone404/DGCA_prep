@@ -145,7 +145,9 @@ export default function ProfilePage() {
 
       const data = await response.json()
       if (!response.ok) {
-        throw new Error(data?.error || 'Image upload failed.')
+        const details = String(data?.details || '').trim()
+        const errorMessage = String(data?.error || 'Image upload failed.').trim()
+        throw new Error(details ? `${errorMessage} (${details})` : errorMessage)
       }
 
       const normalizedAvatarUrl = String(data.publicUrl || '').replace(/\?t=\d+/g, '')
