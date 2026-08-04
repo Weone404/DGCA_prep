@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server'
 import pool from '../../../../lib/db'
 
+const memoryScheduledClasses = []
+
+function isDbConfigured() {
+  return Boolean(String(process.env.DATABASE_URL || '').trim())
+}
+
 function normalizeScheduledClass(record) {
   return {
     id: record.id,
@@ -37,6 +43,10 @@ async function ensureScheduledClassesTable() {
 
 export async function GET() {
   try {
+    if (!isDbConfigured()) {
+      return NextResponse.json({ classes: [...memoryScheduledClasses] })
+    }
+
     await ensureScheduledClassesTable()
     const { rows } = await pool.query('SELECT * FROM scheduled_classes ORDER BY created_at DESC, date DESC')
     return NextResponse.json({ classes: rows.map(normalizeScheduledClass) })
@@ -53,6 +63,31 @@ export async function POST(req) {
     const id = event.id || `class-${Date.now()}`
     const startDateTime = event.startDateTime || event.start_date_time || ''
     const endDateTime = event.endDateTime || event.end_date_time || ''
+
+    if (!isDbConfigured()) {
+      const normalized = normalizeScheduledClass({
+        id,
+        title: event.title || '',
+        description: event.description || '',
+        date: event.date || '',
+        time: event.time || '',
+        duration: Number(event.duration || 60),
+        meet_link: event.meetLink || event.meet_link || '',
+        batch: event.batch || 'A1',
+        start_date_time: startDateTime,
+        end_date_time: endDateTime,
+        created_at: new Date().toISOString(),
+      })
+
+      const index = memoryScheduledClasses.findIndex((item) => String(item.id) === String(id))
+      if (index >= 0) {
+        memoryScheduledClasses[index] = normalized
+      } else {
+        memoryScheduledClasses.unshift(normalized)
+      }
+
+      return NextResponse.json({ classes: [...memoryScheduledClasses], event: normalized })
+    }
 
     await ensureScheduledClassesTable()
     await pool.query(
@@ -96,6 +131,14 @@ export async function DELETE(req) {
     const body = await req.json()
     const id = body?.id
     if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 })
+
+    if (!isDbConfigured()) {
+      const index = memoryScheduledClasses.findIndex((item) => String(item.id) === String(id))
+      if (index >= 0) {
+        memoryScheduledClasses.splice(index, 1)
+      }
+      return NextResponse.json({ id })
+    }
 
     await pool.query('DELETE FROM scheduled_classes WHERE id = $1', [id])
     return NextResponse.json({ id })

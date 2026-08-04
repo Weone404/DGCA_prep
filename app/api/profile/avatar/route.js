@@ -22,6 +22,32 @@ function getSafeExtension(fileName = '', mimeType = '') {
   return 'jpg'
 }
 
+function getCandidateBuckets() {
+  return Array.from(
+    new Set(
+      [
+        SUPABASE_AVATARS_BUCKET,
+        SUPABASE_STORAGE_BUCKET,
+        process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET,
+        'avatars',
+        'documents',
+      ]
+        .map((value) => String(value || '').trim())
+        .filter(Boolean)
+    )
+  )
+}
+
+function isBucketNotFoundError(error) {
+  const message = String(error?.message || '').toLowerCase()
+  return message.includes('bucket not found') || message.includes('not found')
+}
+
+function isAlreadyExistsError(error) {
+  const message = String(error?.message || '').toLowerCase()
+  return message.includes('already exists') || message.includes('duplicate')
+}
+
 export async function POST(request) {
   try {
     const formData = await request.formData()
@@ -45,7 +71,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'File size must be 5MB or less.' }, { status: 400 })
     }
 
-    const bucketName = SUPABASE_AVATARS_BUCKET || SUPABASE_STORAGE_BUCKET || 'documents'
+    const bucketCandidates = getCandidateBuckets()
     const extension = getSafeExtension(file.name, mimeType)
     const storagePath = `avatars/${userId}/profile.${extension}`
     const buffer = Buffer.from(await file.arrayBuffer())
@@ -53,29 +79,75 @@ export async function POST(request) {
 
     const supabase = getSupabaseAdminClient()
     if (supabase) {
-      const { error: storageError } = await supabase.storage.from(bucketName).upload(storagePath, buffer, {
-        contentType: mimeType,
-        upsert: true,
-      })
+      let lastStorageError = null
 
-      if (!storageError) {
-        const { data: publicUrlData } = supabase.storage.from(bucketName).getPublicUrl(storagePath)
-        const publicUrl = `${publicUrlData.publicUrl}?t=${Date.now()}`
-        return NextResponse.json({ publicUrl })
+      for (const bucketName of bucketCandidates) {
+        const { error: storageError } = await supabase.storage.from(bucketName).upload(storagePath, buffer, {
+          contentType: mimeType,
+          upsert: true,
+        })
+
+        if (!storageError) {
+          const { data: publicUrlData } = supabase.storage.from(bucketName).getPublicUrl(storagePath)
+          const publicUrl = `${publicUrlData.publicUrl}?t=${Date.now()}`
+          return NextResponse.json({ publicUrl })
+        }
+
+        lastStorageError = storageError
+        console.error('Avatar upload failed in Supabase bucket attempt:', {
+          message: storageError.message,
+          status: storageError.status,
+          statusCode: storageError.statusCode,
+          bucketName,
+        })
+
+        if (isBucketNotFoundError(storageError)) {
+          const { error: createBucketError } = await supabase.storage.createBucket(bucketName, { public: true })
+
+          if (!createBucketError || isAlreadyExistsError(createBucketError)) {
+            const { error: retryError } = await supabase.storage.from(bucketName).upload(storagePath, buffer, {
+              contentType: mimeType,
+              upsert: true,
+            })
+
+            if (!retryError) {
+              const { data: publicUrlData } = supabase.storage.from(bucketName).getPublicUrl(storagePath)
+              const publicUrl = `${publicUrlData.publicUrl}?t=${Date.now()}`
+              return NextResponse.json({ publicUrl })
+            }
+
+            lastStorageError = retryError
+            console.error('Avatar upload retry failed after bucket create attempt:', {
+              message: retryError.message,
+              status: retryError.status,
+              statusCode: retryError.statusCode,
+              bucketName,
+            })
+          } else {
+            lastStorageError = createBucketError
+            console.error('Unable to auto-create Supabase bucket for avatar upload:', {
+              message: createBucketError.message,
+              status: createBucketError.status,
+              statusCode: createBucketError.statusCode,
+              bucketName,
+            })
+          }
+
+          continue
+        }
+
+        if (!isBucketNotFoundError(storageError)) {
+          break
+        }
       }
 
-      console.error('Avatar upload failed in Supabase:', {
-        message: storageError.message,
-        status: storageError.status,
-        statusCode: storageError.statusCode,
-        bucketName,
-      })
+      const details = lastStorageError?.message || 'Unknown storage error.'
 
       if (!canUseLocalFallback) {
         return NextResponse.json(
           {
             error: 'Avatar upload failed in storage. Please verify Supabase storage bucket configuration.',
-            details: storageError.message,
+            details: `${details} Tried buckets: ${bucketCandidates.join(', ')}`,
           },
           { status: 502 }
         )
