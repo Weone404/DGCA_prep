@@ -5,6 +5,10 @@ import path from 'path'
 
 export const dynamic = 'force-dynamic'
 
+function isServerlessProduction() {
+  return process.env.NODE_ENV === 'production' || process.env.VERCEL === '1'
+}
+
 function getSafeExtension(fileName = '', mimeType = '') {
   const normalized = String(fileName || '').toLowerCase()
   if (normalized.endsWith('.png')) return 'png'
@@ -16,14 +20,6 @@ function getSafeExtension(fileName = '', mimeType = '') {
   if (mimeType === 'image/webp') return 'webp'
   if (mimeType === 'image/gif') return 'gif'
   return 'jpg'
-}
-
-function encodePath(pathValue) {
-  return String(pathValue)
-    .split('/')
-    .filter(Boolean)
-    .map((segment) => encodeURIComponent(segment))
-    .join('/')
 }
 
 export async function POST(request) {
@@ -53,6 +49,7 @@ export async function POST(request) {
     const extension = getSafeExtension(file.name, mimeType)
     const storagePath = `avatars/${userId}/profile.${extension}`
     const buffer = Buffer.from(await file.arrayBuffer())
+    const canUseLocalFallback = !isServerlessProduction()
 
     const supabase = getSupabaseAdminClient()
     if (supabase) {
@@ -62,8 +59,8 @@ export async function POST(request) {
       })
 
       if (!storageError) {
-        const supabaseBaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
-        const publicUrl = `${supabaseBaseUrl}/storage/v1/object/public/${encodeURIComponent(bucketName)}/${encodePath(storagePath)}?t=${Date.now()}`
+        const { data: publicUrlData } = supabase.storage.from(bucketName).getPublicUrl(storagePath)
+        const publicUrl = `${publicUrlData.publicUrl}?t=${Date.now()}`
         return NextResponse.json({ publicUrl })
       }
 
@@ -73,6 +70,21 @@ export async function POST(request) {
         statusCode: storageError.statusCode,
         bucketName,
       })
+
+      if (!canUseLocalFallback) {
+        return NextResponse.json(
+          {
+            error: 'Avatar upload failed in storage. Please verify Supabase storage bucket configuration.',
+            details: storageError.message,
+          },
+          { status: 502 }
+        )
+      }
+    } else if (!canUseLocalFallback) {
+      return NextResponse.json(
+        { error: 'Supabase storage is not configured for avatar upload in production.' },
+        { status: 500 }
+      )
     }
 
     const avatarDir = path.join(process.cwd(), 'public', 'uploads', 'avatars', userId)
