@@ -2,6 +2,7 @@ import './globals.css'
 import { AuthProvider } from '@/lib/auth-context'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import FloatingCalculator from '@/components/FloatingCalculator'
+import ChunkErrorReload from '@/components/ChunkErrorReload'
 
 export const metadata = {
   title: 'WeOne aviation — Learn From Home',
@@ -23,6 +24,7 @@ export default function RootLayout({ children }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body className="bg-canvas text-ink transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100">
+        <ChunkErrorReload />
         <div className="border-b border-line bg-canvas px-4 py-2 text-center text-xs text-muted transition-colors duration-300 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300">
           {appName} • {appTagline} • {supportEmail}
         </div>

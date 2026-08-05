@@ -621,15 +621,40 @@ function ManageStudentsTab({ students, setStudents }) {
 
 function AttendanceTab({ students, attendanceRecords, setAttendanceRecords }) {
   const [subTab, setSubTab] = useState('mark')
-  const [batch, setBatch] = useState('A1')
-  const [selectedDate, setSelectedDate] = useState('2026-07-10')
+  const [batch, setBatch] = useState('')
+  const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().slice(0, 10))
   const [statuses, setStatuses] = useState({})
   const [notes, setNotes] = useState({})
   const [error, setError] = useState('')
-  const [reportMonth, setReportMonth] = useState('2026-07')
+  const [reportMonth, setReportMonth] = useState(() => new Date().toISOString().slice(0, 7))
   const [selectedStudentEmail, setSelectedStudentEmail] = useState(students[0]?.email || '')
 
-  const batchStudents = useMemo(() => students.filter((student) => student.batch === batch), [batch, students])
+  const batchOptions = useMemo(() => {
+    const values = Array.from(new Set((students || []).map((student) => String(student.batch || '').trim()).filter(Boolean)))
+    return values.length ? values : ['A1', 'A2']
+  }, [students])
+
+  useEffect(() => {
+    if (!batchOptions.length) return
+    if (!batch || !batchOptions.includes(batch)) {
+      setBatch(batchOptions[0])
+    }
+  }, [batch, batchOptions])
+
+  const batchStudents = useMemo(() => {
+    if (!batch) return []
+    return students.filter((student) => String(student.batch || '').trim() === batch)
+  }, [batch, students])
+
+  useEffect(() => {
+    if (!students.length) {
+      setSelectedStudentEmail('')
+      return
+    }
+    if (!students.some((student) => student.email === selectedStudentEmail)) {
+      setSelectedStudentEmail(students[0].email)
+    }
+  }, [selectedStudentEmail, students])
 
   useEffect(() => {
     const nextStatuses = {}
@@ -655,6 +680,11 @@ function AttendanceTab({ students, attendanceRecords, setAttendanceRecords }) {
     const today = new Date().toISOString().slice(0, 10)
     if (selectedDate > today) {
       setError('Future dates are not allowed for attendance marking.')
+      return
+    }
+
+    if (!batchStudents.length) {
+      setError('No students found for this batch. Please verify student data in the database.')
       return
     }
 
@@ -723,8 +753,9 @@ function AttendanceTab({ students, attendanceRecords, setAttendanceRecords }) {
         <div className="card p-5 space-y-3">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <select value={batch} onChange={(event) => setBatch(event.target.value)} className="border border-slate-200 rounded-xl px-3 py-2">
-              <option value="A1">A1</option>
-              <option value="A2">A2</option>
+              {batchOptions.map((entry) => (
+                <option key={entry} value={entry}>{entry}</option>
+              ))}
             </select>
             <input type="date" value={selectedDate} onChange={(event) => setSelectedDate(event.target.value)} className="border border-slate-200 rounded-xl px-3 py-2" />
             <button type="button" onClick={markAllPresent} className="rounded-xl bg-slate-100 px-3 py-2 text-sm font-medium text-slate-700">Mark all present</button>
@@ -767,8 +798,9 @@ function AttendanceTab({ students, attendanceRecords, setAttendanceRecords }) {
         <div className="card p-4 space-y-3">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <select value={batch} onChange={(event) => setBatch(event.target.value)} className="border border-line rounded-lg px-3 py-2">
-              <option value="A1">A1</option>
-              <option value="A2">A2</option>
+              {batchOptions.map((entry) => (
+                <option key={entry} value={entry}>{entry}</option>
+              ))}
             </select>
             <input type="month" value={reportMonth} onChange={(event) => setReportMonth(event.target.value)} className="border border-line rounded-lg px-3 py-2" />
           </div>
@@ -2038,6 +2070,16 @@ export default function TeacherDashboardPage() {
       if (!active) return
       if (Array.isArray(dailyUpdatesPayload?.updates)) {
         setDailyUpdates(dailyUpdatesPayload.updates)
+      }
+
+      // Fallback: some production DBs keep teacher/student rows in users table
+      // surfaced by /api/teacher/students, while /api/teacher/dashboard can be empty.
+      if (!Array.isArray(dashboardPayload?.students) || dashboardPayload.students.length === 0) {
+        const studentsPayload = await requestJson('/api/teacher/students', { method: 'GET' }, null)
+        if (!active) return
+        if (Array.isArray(studentsPayload?.students) && studentsPayload.students.length) {
+          setStudents(studentsPayload.students)
+        }
       }
 
       setDashboardLoading(false)

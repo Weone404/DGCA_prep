@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import AppShell from '@/components/AppShell'
 import Icon from '@/components/Icon'
 import StudentDocuments from '@/components/StudentDocuments'
 import { useAuth } from '@/lib/auth-context'
 
-const TABS = ['Personal Details', 'Test Results', 'Notification', 'Privacy', 'Student Documents']
+const TABS = ['Personal Details', 'Test Results', 'Attendance', 'Notification', 'Privacy', 'Student Documents']
 
 export default function ProfilePage() {
   const router = useRouter()
@@ -15,6 +15,10 @@ export default function ProfilePage() {
   const [tab, setTab] = useState('Personal Details')
   const [testResults, setTestResults] = useState([])
   const [loadingResults, setLoadingResults] = useState(false)
+  const [attendance, setAttendance] = useState({ present: 0, absent: 0, late: 0, monthPct: 0, days: {}, recent: [] })
+  const [loadingAttendance, setLoadingAttendance] = useState(false)
+  const [attendanceError, setAttendanceError] = useState('')
+  const [attendanceDateFilter, setAttendanceDateFilter] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
@@ -74,6 +78,57 @@ export default function ProfilePage() {
         })
     }
   }, [tab, user?.email])
+
+  useEffect(() => {
+    if (tab !== 'Attendance') return
+
+    let active = true
+    setLoadingAttendance(true)
+    setAttendanceError('')
+
+    fetch('/api/attendance/me', {
+      method: 'GET',
+      credentials: 'include',
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error('Unable to fetch attendance')
+        return res.json()
+      })
+      .then((data) => {
+        if (!active) return
+        setAttendance({
+          present: Number(data?.present || 0),
+          absent: Number(data?.absent || 0),
+          late: Number(data?.late || 0),
+          monthPct: Number(data?.monthPct || 0),
+          days: data?.days || {},
+          recent: Array.isArray(data?.recent) ? data.recent : [],
+        })
+      })
+      .catch((err) => {
+        if (!active) return
+        setAttendanceError(err?.message || 'Unable to load attendance.')
+        setAttendance({ present: 0, absent: 0, late: 0, monthPct: 0, days: {}, recent: [] })
+      })
+      .finally(() => {
+        if (active) setLoadingAttendance(false)
+      })
+
+    return () => {
+      active = false
+    }
+  }, [tab])
+
+  const filteredAttendance = useMemo(() => {
+    const rows = Array.isArray(attendance.recent) ? attendance.recent : []
+    if (!attendanceDateFilter) return rows
+    return rows.filter((entry) => String(entry.date || '') === attendanceDateFilter)
+  }, [attendance.recent, attendanceDateFilter])
+
+  const presentDates = useMemo(
+    () => filteredAttendance.filter((entry) => String(entry.status || '').toLowerCase() === 'present'),
+    [filteredAttendance],
+  )
 
   // Redirect to login if not authenticated
   if (!user) {
@@ -422,6 +477,110 @@ export default function ProfilePage() {
                   </table>
                 </div>
               )}
+            </div>
+          )}
+
+          {tab === 'Attendance' && (
+            <div className="space-y-5">
+              <div className="grid gap-3 sm:grid-cols-4">
+                <div className="rounded-2xl border border-line bg-canvas px-4 py-3">
+                  <div className="text-xs uppercase text-muted">Present</div>
+                  <div className="mt-1 text-xl font-semibold text-brand">{attendance.present}</div>
+                </div>
+                <div className="rounded-2xl border border-line bg-canvas px-4 py-3">
+                  <div className="text-xs uppercase text-muted">Absent</div>
+                  <div className="mt-1 text-xl font-semibold text-coral">{attendance.absent}</div>
+                </div>
+                <div className="rounded-2xl border border-line bg-canvas px-4 py-3">
+                  <div className="text-xs uppercase text-muted">Late</div>
+                  <div className="mt-1 text-xl font-semibold text-violet">{attendance.late}</div>
+                </div>
+                <div className="rounded-2xl border border-line bg-canvas px-4 py-3">
+                  <div className="text-xs uppercase text-muted">This Month</div>
+                  <div className="mt-1 text-xl font-semibold text-ink">{attendance.monthPct}%</div>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <h3 className="font-semibold text-ink">Your Attendance By Date</h3>
+                  <p className="text-sm text-muted">Only your records are shown here.</p>
+                </div>
+                <div className="w-full sm:w-56">
+                  <label className="mb-1 block text-xs text-muted">Filter by date</label>
+                  <input
+                    type="date"
+                    value={attendanceDateFilter}
+                    onChange={(e) => setAttendanceDateFilter(e.target.value)}
+                    className="w-full rounded-xl border border-line px-3 py-2 text-sm"
+                  />
+                </div>
+              </div>
+
+              {loadingAttendance ? (
+                <div className="rounded-2xl border border-line bg-canvas px-4 py-5 text-sm text-muted">Loading your attendance...</div>
+              ) : null}
+
+              {attendanceError ? (
+                <div className="rounded-2xl border border-coral/30 bg-coral/10 px-4 py-3 text-sm text-coral">{attendanceError}</div>
+              ) : null}
+
+              {!loadingAttendance && !attendanceError ? (
+                <>
+                  <div className="rounded-2xl border border-line p-4">
+                    <h4 className="font-semibold text-ink mb-3">Dates You Were Present</h4>
+                    {presentDates.length ? (
+                      <div className="flex flex-wrap gap-2">
+                        {presentDates.map((entry) => (
+                          <span key={`${entry.date}-${entry.batch}-present`} className="rounded-full bg-brand/10 px-3 py-1 text-xs font-medium text-brand">
+                            {new Date(entry.date).toLocaleDateString()} {entry.batch ? `• ${entry.batch}` : ''}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted">No present records for the selected date range.</p>
+                    )}
+                  </div>
+
+                  <div className="overflow-x-auto rounded-2xl border border-line">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="bg-canvas text-muted">
+                          <th className="px-3 py-3 text-left font-semibold">Date</th>
+                          <th className="px-3 py-3 text-left font-semibold">Batch</th>
+                          <th className="px-3 py-3 text-left font-semibold">Status</th>
+                          <th className="px-3 py-3 text-left font-semibold">Note</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredAttendance.length ? filteredAttendance.map((entry) => {
+                          const status = String(entry.status || '').toLowerCase()
+                          const tone =
+                            status === 'present'
+                              ? 'bg-green-50 text-green-700'
+                              : status === 'late'
+                                ? 'bg-yellow-50 text-yellow-700'
+                                : 'bg-red-50 text-red-700'
+                          return (
+                            <tr key={`${entry.date}-${entry.batch}-${status}`} className="border-t border-line">
+                              <td className="px-3 py-3 text-ink">{new Date(entry.date).toLocaleDateString()}</td>
+                              <td className="px-3 py-3 text-ink">{entry.batch || '-'}</td>
+                              <td className="px-3 py-3">
+                                <span className={`rounded-full px-2 py-1 text-xs font-semibold ${tone}`}>{status || '-'}</span>
+                              </td>
+                              <td className="px-3 py-3 text-muted">{entry.note || '-'}</td>
+                            </tr>
+                          )
+                        }) : (
+                          <tr>
+                            <td colSpan="4" className="px-3 py-4 text-sm text-muted">No attendance records found.</td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              ) : null}
             </div>
           )}
 
