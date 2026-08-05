@@ -135,7 +135,9 @@ export default function TestPage({ params }) {
       const payload = {
         userEmail: userEmail,
         chapterId: chapterMeta.id,
+        chapterName: chapterMeta.title || test.title,
         subjectId: chapterMeta.bankSubject || test.subject,
+        subjectName: chapterMeta.bankSubject || test.subject,
         score: score,
         total: total,
         answers: answersArray,

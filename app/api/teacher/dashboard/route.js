@@ -311,6 +311,15 @@ export async function GET() {
     })
   } catch (error) {
     console.error('Teacher dashboard fetch error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({
+      students: [],
+      attendance: [],
+      classes: [],
+      link: null,
+      tests: [],
+      submissions: [],
+      degraded: true,
+      error: error?.message || 'Unable to load teacher dashboard',
+    })
   }
 }

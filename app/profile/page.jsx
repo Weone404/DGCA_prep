@@ -26,6 +26,9 @@ export default function ProfilePage() {
 
   const FIELDS = [
     { key: 'fullName', label: 'Full Name', value: (user && user.name) || '' },
+    { key: 'fatherName', label: 'Father Name', value: (user && user.fatherName) || '' },
+    { key: 'motherName', label: 'Mother Name', value: (user && user.motherName) || '' },
+    { key: 'phone', label: 'Phone Number', value: (user && user.phone) || '' },
     { key: 'email', label: 'Email address', value: (user && user.email) || '' },
     { key: 'address', label: 'Address', value: (user && user.address) || '', full: true },
     { key: 'city', label: 'City', value: (user && user.city) || '' },
@@ -197,6 +200,9 @@ export default function ProfilePage() {
       const baseUser = {
         id: user.id,
         name: form.fullName || user.name || '',
+        fatherName: form.fatherName || user.fatherName || '',
+        motherName: form.motherName || user.motherName || '',
+        phone: form.phone || user.phone || '',
         email: form.email || user.email || '',
         address: form.address || '',
         city: form.city || '',
@@ -229,9 +235,12 @@ export default function ProfilePage() {
       const updatedUser = {
         ...user,
         ...payload,
-        name: payload.name || user.name,
-        email: payload.email || user.email,
-        avatar: payload.avatar || user.avatar,
+        name: data?.name || payload.name || user.name,
+        fatherName: data?.fatherName || payload.fatherName || user.fatherName || '',
+        motherName: data?.motherName || payload.motherName || user.motherName || '',
+        phone: data?.phone || payload.phone || user.phone || '',
+        email: data?.email || payload.email || user.email,
+        avatar: data?.avatar || payload.avatar || user.avatar,
       }
 
       updateUser(updatedUser)
@@ -392,8 +401,8 @@ export default function ProfilePage() {
                     <tbody>
                       {testResults.map((result) => (
                         <tr key={result.id} className="border-b border-line hover:bg-canvas transition-colors">
-                          <td className="py-3 px-3 text-ink">{result.chapterId}</td>
-                          <td className="py-3 px-3 text-center text-ink">{result.subjectId}</td>
+                          <td className="py-3 px-3 text-ink">{result.chapterName || result.chapterId || '-'}</td>
+                          <td className="py-3 px-3 text-center text-ink">{result.subjectName || result.subjectId || '-'}</td>
                           <td className="py-3 px-3 text-center font-semibold text-ink">{result.score}/{result.total}</td>
                           <td className="py-3 px-3 text-center">
                             <span className={`px-2 py-1 rounded-full text-xs font-semibold ${

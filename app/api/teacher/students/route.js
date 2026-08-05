@@ -6,7 +6,13 @@ export async function GET() {
     const payload = await getStudentsWithResults()
     return NextResponse.json(payload)
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('GET /api/teacher/students error:', error)
+    return NextResponse.json({
+      summary: { totalStudents: 0, totalTests: 0, avgAccuracy: 0 },
+      students: [],
+      degraded: true,
+      error: error?.message || 'Unable to load students right now.',
+    })
   }
 }
 

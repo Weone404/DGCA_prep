@@ -22,6 +22,8 @@ async function ensureProfileColumns() {
     ['state', 'TEXT'],
     ['zip', 'TEXT'],
     ['country', 'TEXT'],
+    ['father_name', 'TEXT'],
+    ['mother_name', 'TEXT'],
     ['avatar_url', 'TEXT'],
   ]
 
@@ -41,12 +43,19 @@ function normalizeProfilePayload(payload = {}) {
 
   if (source.email !== undefined) normalized.email = String(source.email).trim().toLowerCase()
   if (source.phone !== undefined) normalized.phone = String(source.phone).trim()
+  if (source.phoneNumber !== undefined) normalized.phone = String(source.phoneNumber).trim()
   if (source.batch !== undefined) normalized.batch = source.batch
   if (source.address !== undefined) normalized.address = String(source.address).trim()
   if (source.city !== undefined) normalized.city = String(source.city).trim()
   if (source.state !== undefined) normalized.state = String(source.state).trim()
   if (source.zip !== undefined) normalized.zip = String(source.zip).trim()
   if (source.country !== undefined) normalized.country = String(source.country).trim()
+  if (source.fatherName !== undefined || source.father_name !== undefined) {
+    normalized.father_name = String(source.fatherName ?? source.father_name ?? '').trim()
+  }
+  if (source.motherName !== undefined || source.mother_name !== undefined) {
+    normalized.mother_name = String(source.motherName ?? source.mother_name ?? '').trim()
+  }
   if (source.avatar !== undefined || source.avatarUrl !== undefined || source.avatar_url !== undefined) {
     normalized.avatar_url = String(source.avatar ?? source.avatarUrl ?? source.avatar_url ?? '').trim()
   }
@@ -100,6 +109,8 @@ async function saveProfile(payload) {
   if (normalized.state !== undefined) pushValue('state', normalized.state)
   if (normalized.zip !== undefined) pushValue('zip', normalized.zip)
   if (normalized.country !== undefined) pushValue('country', normalized.country)
+  if (normalized.father_name !== undefined) pushValue('father_name', normalized.father_name)
+  if (normalized.mother_name !== undefined) pushValue('mother_name', normalized.mother_name)
   if (normalized.avatar_url !== undefined) pushValue('avatar_url', normalized.avatar_url)
 
   if (columns.has('updated_at')) {
@@ -133,6 +144,8 @@ export async function POST(request) {
       state: user.state || '',
       zip: user.zip || '',
       country: user.country || '',
+      fatherName: user.father_name || user.fatherName || '',
+      motherName: user.mother_name || user.motherName || '',
       avatar: user.avatar_url || user.avatar || '',
       is_verified: user.is_verified ?? false,
       created_at: user.created_at,
@@ -174,6 +187,8 @@ export async function GET(request) {
       state: user.state || '',
       zip: user.zip || '',
       country: user.country || '',
+      fatherName: user.father_name || user.fatherName || '',
+      motherName: user.mother_name || user.motherName || '',
       avatar: user.avatar_url || user.avatar || '',
       is_verified: user.is_verified ?? false,
       created_at: user.created_at,

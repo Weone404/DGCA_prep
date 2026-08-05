@@ -8,15 +8,24 @@ async function ensureTable() {
       title           TEXT NOT NULL,
       subject_id      TEXT NOT NULL,
       subject_label   TEXT NOT NULL,
+      class_id        TEXT DEFAULT '',
+      class_name      TEXT DEFAULT '',
       chapter_ids     TEXT[] NOT NULL DEFAULT '{}',
       num_questions   INTEGER NOT NULL DEFAULT 20,
       duration_mins   INTEGER NOT NULL DEFAULT 30,
       instructions    TEXT DEFAULT '',
+      due_at          TIMESTAMPTZ,
       is_active       BOOLEAN DEFAULT true,
+      updated_at      TIMESTAMPTZ DEFAULT NOW(),
       created_at      TIMESTAMPTZ DEFAULT NOW()
     );
     CREATE INDEX IF NOT EXISTS idx_assigned_tests_subject ON assigned_tests(subject_id);
   `)
+
+  await pool.query(`ALTER TABLE assigned_tests ADD COLUMN IF NOT EXISTS class_id TEXT DEFAULT ''`)
+  await pool.query(`ALTER TABLE assigned_tests ADD COLUMN IF NOT EXISTS class_name TEXT DEFAULT ''`)
+  await pool.query(`ALTER TABLE assigned_tests ADD COLUMN IF NOT EXISTS due_at TIMESTAMPTZ`)
+  await pool.query(`ALTER TABLE assigned_tests ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW()`)
 }
 
 export async function GET(request) {
@@ -32,11 +41,15 @@ export async function GET(request) {
         title,
         subject_id      AS "subjectId",
         subject_label   AS "subjectLabel",
+        class_id        AS "classId",
+        class_name      AS "className",
         chapter_ids     AS "chapterIds",
         num_questions   AS "numQuestions",
         duration_mins   AS "durationMins",
         instructions,
+        due_at          AS "dueAt",
         is_active       AS "isActive",
+        updated_at      AS "updatedAt",
         created_at      AS "createdAt"
       FROM assigned_tests
       ${includeAll ? '' : 'WHERE COALESCE(is_active, true) = true'}

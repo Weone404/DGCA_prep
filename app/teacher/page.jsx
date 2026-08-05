@@ -7,6 +7,7 @@ import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 const NAV_TABS = [
   { id: 'students', label: 'Students' },
   { id: 'allresults', label: 'All Results' },
+  { id: 'dailyupdate', label: 'Daily Update' },
   { id: 'attendance', label: 'Attendance' },
   { id: 'schedule', label: 'Schedule' },
   { id: 'assigntest', label: 'Assign Test' },
@@ -450,7 +451,7 @@ function AllResultsTab({ students }) {
 
 function ManageStudentsTab({ students, setStudents }) {
   const [query, setQuery] = useState('')
-  const [form, setForm] = useState({ name: '', email: '', phone: '', batch: 'A1' })
+  const [form, setForm] = useState({ name: '', email: '', phone: '', batch: 'A1', whatsappOptIn: false })
   const [error, setError] = useState('')
 
   const filteredStudents = useMemo(() => {
@@ -495,7 +496,7 @@ function ManageStudentsTab({ students, setStudents }) {
 
     if (payload?.students) {
       setStudents(payload.students)
-      setForm({ name: '', email: '', phone: '', batch: 'A1' })
+      setForm({ name: '', email: '', phone: '', batch: 'A1', whatsappOptIn: false })
       return
     }
 
@@ -511,7 +512,7 @@ function ManageStudentsTab({ students, setStudents }) {
         results: [],
       },
     ])
-    setForm({ name: '', email: '', phone: '', batch: 'A1' })
+    setForm({ name: '', email: '', phone: '', batch: 'A1', whatsappOptIn: false })
   }
 
   const handleRemove = async (email) => {
@@ -544,6 +545,10 @@ function ManageStudentsTab({ students, setStudents }) {
           <input value={form.email} onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))} placeholder="Email" className="border border-slate-200 rounded-xl px-3 py-2" />
           <input value={form.phone} onChange={(event) => setForm((current) => ({ ...current, phone: event.target.value }))} placeholder="Phone" className="border border-slate-200 rounded-xl px-3 py-2" />
           <input value={form.batch} onChange={(event) => setForm((current) => ({ ...current, batch: event.target.value }))} placeholder="Batch" className="border border-slate-200 rounded-xl px-3 py-2" />
+          <label className="md:col-span-4 flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">
+            <input type="checkbox" checked={form.whatsappOptIn} onChange={(event) => setForm((current) => ({ ...current, whatsappOptIn: event.target.checked }))} className="h-4 w-4 rounded border-slate-300 text-brand focus:ring-brand" />
+            Student consented to receive WhatsApp test notifications
+          </label>
           <button type="submit" className="md:col-span-4 rounded-xl bg-brand px-3 py-2 text-white">Add student</button>
         </form>
         {error ? <div className="mt-2 text-sm text-rose-600">{error}</div> : null}
@@ -778,6 +783,206 @@ function AttendanceTab({ students, attendanceRecords, setAttendanceRecords }) {
   )
 }
 
+function DailyUpdateTab({ students, dailyUpdates, setDailyUpdates }) {
+  const [date, setDate] = useState(new Date().toISOString().slice(0, 10))
+  const [batch, setBatch] = useState('A1')
+  const [subject, setSubject] = useState('')
+  const [topicInput, setTopicInput] = useState('')
+  const [topics, setTopics] = useState([])
+  const [notes, setNotes] = useState('')
+  const [teacherName, setTeacherName] = useState('')
+  const [isSaving, setIsSaving] = useState(false)
+  const [loadingUpdates, setLoadingUpdates] = useState(false)
+  const [error, setError] = useState('')
+
+  const batchOptions = useMemo(() => {
+    const values = Array.from(new Set((students || []).map((student) => String(student.batch || '').trim()).filter(Boolean)))
+    return values.length ? values : ['A1', 'A2']
+  }, [students])
+
+  useEffect(() => {
+    if (!batchOptions.includes(batch)) {
+      setBatch(batchOptions[0])
+    }
+  }, [batch, batchOptions])
+
+  useEffect(() => {
+    let active = true
+    const load = async () => {
+      setLoadingUpdates(true)
+      const payload = await requestJson('/api/teacher/daily-updates', { method: 'GET' }, { updates: [] })
+      if (!active) return
+      setDailyUpdates(Array.isArray(payload?.updates) ? payload.updates : [])
+      setLoadingUpdates(false)
+    }
+
+    load()
+    return () => {
+      active = false
+    }
+  }, [setDailyUpdates])
+
+  const addTopic = () => {
+    const value = topicInput.trim()
+    if (!value) return
+    if (topics.some((topic) => topic.toLowerCase() === value.toLowerCase())) {
+      setTopicInput('')
+      return
+    }
+    setTopics((current) => [...current, value])
+    setTopicInput('')
+  }
+
+  const removeTopic = (topicToRemove) => {
+    setTopics((current) => current.filter((topic) => topic !== topicToRemove))
+  }
+
+  const handleSave = async (event) => {
+    event.preventDefault()
+    setError('')
+
+    if (!date) {
+      setError('Please select a date.')
+      return
+    }
+    if (!subject.trim()) {
+      setError('Please enter the subject name.')
+      return
+    }
+    if (!topics.length) {
+      setError('Add at least one covered topic.')
+      return
+    }
+
+    setIsSaving(true)
+    const payload = await requestJson(
+      '/api/teacher/daily-updates',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          date,
+          batch,
+          subject: subject.trim(),
+          topics,
+          notes: notes.trim(),
+          teacherName: teacherName.trim(),
+        }),
+      },
+      null,
+    )
+
+    if (!payload?.success) {
+      setError(payload?.error || 'Unable to save daily update.')
+      setIsSaving(false)
+      return
+    }
+
+    if (payload?.update) {
+      setDailyUpdates((current) => [payload.update, ...current].slice(0, 100))
+    }
+
+    setSubject('')
+    setTopicInput('')
+    setTopics([])
+    setNotes('')
+    setIsSaving(false)
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="card p-5">
+        <div className="mb-4">
+          <h3 className="font-semibold text-slate-900">Daily class update</h3>
+          <p className="text-sm text-slate-500">Record topics covered today so your teaching log is saved in the database.</p>
+        </div>
+        <form onSubmit={handleSave} className="space-y-3">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+            <input type="date" value={date} onChange={(event) => setDate(event.target.value)} className="rounded-xl border border-slate-200 px-3 py-2" />
+            <select value={batch} onChange={(event) => setBatch(event.target.value)} className="rounded-xl border border-slate-200 px-3 py-2">
+              {batchOptions.map((entry) => (
+                <option key={entry} value={entry}>{entry}</option>
+              ))}
+            </select>
+            <input value={teacherName} onChange={(event) => setTeacherName(event.target.value)} placeholder="Teacher name (optional)" className="rounded-xl border border-slate-200 px-3 py-2" />
+          </div>
+
+          <input value={subject} onChange={(event) => setSubject(event.target.value)} placeholder="Subject (e.g., Navigation)" className="w-full rounded-xl border border-slate-200 px-3 py-2" />
+
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+            <label className="mb-2 block text-sm font-medium text-slate-700">Covered topics</label>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <input
+                value={topicInput}
+                onChange={(event) => setTopicInput(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    event.preventDefault()
+                    addTopic()
+                  }
+                }}
+                placeholder="Type topic and press Add"
+                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2"
+              />
+              <button type="button" onClick={addTopic} className="rounded-xl bg-slate-800 px-4 py-2 text-white">Add</button>
+            </div>
+
+            <div className="mt-3 flex flex-wrap gap-2">
+              {topics.length ? topics.map((topic) => (
+                <button
+                  key={topic}
+                  type="button"
+                  onClick={() => removeTopic(topic)}
+                  className="rounded-full bg-brand/10 px-3 py-1 text-xs font-medium text-brand"
+                >
+                  {topic} ×
+                </button>
+              )) : <span className="text-xs text-slate-500">No topics added yet.</span>}
+            </div>
+          </div>
+
+          <textarea
+            value={notes}
+            onChange={(event) => setNotes(event.target.value)}
+            placeholder="Optional notes, recap, or homework"
+            className="h-24 w-full rounded-xl border border-slate-200 px-3 py-2"
+          />
+
+          {error ? <div className="text-sm text-rose-600">{error}</div> : null}
+
+          <button type="submit" disabled={isSaving} className="rounded-xl bg-brand px-4 py-2 text-white disabled:opacity-60">
+            {isSaving ? 'Saving update…' : 'Save daily update'}
+          </button>
+        </form>
+      </div>
+
+      <div className="card p-5 space-y-3">
+        <h3 className="font-semibold text-slate-900">Recent daily updates</h3>
+        {loadingUpdates ? <div className="text-sm text-slate-500">Loading updates…</div> : null}
+        {!loadingUpdates && !dailyUpdates.length ? (
+          <div className="rounded-2xl border border-dashed border-slate-200 p-4 text-sm text-slate-500">No updates logged yet.</div>
+        ) : null}
+        {!loadingUpdates && dailyUpdates.length ? dailyUpdates.slice(0, 10).map((update) => (
+          <div key={`${update.id}-${update.createdAt}`} className="rounded-2xl border border-slate-200 p-3">
+            <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+              <span className="rounded-full bg-slate-100 px-2 py-0.5">{update.date || 'No date'}</span>
+              <span className="rounded-full bg-brand/10 px-2 py-0.5 text-brand">{update.batch || 'Batch'}</span>
+              {update.teacherName ? <span className="rounded-full bg-violet/10 px-2 py-0.5 text-violet">{update.teacherName}</span> : null}
+            </div>
+            <div className="mt-2 font-semibold text-slate-900">{update.subject}</div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {(Array.isArray(update.topics) ? update.topics : []).map((topic) => (
+                <span key={`${update.id}-${topic}`} className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-700">{topic}</span>
+              ))}
+            </div>
+            {update.notes ? <div className="mt-2 text-sm text-slate-600">{update.notes}</div> : null}
+          </div>
+        )) : null}
+      </div>
+    </div>
+  )
+}
+
 function ScheduleTab({ scheduledClasses, setScheduledClasses, liveLink, setLiveLink }) {
   const [form, setForm] = useState({ title: '', description: '', date: '2026-07-12', time: '18:00', duration: 60, meetLink: '', batch: 'A1' })
   const [formError, setFormError] = useState('')
@@ -932,6 +1137,10 @@ function AssignTestTab({ assignedTests, setAssignedTests, submissions, setSubmis
   const [numQuestions, setNumQuestions] = useState(20)
   const [durationMins, setDurationMins] = useState(30)
   const [instructions, setInstructions] = useState('')
+  const [dueAt, setDueAt] = useState('')
+  const [notifyStudents, setNotifyStudents] = useState(true)
+  const [notifyMinorUpdates, setNotifyMinorUpdates] = useState(false)
+  const [updateSeverity, setUpdateSeverity] = useState('major')
   const [error, setError] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
   const [viewingResultsId, setViewingResultsId] = useState(null)
@@ -1037,6 +1246,10 @@ function AssignTestTab({ assignedTests, setAssignedTests, submissions, setSubmis
       numQuestions,
       durationMins,
       instructions,
+      dueAt: dueAt || null,
+      notifyStudents,
+      notifyMinorUpdates,
+      updateSeverity,
       isActive: true,
     }
 
@@ -1064,12 +1277,27 @@ function AssignTestTab({ assignedTests, setAssignedTests, submissions, setSubmis
         numQuestions: payload.test.numQuestions || payload.test.num_questions || optimisticTest.numQuestions,
         durationMins: payload.test.durationMins || payload.test.duration_mins || optimisticTest.durationMins,
         instructions: payload.test.instructions || optimisticTest.instructions,
+        dueAt: payload.test.dueAt || payload.test.due_at || optimisticTest.dueAt,
         isActive: payload.test.isActive ?? payload.test.is_active ?? optimisticTest.isActive,
       }
       : optimisticTest
 
     setAssignedTests((current) => [created, ...current])
-    setSuccessMessage('Test uploaded successfully.')
+    const notification = payload?.notification
+    if (notification) {
+      if (notification.skipped) {
+        setSuccessMessage(`Test uploaded. WhatsApp not sent (${notification.reason || 'skipped'}).`)
+      } else {
+        const issueLine = Array.isArray(notification.deliveryIssues) && notification.deliveryIssues.length
+          ? ` Reason: ${notification.deliveryIssues[0]}`
+          : ''
+        setSuccessMessage(
+          `Test uploaded. WhatsApp: sent ${notification.sent || 0}, failed ${notification.failed || 0}, targeted ${notification.targetedStudentNumbers?.length || 0}.${issueLine}`
+        )
+      }
+    } else {
+      setSuccessMessage('Test uploaded successfully.')
+    }
   }
 
   const toggleActive = async (testId) => {
@@ -1194,6 +1422,27 @@ function AssignTestTab({ assignedTests, setAssignedTests, submissions, setSubmis
                 <label className="mb-2 block text-sm font-medium text-slate-700">Instructions</label>
                 <textarea value={instructions} onChange={(event) => setInstructions(event.target.value)} placeholder="Add any test instructions or guidance" className="h-28 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20" />
               </div>
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">Deadline (optional)</label>
+                <input value={dueAt} onChange={(event) => setDueAt(event.target.value)} type="datetime-local" className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20" />
+              </div>
+              <div className="space-y-2 rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                <label className="flex items-center gap-2 text-sm text-slate-700">
+                  <input type="checkbox" checked={notifyStudents} onChange={(event) => setNotifyStudents(event.target.checked)} className="h-4 w-4 rounded border-slate-300 text-brand focus:ring-brand" />
+                  Send WhatsApp notification to this batch
+                </label>
+                <label className="flex items-center gap-2 text-sm text-slate-700">
+                  <input type="checkbox" checked={notifyMinorUpdates} onChange={(event) => setNotifyMinorUpdates(event.target.checked)} className="h-4 w-4 rounded border-slate-300 text-brand focus:ring-brand" />
+                  Also send for minor edits
+                </label>
+                <div>
+                  <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">Update type</label>
+                  <select value={updateSeverity} onChange={(event) => setUpdateSeverity(event.target.value)} className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-brand focus:ring-2 focus:ring-brand/20">
+                    <option value="major">Major update</option>
+                    <option value="minor">Minor update</option>
+                  </select>
+                </div>
+              </div>
               <button type="button" onClick={handleSubmit} className="inline-flex w-full items-center justify-center rounded-3xl bg-brand px-5 py-3 text-sm font-semibold text-white transition hover:bg-brand-dark">
                 Assign test
               </button>
@@ -1213,6 +1462,7 @@ function AssignTestTab({ assignedTests, setAssignedTests, submissions, setSubmis
               <div>
                 <div className="font-semibold text-slate-900">{test.title}</div>
                 <div className="text-slate-500">{test.subjectLabel} • {test.chapterLabel} • {test.className || test.classId || 'All Classes'}</div>
+                {test.dueAt || test.due_at ? <div className="text-xs text-slate-500 mt-1">Deadline: {formatDisplayDate(test.dueAt || test.due_at)}</div> : null}
               </div>
               <div className="flex flex-wrap gap-2">
                 <button type="button" onClick={() => toggleActive(test.id)} className="rounded-xl border border-slate-200 px-3 py-1 text-slate-700">{test.is_active ? 'Pause' : 'Resume'}</button>
@@ -1686,6 +1936,7 @@ export default function TeacherDashboardPage() {
   const [liveLink, setLiveLink] = useState(null)
   const [assignedTests, setAssignedTests] = useState([])
   const [submissions, setSubmissions] = useState([])
+  const [dailyUpdates, setDailyUpdates] = useState([])
   const [isAuthed, setIsAuthed] = useState(false)
   const [authChecked, setAuthChecked] = useState(false)
   const [dashboardLoading, setDashboardLoading] = useState(false)
@@ -1749,6 +2000,12 @@ export default function TeacherDashboardPage() {
         setSubmissions(dashboardPayload.submissions)
       }
 
+      const dailyUpdatesPayload = await requestJson('/api/teacher/daily-updates', { method: 'GET' }, { updates: [] })
+      if (!active) return
+      if (Array.isArray(dailyUpdatesPayload?.updates)) {
+        setDailyUpdates(dailyUpdatesPayload.updates)
+      }
+
       setDashboardLoading(false)
     }
 
@@ -1805,6 +2062,8 @@ export default function TeacherDashboardPage() {
     switch (activeTab) {
       case 'allresults':
         return <AllResultsTab students={students} />
+      case 'dailyupdate':
+        return <DailyUpdateTab students={students} dailyUpdates={dailyUpdates} setDailyUpdates={setDailyUpdates} />
       case 'attendance':
         return <AttendanceTab students={students} attendanceRecords={attendanceRecords} setAttendanceRecords={setAttendanceRecords} />
       case 'schedule':

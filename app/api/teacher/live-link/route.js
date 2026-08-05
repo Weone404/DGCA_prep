@@ -16,7 +16,8 @@ export async function GET() {
     const payload = await getLiveLink()
     return NextResponse.json(payload)
   } catch (error) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 })
+    console.error('GET /api/teacher/live-link error:', error)
+    return NextResponse.json({ success: true, liveLink: null, degraded: true, error: error?.message || 'Unable to load live link' })
   }
 }
 

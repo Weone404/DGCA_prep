@@ -59,10 +59,30 @@ export default function Topbar({ title, theme, toggleTheme }) {
   const pathname = usePathname()
   const router = useRouter()
   const { user, logout } = useAuth()
-  const pageTitle = title || NAV_ITEMS.find((n) => pathname?.startsWith(n.href))?.label || 'WeOne aviation'
+  const pageTitle = title || NAV_ITEMS.find((n) => pathname?.startsWith(n.href))?.label || 'We One aviation'
   const isExamRoute =
     pathname?.startsWith('/class-test/')
     || (pathname?.startsWith('/subject-tests/') && pathname !== '/subject-tests')
+  const displayName = useMemo(() => {
+    if (!user) return ''
+
+    const fromName = String(user.name || '').trim()
+    if (fromName) return fromName
+
+    const fromFullName = String(user.fullName || user.full_name || '').trim()
+    if (fromFullName) return fromFullName
+
+    const email = String(user.email || '').trim()
+    if (email.includes('@')) return email.split('@')[0]
+
+    return 'Student'
+  }, [user])
+
+  const avatarSrc = useMemo(() => {
+    const value = String(user?.avatar || user?.avatar_url || '').trim()
+    if (value) return value
+    return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(displayName || 'Student')}`
+  }, [user, displayName])
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -276,8 +296,8 @@ export default function Topbar({ title, theme, toggleTheme }) {
         {user ? (
           <div className="relative">
             <button onClick={() => setOpenMenu((v) => !v)} className="flex items-center gap-2">
-              <img src={user.avatar} alt={user.name} className="h-9 w-9 rounded-full object-cover" />
-              <span className="hidden text-sm font-semibold text-ink dark:text-slate-100 sm:block">{user.name}</span>
+              <img src={avatarSrc} alt={displayName} className="h-9 w-9 rounded-full object-cover" />
+              <span className="block max-w-[6.5rem] truncate text-xs font-semibold text-ink dark:text-slate-100 sm:max-w-[9rem] sm:text-sm">{displayName}</span>
               <Icon name="chevron-down" size={16} className="text-muted" />
             </button>
             {openMenu && (
@@ -316,7 +336,7 @@ export default function Topbar({ title, theme, toggleTheme }) {
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-2xl bg-brand flex items-center justify-center text-white font-display font-bold">W</div>
                 <div>
-                  <p className="font-display font-bold text-ink leading-none dark:text-slate-100">WeOne aviation</p>
+                  <p className="font-display font-bold text-ink leading-none dark:text-slate-100">We One aviation</p>
                   <p className="mt-1 text-xs text-muted">Learn From Home</p>
                 </div>
               </div>

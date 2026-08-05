@@ -52,7 +52,7 @@ export async function GET() {
     return NextResponse.json({ classes: rows.map(normalizeScheduledClass) })
   } catch (error) {
     console.error('GET /api/teacher/schedule error:', error)
-    return NextResponse.json({ error: 'Unable to load scheduled classes' }, { status: 500 })
+    return NextResponse.json({ classes: [...memoryScheduledClasses], degraded: true, error: 'Unable to load scheduled classes' })
   }
 }
 

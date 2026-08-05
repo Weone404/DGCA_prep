@@ -1,6 +1,7 @@
 import './globals.css'
 import { AuthProvider } from '@/lib/auth-context'
 import { ThemeProvider } from '@/components/ThemeProvider'
+import FloatingCalculator from '@/components/FloatingCalculator'
 
 export const metadata = {
   title: 'WeOne aviation — Learn From Home',
@@ -26,7 +27,10 @@ export default function RootLayout({ children }) {
           {appName} • {appTagline} • {supportEmail}
         </div>
         <ThemeProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            {children}
+            <FloatingCalculator />
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -144,7 +144,7 @@ export default function Sidebar() {
               W
             </div>
             <div>
-              <p className="font-display font-bold text-ink leading-none dark:text-slate-100">WeOne aviation</p>
+              <p className="font-display font-bold text-ink leading-none dark:text-slate-100">We One aviation</p>
               <p className="mt-1 text-xs text-muted">Learn From Home</p>
             </div>
           </Link>
