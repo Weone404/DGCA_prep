@@ -211,6 +211,40 @@ function isLive(startDateTime, endDateTime) {
   return now >= new Date(startDateTime).getTime() && now <= new Date(endDateTime).getTime()
 }
 
+function DatabaseLoadingState({ title = 'Connecting to database…', subtitle = 'Fetching latest records.', compact = false }) {
+  if (compact) {
+    return (
+      <div className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600">
+        <span className="relative inline-flex h-2.5 w-2.5">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand opacity-60" />
+          <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-brand" />
+        </span>
+        <span className="animate-pulse">{title}</span>
+      </div>
+    )
+  }
+
+  return (
+    <div className="mx-auto max-w-xl rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="flex items-center gap-3">
+        <span className="relative inline-flex h-3 w-3">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand opacity-60" />
+          <span className="relative inline-flex h-3 w-3 rounded-full bg-brand" />
+        </span>
+        <div>
+          <div className="font-semibold text-slate-800">{title}</div>
+          <div className="text-sm text-slate-500">{subtitle}</div>
+        </div>
+      </div>
+      <div className="mt-4 space-y-2">
+        <div className="h-2.5 w-full animate-pulse rounded-full bg-slate-200" />
+        <div className="h-2.5 w-5/6 animate-pulse rounded-full bg-slate-200" />
+        <div className="h-2.5 w-2/3 animate-pulse rounded-full bg-slate-200" />
+      </div>
+    </div>
+  )
+}
+
 function StudentsTab({ students, setStudents, selectedEmail, setSelectedEmail }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -267,7 +301,7 @@ function StudentsTab({ students, setStudents, selectedEmail, setSelectedEmail })
 
   return (
     <div className="space-y-4">
-      {loading ? <div className="rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-500">Loading students…</div> : null}
+      {loading ? <DatabaseLoadingState compact title="Connecting to database for students…" /> : null}
       {error ? <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">{error}</div> : null}
 
       <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-4">
@@ -958,7 +992,7 @@ function DailyUpdateTab({ students, dailyUpdates, setDailyUpdates }) {
 
       <div className="card p-5 space-y-3">
         <h3 className="font-semibold text-slate-900">Recent daily updates</h3>
-        {loadingUpdates ? <div className="text-sm text-slate-500">Loading updates…</div> : null}
+        {loadingUpdates ? <DatabaseLoadingState compact title="Fetching daily updates from database…" /> : null}
         {!loadingUpdates && !dailyUpdates.length ? (
           <div className="rounded-2xl border border-dashed border-slate-200 p-4 text-sm text-slate-500">No updates logged yet.</div>
         ) : null}
@@ -2083,7 +2117,12 @@ export default function TeacherDashboardPage() {
   if (!authChecked) {
     return (
       <AppShell>
-        <div className="p-6">Checking access…</div>
+        <div className="p-6">
+          <DatabaseLoadingState
+            title="Checking teacher access…"
+            subtitle="Verifying your session before opening the dashboard."
+          />
+        </div>
       </AppShell>
     )
   }
@@ -2107,7 +2146,12 @@ export default function TeacherDashboardPage() {
   if (dashboardLoading && !students.length && !attendanceRecords.length && !scheduledClasses.length && !assignedTests.length) {
     return (
       <AppShell>
-        <div className="p-6">Loading dashboard data from the database…</div>
+        <div className="p-6">
+          <DatabaseLoadingState
+            title="Connecting to database…"
+            subtitle="Loading students, attendance, classes, tests, and daily updates."
+          />
+        </div>
       </AppShell>
     )
   }

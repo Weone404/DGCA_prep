@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import pool from '../../../../lib/db'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 function toNumber(value, fallback = 0) {
   const parsed = Number(value)
   return Number.isFinite(parsed) ? parsed : fallback
