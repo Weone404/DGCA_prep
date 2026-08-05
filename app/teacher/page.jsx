@@ -2221,8 +2221,8 @@ export default function TeacherDashboardPage() {
         <div className="rounded-3xl border border-slate-200 bg-[linear-gradient(115deg,_#f7fbff_0%,_#f8f5ff_55%,_#fff5f8_100%)] p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:[background-image:linear-gradient(115deg,_#111827_0%,_#1f2937_55%,_#0f172a_100%)]">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <h2 className="text-xl font-display font-bold text-slate-900 sm:text-2xl">Today at a glance</h2>
-              <p className="text-sm text-slate-500">A calm, focused view of the most important teaching metrics.</p>
+              <h2 className="text-xl font-display font-bold text-white sm:text-2xl">Today at a glance</h2>
+              <p className="text-sm text-slate-300">A calm, focused view of the most important teaching metrics.</p>
             </div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               <div className="rounded-2xl bg-white/90 px-4 py-3 text-center shadow-sm">

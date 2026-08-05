@@ -16,12 +16,16 @@ function hasChunkFailureMessage(value) {
 
 function buildReloadUrl() {
   const url = new URL(window.location.href)
-  url.searchParams.set('v', String(Date.now()))
+  // Drop query params so Next loads fresh route assets without propagating stale cache-bust values.
+  url.search = ''
   return url.toString()
 }
 
 export default function ChunkErrorReload() {
   useEffect(() => {
+    // Only enable stale chunk recovery in production builds.
+    if (process.env.NODE_ENV !== 'production') return
+
     const retried = sessionStorage.getItem(RETRY_KEY) === '1'
 
     function tryReload() {
@@ -38,7 +42,8 @@ export default function ChunkErrorReload() {
         target instanceof HTMLImageElement
       ) {
         const src = target.src || target.href || ''
-        if (String(src).includes('/_next/static/')) {
+        const source = String(src)
+        if (source.includes('/_next/static/') && !source.includes('.hot-update.')) {
           tryReload()
           return
         }
