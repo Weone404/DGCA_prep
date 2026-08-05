@@ -710,9 +710,9 @@ function AttendanceTab({ students, attendanceRecords, setAttendanceRecords }) {
   return (
     <div className="space-y-4">
       <div className="rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
-        <div className="flex gap-2">
+        <div className="flex gap-2 overflow-x-auto pb-1">
           {['mark', 'report', 'student'].map((tab) => (
-            <button key={tab} type="button" onClick={() => setSubTab(tab)} className={`rounded-xl px-3 py-2 text-sm font-medium capitalize ${subTab === tab ? 'bg-brand text-white shadow-sm' : 'bg-slate-50 text-slate-700'}`}>
+            <button key={tab} type="button" onClick={() => setSubTab(tab)} className={`whitespace-nowrap rounded-xl px-3 py-2 text-sm font-medium capitalize ${subTab === tab ? 'bg-brand text-white shadow-sm' : 'bg-slate-50 text-slate-700'}`}>
               {tab === 'mark' ? 'Mark' : tab === 'report' ? 'Report' : 'Student'}
             </button>
           ))}
@@ -1638,7 +1638,7 @@ function LeaderboardTab({ students }) {
   return (
     <div className="space-y-4">
       <div className="rounded-2xl border border-slate-200 bg-white p-2 shadow-sm">
-        <div className="flex flex-wrap gap-2">
+        <div className="flex gap-2 overflow-x-auto pb-1">
           <button type="button" onClick={() => setMode('exam')} className={`rounded-xl px-3 py-2 text-sm font-medium ${mode === 'exam' ? 'bg-brand text-white' : 'bg-slate-50 text-slate-700'}`}>Exam leaderboard</button>
           <button type="button" onClick={() => setMode('mock')} className={`rounded-xl px-3 py-2 text-sm font-medium ${mode === 'mock' ? 'bg-brand text-white' : 'bg-slate-50 text-slate-700'}`}>Mock leaderboard</button>
         </div>
@@ -2162,7 +2162,7 @@ export default function TeacherDashboardPage() {
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <div className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Teacher operations</div>
-            <h1 className="mt-2 text-3xl font-display font-bold text-slate-900">Teacher Dashboard</h1>
+            <h1 className="mt-2 text-2xl font-display font-bold text-slate-900 sm:text-3xl">Teacher Dashboard</h1>
             <p className="mt-1 text-sm text-slate-500">Everything you need to review learners, run classes, and manage assessments in one place.</p>
           </div>
           <button type="button" onClick={handleLogout} className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700">Logout</button>
@@ -2171,10 +2171,10 @@ export default function TeacherDashboardPage() {
         <div className="rounded-3xl border border-slate-200 bg-[linear-gradient(115deg,_#f7fbff_0%,_#f8f5ff_55%,_#fff5f8_100%)] p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:[background-image:linear-gradient(115deg,_#111827_0%,_#1f2937_55%,_#0f172a_100%)]">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <h2 className="text-2xl font-display font-bold text-slate-900">Today at a glance</h2>
+              <h2 className="text-xl font-display font-bold text-slate-900 sm:text-2xl">Today at a glance</h2>
               <p className="text-sm text-slate-500">A calm, focused view of the most important teaching metrics.</p>
             </div>
-            <div className="flex flex-wrap gap-3">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               <div className="rounded-2xl bg-white/90 px-4 py-3 text-center shadow-sm">
                 <div className="text-xs uppercase tracking-wide text-slate-400">Students</div>
                 <div className="text-xl font-semibold text-slate-900">{summary.totalStudents}</div>
@@ -2196,9 +2196,9 @@ export default function TeacherDashboardPage() {
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-2 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-          <div className="flex flex-wrap gap-2">
+          <div className="flex min-w-max gap-2 overflow-x-auto pb-1">
             {NAV_TABS.map((tab) => (
-              <button key={tab.id} type="button" onClick={() => setActiveTab(tab.id)} className={`rounded-xl px-3 py-2 text-sm font-medium ${activeTab === tab.id ? 'bg-brand text-white shadow-sm' : 'bg-slate-50 text-slate-700'}`}>
+              <button key={tab.id} type="button" onClick={() => setActiveTab(tab.id)} className={`whitespace-nowrap rounded-xl px-3 py-2 text-sm font-medium ${activeTab === tab.id ? 'bg-brand text-white shadow-sm' : 'bg-slate-50 text-slate-700'}`}>
                 {tab.label}
               </button>
             ))}
