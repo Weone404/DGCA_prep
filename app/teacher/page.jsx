@@ -2082,6 +2082,14 @@ export default function TeacherDashboardPage() {
         }
       }
 
+      if (!Array.isArray(dashboardPayload?.attendance) || dashboardPayload.attendance.length === 0) {
+        const attendancePayload = await requestJson('/api/teacher/attendance', { method: 'GET' }, null)
+        if (!active) return
+        if (Array.isArray(attendancePayload?.records) && attendancePayload.records.length) {
+          setAttendanceRecords(attendancePayload.records)
+        }
+      }
+
       setDashboardLoading(false)
     }
 
