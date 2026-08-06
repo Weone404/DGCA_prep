@@ -38,6 +38,13 @@ export async function POST(request) {
     const accuracy = total > 0 ? Math.round((score / total) * 100) : 0
     const parsedTestId = parseInt(testId, 10)
 
+    if (!Number.isFinite(parsedTestId) || parsedTestId <= 0) {
+      return NextResponse.json(
+        { success: false, error: 'testId must be a valid numeric id' },
+        { status: 400 }
+      )
+    }
+
     console.log('📝 [POST /api/assigned-tests/submit] Storing result:', {
       testId: parsedTestId,
       studentEmail: studentEmail.toLowerCase().trim(),
@@ -88,6 +95,13 @@ export async function GET(request) {
     }
 
     const parsedTestId = parseInt(testId, 10)
+
+    if (!Number.isFinite(parsedTestId) || parsedTestId <= 0) {
+      return NextResponse.json(
+        { success: false, error: 'testId must be a valid numeric id' },
+        { status: 400 }
+      )
+    }
 
     console.log('🔍 [GET /api/assigned-tests/submit] Fetching results for testId:', parsedTestId)
 

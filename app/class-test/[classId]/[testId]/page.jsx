@@ -175,10 +175,6 @@ export default function ClassTestPage({ params }) {
     [answers, questions]
   )
 
-  const answeredCount = Object.keys(answers).length
-  const unansweredCount = Math.max(0, total - answeredCount)
-  const wrongCount = Math.max(0, answeredCount - score)
-
   const subjectMeta = SUBJECTS.find((subject) => subject.name === classTest?.subjectLabel)
   const themeColor = subjectMeta?.color || '#2563eb'
 
@@ -199,9 +195,10 @@ export default function ClassTestPage({ params }) {
     })
 
     try {
-      await fetch('/api/assigned-tests/submit', {
+      const response = await fetch('/api/assigned-tests/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           classId,
           testId: classTest.id,
@@ -212,6 +209,10 @@ export default function ClassTestPage({ params }) {
           answers: answerRows,
         }),
       })
+
+      if (!response.ok) {
+        throw new Error('Failed to save class test result')
+      }
     } catch {
       // Keep finish screen even if auto-save fails.
     } finally {
@@ -238,20 +239,6 @@ export default function ClassTestPage({ params }) {
   function handleAnswer(optionIndex) {
     if (answers[currentQ] !== undefined) return
     setAnswers((prev) => ({ ...prev, [currentQ]: optionIndex }))
-  }
-
-  function retryTest() {
-    if (!classTest) return
-    finishedRef.current = false
-
-    ;(async () => {
-      const bankQuestions = await fetchClassTestQuestions(classTest)
-      setQuestions(bankQuestions)
-      setAnswers({})
-      setCurrentQ(0)
-      setTimeLeft(classTest.durationMins * 60)
-      setScreen('start')
-    })()
   }
 
   const currentQuestion = questions[currentQ]
@@ -335,11 +322,10 @@ export default function ClassTestPage({ params }) {
 
               <div className="flex flex-col gap-3">
                 {currentQuestion.options.map((option, index) => {
-                  const optionClass = `p-3 rounded-lg border ${selected !== undefined
-                    ? (index === currentQuestion.correct
-                      ? 'bg-green-50 border-green-300'
-                      : (index === selected ? 'bg-red-50 border-red-300' : 'opacity-60'))
-                    : 'hover:bg-gray-50'}`
+                  const isPicked = selected === index
+                  const optionClass = `p-3 rounded-lg border transition-colors ${isPicked
+                    ? 'bg-brand/10 border-brand/40 text-ink'
+                    : (selected !== undefined ? 'opacity-70' : 'hover:bg-gray-50')}`
 
                   return (
                     <button
@@ -408,37 +394,15 @@ export default function ClassTestPage({ params }) {
 
         {screen === 'finish' && classTest && (
           <div className="card p-6 max-w-md w-full text-center text-ink">
-            <h3 className="text-2xl font-bold mb-2 text-ink">Result</h3>
-            <div className="text-4xl font-extrabold mb-2" style={{ color: themeColor }}>{score} / {total}</div>
-            <p className="text-sm text-muted mb-4">{Math.round((score / Math.max(1, total)) * 100)}%</p>
-
-            <div className="grid grid-cols-1 gap-2 text-xs mb-4 sm:grid-cols-3">
-              <div className="rounded-lg bg-green-50 border border-green-200 p-2">
-                <div className="font-semibold">Correct</div>
-                <div>{score}</div>
-              </div>
-              <div className="rounded-lg bg-red-50 border border-red-200 p-2">
-                <div className="font-semibold">Wrong</div>
-                <div>{wrongCount}</div>
-              </div>
-              <div className="rounded-lg bg-gray-50 border border-line p-2">
-                <div className="font-semibold">Unanswered</div>
-                <div>{unansweredCount}</div>
-              </div>
-            </div>
+            <h3 className="text-2xl font-bold mb-2 text-ink">Test Submitted</h3>
+            <p className="text-sm text-muted mb-4">
+              Your responses have been submitted successfully.
+              Results will be available on the teacher dashboard only.
+            </p>
 
             {submitting ? <p className="text-xs text-muted mb-3">Saving result...</p> : null}
 
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <button onClick={() => router.push('/class-test')} className="flex-1 border rounded-lg py-2 text-ink">Back</button>
-              <button
-                onClick={retryTest}
-                className="flex-1 rounded-lg py-2"
-                style={{ background: themeColor, color: '#fff' }}
-              >
-                Retry
-              </button>
-            </div>
+            <button onClick={() => router.push('/class-test')} className="w-full border rounded-lg py-2 text-ink">Back to class tests</button>
           </div>
         )}
       </div>

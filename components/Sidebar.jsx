@@ -140,8 +140,8 @@ export default function Sidebar() {
       >
         <div className="flex items-center justify-between mb-8">
           <Link href="/dashboard" className="flex items-center gap-3 px-2 group">
-            <div className="w-11 h-11 rounded-2xl bg-brand flex items-center justify-center text-white font-display font-bold text-lg shrink-0 transition-transform duration-200 group-hover:scale-105">
-              W
+            <div className="w-11 h-11 overflow-hidden rounded-2xl border border-line bg-white shrink-0 transition-transform duration-200 group-hover:scale-105 dark:border-slate-700 dark:bg-slate-900">
+              <Image src="/Logo.webp" alt="We One aviation logo" width={44} height={44} className="h-full w-full object-cover" priority />
             </div>
             <div>
               <p className="font-display font-bold text-ink leading-none dark:text-slate-100">We One aviation</p>

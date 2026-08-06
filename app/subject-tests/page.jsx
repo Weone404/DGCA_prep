@@ -8,8 +8,6 @@ import { useAppContent } from '@/lib/use-app-content'
 import { useRouter } from 'next/navigation'
 import RouteLoadingOverlay from '@/components/RouteLoadingOverlay'
 
-const DIFF_TONE = { Easy: 'brand', Medium: 'violet', Hard: 'coral' }
-
 function normalizeKey(value) {
   return String(value || '').trim().toLowerCase()
 }
@@ -310,7 +308,6 @@ export default function SubjectTestsPage() {
                 <div key={t.id} className="card p-5 flex flex-col">
                   <div className="flex items-center justify-between mb-3">
                     <Badge tone="muted">{t.subject}</Badge>
-                    <Badge tone={DIFF_TONE[t.difficulty]}>{t.difficulty}</Badge>
                   </div>
                   <h3 className="font-display font-semibold text-ink mb-1">{t.title}</h3>
                   <p className="text-xs text-muted mb-4">{t.questions} questions · {t.duration} min</p>

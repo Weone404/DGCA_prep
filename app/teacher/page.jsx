@@ -1212,6 +1212,7 @@ function AssignTestTab({ assignedTests, setAssignedTests, submissions, setSubmis
   const [viewingResultsId, setViewingResultsId] = useState(null)
   const [subjects, setSubjects] = useState(SUBJECT_OPTIONS)
   const [subjectsLoading, setSubjectsLoading] = useState(false)
+  const [resultsError, setResultsError] = useState('')
 
   const getSubjectLabel = (subjectId) => {
     return subjects.find((subject) => subject.id === subjectId)?.label
@@ -1384,8 +1385,31 @@ function AssignTestTab({ assignedTests, setAssignedTests, submissions, setSubmis
 
   const viewResults = async (testId) => {
     setViewingResultsId(testId)
-    const payload = await requestJson(`/api/teacher/assigned-tests/results?testId=${encodeURIComponent(testId)}`, { method: 'GET' }, null)
-    setSubmissions(payload?.submissions || payload?.results || [])
+    setResultsError('')
+
+    const endpoints = [
+      `/api/teacher/assigned-tests/results?testId=${encodeURIComponent(testId)}`,
+      `/api/assigned-tests/submit?testId=${encodeURIComponent(testId)}`,
+    ]
+
+    let rows = []
+    for (const endpoint of endpoints) {
+      const payload = await requestJson(endpoint, { method: 'GET' }, null)
+      const nextRows = payload?.submissions || payload?.results || []
+      if (Array.isArray(nextRows) && nextRows.length > 0) {
+        rows = nextRows
+        break
+      }
+      if (Array.isArray(nextRows) && rows.length === 0) {
+        rows = nextRows
+      }
+    }
+
+    if (!rows.length) {
+      setResultsError('No submissions found for this test yet, or the result endpoint is unavailable.')
+    }
+
+    setSubmissions(rows)
   }
 
   return (
@@ -1522,6 +1546,7 @@ function AssignTestTab({ assignedTests, setAssignedTests, submissions, setSubmis
 
       <div className="card p-5 space-y-3">
         <h3 className="font-semibold text-slate-900">Assigned tests</h3>
+        {resultsError ? <div className="rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-700">{resultsError}</div> : null}
         {assignedTests.map((test) => (
           <div key={test.id} className="rounded-2xl border border-slate-200 p-3 text-sm">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">

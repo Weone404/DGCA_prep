@@ -5,7 +5,7 @@ import FloatingCalculator from '@/components/FloatingCalculator'
 import ChunkErrorReload from '@/components/ChunkErrorReload'
 
 export const metadata = {
-  title: 'WeOne aviation — Learn From Home',
+  title: 'We One aviation — Learn From Home',
   description: 'Your all-in-one learning dashboard',
   icons: {
     icon: '/favicon.ico',
@@ -14,7 +14,7 @@ export const metadata = {
 }
 
 export default function RootLayout({ children }) {
-  const appName = process.env.NEXT_PUBLIC_APP_NAME || 'WeOne aviation'
+  const appName = process.env.NEXT_PUBLIC_APP_NAME || 'We One aviation'
   const appTagline = process.env.NEXT_PUBLIC_APP_TAGLINE || 'Learn From Home'
   const supportEmail = process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@example.com'
 

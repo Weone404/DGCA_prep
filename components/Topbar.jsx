@@ -6,6 +6,7 @@ import { NAV_ITEMS } from '@/lib/data'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import Link from 'next/link'
+import Image from 'next/image'
 
 const NOTIFICATION_SEEN_KEY = 'student_notifications_seen_at_v1'
 const NOTIFICATION_POLL_MS = 45000
@@ -334,7 +335,9 @@ export default function Topbar({ title, theme, toggleTheme }) {
           <aside className="absolute left-0 top-0 bottom-0 w-full max-w-full overflow-auto bg-white p-6 sm:w-80 md:w-72 dark:border-slate-700 dark:bg-slate-900">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-brand flex items-center justify-center text-white font-display font-bold">W</div>
+                  <div className="h-10 w-10 overflow-hidden rounded-2xl border border-line bg-white dark:border-slate-700 dark:bg-slate-900">
+                    <Image src="/Logo.webp" alt="We One aviation logo" width={40} height={40} className="h-full w-full object-cover" />
+                  </div>
                 <div>
                   <p className="font-display font-bold text-ink leading-none dark:text-slate-100">We One aviation</p>
                   <p className="mt-1 text-xs text-muted">Learn From Home</p>
