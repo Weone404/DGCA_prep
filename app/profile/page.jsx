@@ -15,7 +15,7 @@ export default function ProfilePage() {
   const [tab, setTab] = useState('Personal Details')
   const [testResults, setTestResults] = useState([])
   const [loadingResults, setLoadingResults] = useState(false)
-  const [attendance, setAttendance] = useState({ present: 0, absent: 0, late: 0, monthPct: 0, days: {}, recent: [] })
+  const [attendance, setAttendance] = useState({ present: 0, absent: 0, monthPct: 0, days: {}, recent: [] })
   const [loadingAttendance, setLoadingAttendance] = useState(false)
   const [attendanceError, setAttendanceError] = useState('')
   const [attendanceDateFilter, setAttendanceDateFilter] = useState('')
@@ -99,7 +99,6 @@ export default function ProfilePage() {
         setAttendance({
           present: Number(data?.present || 0),
           absent: Number(data?.absent || 0),
-          late: Number(data?.late || 0),
           monthPct: Number(data?.monthPct || 0),
           days: data?.days || {},
           recent: Array.isArray(data?.recent) ? data.recent : [],
@@ -108,7 +107,7 @@ export default function ProfilePage() {
       .catch((err) => {
         if (!active) return
         setAttendanceError(err?.message || 'Unable to load attendance.')
-        setAttendance({ present: 0, absent: 0, late: 0, monthPct: 0, days: {}, recent: [] })
+        setAttendance({ present: 0, absent: 0, monthPct: 0, days: {}, recent: [] })
       })
       .finally(() => {
         if (active) setLoadingAttendance(false)
@@ -482,7 +481,7 @@ export default function ProfilePage() {
 
           {tab === 'Attendance' && (
             <div className="space-y-5">
-              <div className="grid gap-3 sm:grid-cols-4">
+              <div className="grid gap-3 sm:grid-cols-3">
                 <div className="rounded-2xl border border-line bg-canvas px-4 py-3">
                   <div className="text-xs uppercase text-muted">Present</div>
                   <div className="mt-1 text-xl font-semibold text-brand">{attendance.present}</div>
@@ -490,10 +489,6 @@ export default function ProfilePage() {
                 <div className="rounded-2xl border border-line bg-canvas px-4 py-3">
                   <div className="text-xs uppercase text-muted">Absent</div>
                   <div className="mt-1 text-xl font-semibold text-coral">{attendance.absent}</div>
-                </div>
-                <div className="rounded-2xl border border-line bg-canvas px-4 py-3">
-                  <div className="text-xs uppercase text-muted">Late</div>
-                  <div className="mt-1 text-xl font-semibold text-violet">{attendance.late}</div>
                 </div>
                 <div className="rounded-2xl border border-line bg-canvas px-4 py-3">
                   <div className="text-xs uppercase text-muted">This Month</div>
@@ -558,8 +553,8 @@ export default function ProfilePage() {
                           const tone =
                             status === 'present'
                               ? 'bg-green-50 text-green-700'
-                              : status === 'late'
-                                ? 'bg-yellow-50 text-yellow-700'
+                              : status === 'leave'
+                                ? 'bg-slate-100 text-slate-600'
                                 : 'bg-red-50 text-red-700'
                           return (
                             <tr key={`${entry.date}-${entry.batch}-${status}`} className="border-t border-line">
