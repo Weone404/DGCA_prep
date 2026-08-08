@@ -290,12 +290,12 @@ export default function ProfilePage() {
       const updatedUser = {
         ...user,
         ...payload,
-        name: data?.name || payload.name || user.name,
+        name: data?.name || payload.name || user.name || '',
         fatherName: data?.fatherName || payload.fatherName || user.fatherName || '',
         motherName: data?.motherName || payload.motherName || user.motherName || '',
         phone: data?.phone || payload.phone || user.phone || '',
-        email: data?.email || payload.email || user.email,
-        avatar: data?.avatar || payload.avatar || user.avatar,
+        email: data?.email || payload.email || user.email || '',
+        avatar: data?.avatar || payload.avatar || user.avatar || '',
       }
 
       updateUser(updatedUser)
@@ -315,8 +315,8 @@ export default function ProfilePage() {
         {/* left summary card */}
         <div className="card p-6">
           <div className="flex flex-col items-center text-center">
-            <img src={getAvatarSrc() || user.avatar} alt={user.name} className="w-24 h-24 rounded-full object-cover mb-4" />
-            <h2 className="font-display font-bold text-ink">{user.name}</h2>
+            <img src={getAvatarSrc() || user.avatar || ''} alt={user.name || 'User'} className="w-24 h-24 rounded-full object-cover mb-4" />
+            <h2 className="font-display font-bold text-ink">{user.name || 'Student'}</h2>
             <span className="mt-1 text-xs font-semibold bg-coral/10 text-coral px-2.5 py-1 rounded-full">{user.role || 'Student'}</span>
 
             <div className="flex gap-8 mt-6">
@@ -374,7 +374,7 @@ export default function ProfilePage() {
             <form onSubmit={save}>
               <div className="flex justify-center mb-8">
                 <div className="relative">
-                  <img src={getAvatarSrc() || user.avatar} alt="" className="w-24 h-24 rounded-full object-cover" />
+                  <img src={getAvatarSrc() || user.avatar || ''} alt="" className="w-24 h-24 rounded-full object-cover" />
                   {uploadingAvatar ? (
                     <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center text-white text-xs font-semibold">
                       Uploading...

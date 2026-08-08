@@ -175,7 +175,7 @@ export default function DashboardPage() {
           <div className="text-ink text-2xl sm:text-3xl font-display font-bold mb-3">
             <div className="relative z-10 max-w-md">
               <h2 className="text-ink text-2xl sm:text-3xl font-display font-bold mb-3">
-                Hi {user ? user.name.split(' ')[0] : 'there'}!
+                Hi {user?.name?.split(' ')[0] || 'there'}!
               </h2>
               {isLoadingStats ? (
                 <div className="h-4 w-56 max-w-full rounded-full bg-white/20 motion-safe:animate-pulse" />
