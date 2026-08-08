@@ -27,6 +27,7 @@ export default function DashboardPage() {
     liveClasses: LIVE_CLASSES,
     resources: RESOURCES,
     subjectTests: SUBJECT_TESTS,
+    classTests: CLASS_TESTS_DATA,
     lecturesArray: LECTURES_ARRAY,
     mockTests: MOCK_TESTS,
   } = useAppContent()
@@ -110,6 +111,11 @@ export default function DashboardPage() {
     }
     return studentData?.time_spent_weekly_minutes ?? studentData?.time_spent_minutes ?? manualStudyMinutes
   }, [timeRange, studentData, manualStudyMinutes])
+
+  const upcomingClassTests = useMemo(
+    () => (CLASS_TESTS_DATA || []).filter((test) => test.status === 'upcoming').slice(0, 3),
+    [CLASS_TESTS_DATA],
+  )
 
   // My Activity: real breakdown by category (lectures watched, subject tests attempted, mock tests attempted).
   // The *shape* (relative split between categories) always comes from the user's actual content progress.
@@ -444,46 +450,31 @@ export default function DashboardPage() {
               </a>
             </div>
             <div className="space-y-3">
-              {[
-                { icon: '🧪', title: 'Discussion Algorithm', time: '08:00 AM – 09:00 AM' },
-                { icon: '📐', title: 'Simple Home Page Design', time: '08:00 AM – 09:00 AM' },
-              ].map((t) => (
-                <div
-                  key={t.title}
-                  className="flex items-center gap-3 bg-canvas rounded-xl p-3 motion-safe:transition-colors hover:bg-canvas/70"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center text-lg shrink-0">
-                    {t.icon}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-ink truncate">{t.title}</p>
-                    <p className="text-xs text-muted">{t.time}</p>
-                  </div>
+              {upcomingClassTests.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-line bg-canvas/70 p-3 text-sm text-muted">
+                  No upcoming class tests right now.
                 </div>
-              ))}
+              ) : (
+                upcomingClassTests.map((test) => (
+                  <div
+                    key={test.id}
+                    className="flex items-center gap-3 bg-canvas rounded-xl p-3 motion-safe:transition-colors hover:bg-canvas/70"
+                  >
+                    <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center text-lg shrink-0">
+                      🧪
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-ink truncate">{test.title}</p>
+                      <p className="text-xs text-muted">{test.date} • {test.time}</p>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
 
           {/* Payment History */}
-          <div className="card p-5 sm:p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-display font-semibold text-ink">Payment History</h3>
-              <a href="#" className={`text-brand text-xs font-semibold rounded-md ${pressable}`}>
-                See all
-              </a>
-            </div>
-            <div className="space-y-3">
-              {[
-                { name: 'Wireframe & Prototype ', price: '$120' },
-                { name: 'Msc in Machine Learning:', price: '$140' },
-              ].map((p) => (
-                <div key={p.name} className="flex items-center justify-between gap-3 py-2">
-                  <span className="text-sm text-ink truncate min-w-0">{p.name}</span>
-                  <span className="text-sm font-semibold text-ink shrink-0">{p.price}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+          
         </div>
       </div>
     </AppShell>

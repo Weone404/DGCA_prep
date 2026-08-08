@@ -2,6 +2,7 @@ import './globals.css'
 import { AuthProvider } from '@/lib/auth-context'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import FloatingCalculator from '@/components/FloatingCalculator'
+import E6BFlightComputer from '@/components/E6BFlightComputer'
 import ChunkErrorReload from '@/components/ChunkErrorReload'
 
 export const metadata = {
@@ -32,6 +33,7 @@ export default function RootLayout({ children }) {
           <AuthProvider>
             {children}
             <FloatingCalculator />
+            <E6BFlightComputer />
           </AuthProvider>
         </ThemeProvider>
       </body>
