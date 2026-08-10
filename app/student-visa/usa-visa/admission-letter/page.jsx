@@ -1,5 +1,6 @@
 'use client'
 
+/* metadata moved to server route or layout */
 import Link from 'next/link'
 import AppShell from '@/components/AppShell'
 import { SIDEBAR_ITEMS } from '@/lib/sidebar-nav'
@@ -9,7 +10,9 @@ const admissionLetterSection = SIDEBAR_ITEMS.find((item) => item.id === 'student
 export default function AdmissionLetterPage() {
   return (
     <AppShell title="Admission Letter for Visa">
-      <div className="space-y-6">
+      <main>
+        <h1 className="sr-only">Admission Letter for Visa</h1>
+        <div className="space-y-6">
         <div className="rounded-3xl border border-line bg-white p-6 shadow-card">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand">USA Visa • Admission Letter</p>
           <h2 className="mt-2 text-2xl font-display font-bold text-ink">Admission Letter for Visa</h2>
@@ -58,6 +61,7 @@ export default function AdmissionLetterPage() {
           <Link href="/student-visa" className="text-sm font-semibold text-brand hover:underline">Back to visa overview</Link>
         </div>
       </div>
+      </main>
     </AppShell>
   )
 }

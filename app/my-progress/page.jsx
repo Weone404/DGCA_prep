@@ -86,7 +86,9 @@ export default function MyProgressPage() {
 
   return (
     <AppShell>
-      <div className="grid sm:grid-cols-3 gap-6 mb-6">
+      <div>
+        <h1 className="sr-only">My Progress</h1>
+        <div className="grid sm:grid-cols-3 gap-6 mb-6">
         {[
           { label: 'Courses in progress', value: USER.coursesInProgress, color: 'text-violet' },
           { label: 'Courses completed', value: USER.coursesComplete, color: 'text-brand' },
@@ -98,12 +100,13 @@ export default function MyProgressPage() {
           </div>
         ))}
       </div>
+    </div>
 
       <div className="grid lg:grid-cols-[1.3fr_1fr] gap-6">
         <div className="card p-6">
           <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h3 className="font-display font-semibold text-ink">Weekly Study Hours</h3>
+              <h2 className="font-display font-semibold text-ink">Weekly Study Hours</h2>
               <p className="mt-2 text-sm text-muted">Mon–Sun time spent across study sessions</p>
             </div>
             <div className="rounded-2xl border border-line bg-canvas px-4 py-3 text-sm">
@@ -140,7 +143,7 @@ export default function MyProgressPage() {
         </div>
 
         <div className="card p-6">
-          <h3 className="font-display font-semibold text-ink mb-6">Subject Mastery</h3>
+          <h2 className="font-display font-semibold text-ink mb-6">Subject Mastery</h2>
           <div className="space-y-5">
             {PROGRESS_SUBJECTS.map((s) => (
               <div key={s.subject}>
@@ -156,7 +159,7 @@ export default function MyProgressPage() {
       </div>
 
       <div className="card p-6 mt-6">
-        <h3 className="font-display font-semibold text-ink mb-5">Recent Achievements</h3>
+        <h2 className="font-display font-semibold text-ink mb-5">Recent Achievements</h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
             { icon: '👑', label: 'Top Scorer' },
@@ -187,7 +190,7 @@ export default function MyProgressPage() {
 
       {!loading && testResults.length > 0 && (
         <div className="card p-6 mt-6">
-          <h3 className="font-display font-semibold text-ink mb-5">Test Results</h3>
+          <h2 className="font-display font-semibold text-ink mb-5">Test Results</h2>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -222,6 +225,7 @@ export default function MyProgressPage() {
           </div>
         </div>
       )}
+
     </AppShell>
   )
 }

@@ -1,5 +1,6 @@
 'use client'
 
+/* metadata moved to server route or layout */
 import { useState } from 'react'
 import AppShell from '@/components/AppShell'
 import Icon from '@/components/Icon'
@@ -13,7 +14,9 @@ export default function InterviewPage() {
 
   return (
     <AppShell>
-      <div className="grid md:grid-cols-2 gap-5 mb-6">
+      <main>
+        <h1 className="sr-only">Interview Practice</h1>
+        <div className="grid md:grid-cols-2 gap-5 mb-6">
         {INTERVIEWS.map((i) => (
           <div key={i.id} className="card p-5 flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-coral/10 text-coral flex items-center justify-center shrink-0">
@@ -55,6 +58,7 @@ export default function InterviewPage() {
           </div>
         </div>
       )}
+      </main>
     </AppShell>
   )
 }

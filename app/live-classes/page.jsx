@@ -141,7 +141,9 @@ export default function LiveClassesPage() {
 
   return (
     <AppShell>
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_360px]">
+      <div>
+        <h1 className="sr-only">Live Classes</h1>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_360px]">
         {/* MAIN SCHEDULE */}
         <div className="card overflow-hidden">
           {/* Header */}

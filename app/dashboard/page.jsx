@@ -7,7 +7,7 @@ import { useMemo, useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { useAppContent } from '@/lib/use-app-content'
 
-const TODAY = new Date(2020, 5, 28) // June 28, 2020 — fixed "today" reference for the demo calendar
+const TODAY = new Date() // Use the real current date for the dashboard calendar
 
 const COURSES = [
   { id: 1, name: 'Air Regulations', instructor: '', progress: 25, rating: 4.3, icon: '', color: '#FF6B6B' },
@@ -159,6 +159,15 @@ export default function DashboardPage() {
   const isCurrentMonth =
     currentDate.getMonth() === TODAY.getMonth() && currentDate.getFullYear() === TODAY.getFullYear()
 
+  const isToday = (day) => {
+    return (
+      day !== null &&
+      currentDate.getDate() === day &&
+      currentDate.getMonth() === TODAY.getMonth() &&
+      currentDate.getFullYear() === TODAY.getFullYear()
+    )
+  }
+
   const goToPrevMonth = useCallback(() => {
     setCurrentDate((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1))
   }, [])
@@ -174,9 +183,17 @@ export default function DashboardPage() {
           {/* Hero */}
           <div className="text-ink text-2xl sm:text-3xl font-display font-bold mb-3">
             <div className="relative z-10 max-w-md">
-              <h2 className="text-ink text-2xl sm:text-3xl font-display font-bold mb-3">
-                Hi {user?.name?.split(' ')[0] || 'there'}!
-              </h2>
+<<<<<<< HEAD
+              <h1 className="text-ink text-2xl sm:text-3xl font-display font-bold mb-3">Dashboard</h1>
+              <p className="text-ink/80 text-sm leading-relaxed">
+                Hi {user ? user.name.split(' ')[0] : 'there'}!
+              </p>
+=======
+              <h1 className="text-ink text-2xl sm:text-3xl font-display font-bold mb-3">Dashboard</h1>
+              <p className="text-ink/80 text-sm leading-relaxed">
+                Hi {user ? user.name.split(' ')[0] : 'there'}!
+              </p>
+>>>>>>> dbd88e8 (trying to do in page SEO)
               {isLoadingStats ? (
                 <div className="h-4 w-56 max-w-full rounded-full bg-white/20 motion-safe:animate-pulse" />
               ) : (
@@ -198,7 +215,7 @@ export default function DashboardPage() {
             </div>
             <img
               src="https://images.unsplash.com/photo-1516321318423-f06f70674e90?w=300&h=300&fit=crop"
-              alt=""
+              alt="Student studying core aviation material on a laptop"
               loading="lazy"
               className="hidden sm:block absolute right-0 top-1/2 -translate-y-1/2 w-32 h-32 lg:w-48 lg:h-48 object-cover opacity-20 rounded-2xl pointer-events-none"
             />
@@ -208,7 +225,7 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <div className="card p-5 sm:p-6">
               <div className="flex items-center justify-between mb-4 gap-2">
-                <h3 className="font-display font-semibold text-ink">Learning Time</h3>
+                <h2 className="font-display font-semibold text-ink">Learning Time</h2>
                 <select
                   value={timeRange}
                   onChange={(e) => setTimeRange(e.target.value)}
@@ -266,7 +283,7 @@ export default function DashboardPage() {
 
             <div className="card p-5 sm:p-6">
               <div className="flex items-center justify-between mb-4 gap-2">
-                <h3 className="font-display font-semibold text-ink">My Activity</h3>
+                <h2 className="font-display font-semibold text-ink">My Activity</h2>
                 <select
                   value={activityRange}
                   onChange={(e) => setActivityRange(e.target.value)}
@@ -330,7 +347,7 @@ export default function DashboardPage() {
           {/* My Courses */}
           <div>
             <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
-              <h3 className="font-display font-semibold text-ink text-lg">My Courses</h3>
+              <h2 className="font-display font-semibold text-ink text-lg">My Courses</h2>
               <div className="flex gap-3">
                 <button type="button" className={`text-xs text-ink font-semibold hover:text-brand rounded-md px-1 ${pressable}`}>
                   All
@@ -427,7 +444,7 @@ export default function DashboardPage() {
                     className={`aspect-square flex items-center justify-center text-xs font-medium rounded-lg duration-200 ${focusRing} ${
                       day === null
                         ? 'cursor-default'
-                        : day === 28 && isCurrentMonth
+                        : isToday(day)
                           ? 'bg-brand text-white font-semibold transition-colors'
                           : day === 6
                             ? 'bg-coral/20 text-coral transition-colors hover:bg-coral/30'
@@ -444,7 +461,7 @@ export default function DashboardPage() {
           {/* Upcoming Task */}
           <div className="card p-5 sm:p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-display font-semibold text-ink">Upcoming Task</h3>
+              <h2 className="font-display font-semibold text-ink">Upcoming Task</h2>
               <a href="/class-test" className={`text-brand text-xs font-semibold rounded-md ${pressable}`}>
                 See all
               </a>

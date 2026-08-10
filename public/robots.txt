@@ -1,0 +1,13 @@
+User-agent: *
+Disallow: /dashboard
+Disallow: /my-progress
+Disallow: /profile
+Disallow: /class-test
+Disallow: /subject-tests
+Disallow: /live-classes
+Disallow: /lectures
+Disallow: /mock-tests
+Disallow: /resources
+Disallow: /student-visa
+Disallow: /student-education-loan
+Disallow: /flying-training-license

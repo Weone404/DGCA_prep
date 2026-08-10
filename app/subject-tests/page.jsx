@@ -203,8 +203,10 @@ export default function SubjectTestsPage() {
 
   return (
     <AppShell>
-      <div className="w-full mb-6">
-        <div className="w-full bg-black text-white p-4 rounded-lg flex items-center justify-between gap-4">
+      <div>
+        <h1 className="sr-only">Subject Tests</h1>
+        <div className="w-full mb-6">
+          <div className="w-full bg-black text-white p-4 rounded-lg flex items-center justify-between gap-4">
           <div>
             <p className="font-semibold">{`You have completed ${completedLessons} lessons in the last day.`}</p>
             <p className="text-sm text-white/80">Start your learning today.</p>
@@ -365,6 +367,7 @@ export default function SubjectTestsPage() {
           subtitle={pendingRoute.includes('/subject-tests/') ? 'Loading questions and test instructions...' : 'Loading the next page...'}
         />
       ) : null}
+    </div>
     </AppShell>
   )
 }

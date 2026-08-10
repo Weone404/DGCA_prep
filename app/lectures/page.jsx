@@ -726,7 +726,9 @@ export default function LecturesPage() {
 
   return (
     <AppShell>
-      {showPaywall && (
+      <div>
+        <h1 className="sr-only">Lectures</h1>
+        {showPaywall && (
         <PaywallModal
           totalLectures={LECTURES_ARRAY.length}
           onSuccess={handlePaySuccess}
@@ -801,13 +803,13 @@ export default function LecturesPage() {
           >
             Log in to continue
           </button>
+        </div>
+      )}
 
       {tab === 'personalysis' && verified && (
         <div className="card bg-green-50 border border-green-200 p-4 mb-5 text-sm text-green-700">
           <p className="font-semibold mb-1">✅ Verified account detected</p>
           <p>Personalysis videos are unlocked for this account.</p>
-        </div>
-      )}
         </div>
       )}
 
@@ -1029,6 +1031,7 @@ export default function LecturesPage() {
           </button>
         </div>
       )}
-    </AppShell>
-  )
+      </div>
+     </AppShell>
+ )
 }

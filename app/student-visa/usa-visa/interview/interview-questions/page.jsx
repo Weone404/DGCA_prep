@@ -1,11 +1,14 @@
 'use client'
 
+/* metadata moved to server route or layout */
 import AppShell from '@/components/AppShell'
 
 export default function InterviewQuestionsPage() {
   return (
     <AppShell title="Interview Questions">
-      <div className="space-y-6">
+      <main>
+        <h1 className="sr-only">Visa Interview Questions</h1>
+        <div className="space-y-6">
         <div className="rounded-3xl border border-line bg-white p-6 shadow-card">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand">USA Visa • Interview</p>
           <h2 className="mt-2 text-2xl font-display font-bold text-ink">Interview Questions</h2>
@@ -28,6 +31,4 @@ export default function InterviewQuestionsPage() {
           </div>
         </div>
       </div>
-    </AppShell>
-  )
-}
+      </main>

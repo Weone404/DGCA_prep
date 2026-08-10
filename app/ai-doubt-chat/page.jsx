@@ -1,5 +1,6 @@
 'use client'
 
+/* metadata moved to server route or layout */
 import { useEffect, useRef, useState } from 'react'
 import AppShell from '@/components/AppShell'
 import Icon from '@/components/Icon'
@@ -40,7 +41,9 @@ export default function AIDoubtChatPage() {
 
   return (
     <AppShell>
-      <div className="card flex flex-col h-[calc(100vh-150px)] overflow-hidden">
+      <main>
+        <h1 className="sr-only">AI Doubt Chat</h1>
+        <div className="card flex flex-col h-[calc(100vh-150px)] overflow-hidden">
         <div className="flex items-center gap-3 px-6 py-4 border-b border-line">
           <div className="w-10 h-10 rounded-full bg-brand flex items-center justify-center text-white">
             <Icon name="chat" size={18} />
@@ -92,6 +95,7 @@ export default function AIDoubtChatPage() {
           </button>
         </div>
       </div>
+      </main>
     </AppShell>
   )
 }

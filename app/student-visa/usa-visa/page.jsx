@@ -41,7 +41,9 @@ const sampleAnswers = [
 export default function UsaVisaPage() {
   return (
     <AppShell title="Student Visa – USA">
-      <div className="space-y-6">
+      <main>
+        <h1 className="sr-only">Student Visa – USA</h1>
+        <div className="space-y-6">
         <div className="rounded-3xl border border-line bg-white p-6 shadow-card">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand">USA Visa • Student Visa</p>
           <h2 className="mt-2 text-2xl font-display font-bold text-ink">Student Visa – USA</h2>
@@ -136,6 +138,7 @@ export default function UsaVisaPage() {
           </div>
         </div>
       </div>
+      </main>
     </AppShell>
   )
 }

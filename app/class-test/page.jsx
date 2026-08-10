@@ -78,7 +78,9 @@ export default function ClassTestPage() {
 
   return (
     <AppShell>
-      <div className="card p-2 inline-flex gap-1 mb-6">
+      <div>
+        <h1 className="sr-only">Class Tests</h1>
+        <div className="card p-2 inline-flex gap-1 mb-6">
         {['upcoming', 'completed'].map((t) => (
           <button
             key={t}
@@ -137,6 +139,7 @@ export default function ClassTestPage() {
           subtitle={pendingRoute ? 'Please wait while your test session is initialized...' : 'Preparing your test...'}
         />
       ) : null}
+      </div>
     </AppShell>
   )
 }

@@ -133,7 +133,8 @@ export default function ProfilePage() {
   if (!user) {
     return (
       <AppShell>
-        <div className="flex items-center justify-center min-h-screen">
+        <div>
+          <div className="flex items-center justify-center min-h-screen">
           <div className="card p-8 max-w-md w-full text-center">
             <div className="text-5xl mb-4">🔐</div>
             <h2 className="font-display font-bold text-xl text-ink mb-2">Login Required</h2>
@@ -146,6 +147,7 @@ export default function ProfilePage() {
             </button>
           </div>
         </div>
+      </div>
       </AppShell>
     )
   }
@@ -311,6 +313,7 @@ export default function ProfilePage() {
   return (
     <AppShell>
       <div className="grid lg:grid-cols-[320px_1fr] gap-6">
+        <h1 className="sr-only">Profile</h1>
         {/* left summary card */}
         <div className="card p-6">
           <div className="flex flex-col items-center text-center">
@@ -373,7 +376,11 @@ export default function ProfilePage() {
             <form onSubmit={save}>
               <div className="flex justify-center mb-8">
                 <div className="relative">
-                  <img src={getAvatarSrc() || user.avatar || ''} alt="" className="w-24 h-24 rounded-full object-cover" />
+<<<<<<< HEAD
+                  <img src={getAvatarSrc() || user.avatar} alt={`Profile picture for ${user.name || ''}`} className="w-24 h-24 rounded-full object-cover" />
+=======
+                  <img src={getAvatarSrc() || user.avatar} alt={`Profile picture for ${user.name}`} className="w-24 h-24 rounded-full object-cover" />
+>>>>>>> dbd88e8 (trying to do in page SEO)
                   {uploadingAvatar ? (
                     <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center text-white text-xs font-semibold">
                       Uploading...

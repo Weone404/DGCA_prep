@@ -11,6 +11,7 @@ export default function StudentVisaPage() {
   return (
     <AppShell title="Student Visa">
       <div className="space-y-6">
+        <h1 className="sr-only">Student Visa</h1>
         <div className="rounded-3xl border border-line bg-white p-6 shadow-card">
           <div className="max-w-3xl">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand">Student Visa Resources</p>
@@ -24,7 +25,7 @@ export default function StudentVisaPage() {
         <div className="rounded-3xl border border-line bg-white p-6 shadow-card">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <h3 className="text-lg font-semibold text-ink">Visa navigation</h3>
+              <h2 className="text-lg font-semibold text-ink">Visa navigation</h2>
               <p className="mt-1 text-sm text-muted">Choose a path to open the matching guidance page.</p>
             </div>
           </div>

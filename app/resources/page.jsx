@@ -21,7 +21,9 @@ export default function ResourcesPage() {
 
   return (
     <AppShell>
-      <div className="flex flex-col sm:flex-row gap-3 mb-6">
+      <div>
+        <h1 className="sr-only">Resources</h1>
+        <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <div className="flex items-center gap-2 bg-white rounded-xl px-4 py-3 shadow-card flex-1">
           <Icon name="search" size={16} className="text-muted" />
           <input
@@ -56,6 +58,7 @@ export default function ResourcesPage() {
         ))}
         {list.length === 0 && <p className="text-sm text-muted">No resources match your search.</p>}
       </div>
+    </div>
     </AppShell>
   )
 }

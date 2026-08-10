@@ -318,7 +318,7 @@ function FinishScreen({ subject, result, answers, pool, saveStatus, onReset, lea
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="text-sm text-muted">{subjectLabel}</p>
-            <h1 className="font-display text-3xl font-bold">{result.correct} / {result.total}</h1>
+            <h2 className="font-display text-3xl font-bold">{result.correct} / {result.total}</h2>
             <p className="text-muted mt-1">{result.accuracy}% accuracy</p>
           </div>
           <Badge tone={saveTone}>{saveLabel}</Badge>
@@ -693,10 +693,11 @@ export default function MockTestsPage() {
   return (
     <AppShell>
       <div className="space-y-6 py-6">
+        <h1 className="sr-only">Mock Tests</h1>
         <header className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-sm text-muted">Mock Test</p>
-            <h1 className="font-display text-3xl font-bold">Practice with full mock tests</h1>
+            <h2 className="font-display text-3xl font-bold">Practice with full mock tests</h2>
           </div>
           {screen === SCREEN.SUBJECT_SELECT ? (
             <div className="rounded-3xl border border-line px-4 py-3 text-sm text-muted">{DEFAULT_MOCK_TEST_SETTINGS.count} Questions · {getDurationMinutes(TOTAL_TIME_SECONDS)} Mins</div>
