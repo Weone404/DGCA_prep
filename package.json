@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev -p 3000",
     "dev:clean": "if exist .next rmdir /s /q .next && next dev -p 3000",
+    "prebuild": "node ./scripts/clean-next.js",
     "build": "next build",
     "start": "next start"
   },
