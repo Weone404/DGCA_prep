@@ -211,7 +211,7 @@ export default function LiveClassesPage() {
           {/* Time grid */}
           <div className="px-6 py-4">
             {loading ? (
-              <div className="text-sm text-muted py-4">Loading classes…</div>
+              <div className="text-sm text-muted py-4">Loading classes...</div>
             ) : hourRows.length > 0 ? (
               hourRows.map(({ hourKey, hourLabel, classes }) => (
                 <div key={hourKey} className="flex flex-col gap-4 py-3 border-b border-dashed border-canvas last:border-0 sm:flex-row sm:items-start">
@@ -324,12 +324,14 @@ export default function LiveClassesPage() {
             <div className="w-14 h-14 mx-auto rounded-full bg-brand-light flex items-center justify-center text-brand mb-4">
               <Icon name="video" size={22} />
             </div>
-            <h3 className="font-display font-bold text-ink mb-1">{joined.status === 'live' ? 'Joining class…' : 'Reminder set!'}</h3>
+            <h3 className="font-display font-bold text-ink mb-1">{joined.status === 'live' ? 'Joining class...' : 'Reminder set!'}</h3>
             <p className="text-sm text-muted mb-5">{joined.title} for {joined.batch || 'all batches'} at {joined.displayTime || formatClassTime(joined.start_date_time, joined.end_date_time)}.</p>
             <button onClick={() => setJoined(null)} className="bg-brand text-white text-sm font-semibold px-6 py-2.5 rounded-xl">Got it</button>
           </div>
         </div>
       )}
+      </div>
     </AppShell>
+    
   )
 }
