@@ -32,3 +32,6 @@ export default function InterviewQuestionsPage() {
         </div>
       </div>
       </main>
+    </AppShell>
+  )
+}

@@ -376,11 +376,7 @@ export default function ProfilePage() {
             <form onSubmit={save}>
               <div className="flex justify-center mb-8">
                 <div className="relative">
-<<<<<<< HEAD
                   <img src={getAvatarSrc() || user.avatar} alt={`Profile picture for ${user.name || ''}`} className="w-24 h-24 rounded-full object-cover" />
-=======
-                  <img src={getAvatarSrc() || user.avatar} alt={`Profile picture for ${user.name}`} className="w-24 h-24 rounded-full object-cover" />
->>>>>>> dbd88e8 (trying to do in page SEO)
                   {uploadingAvatar ? (
                     <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center text-white text-xs font-semibold">
                       Uploading...

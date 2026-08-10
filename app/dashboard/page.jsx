@@ -183,17 +183,8 @@ export default function DashboardPage() {
           {/* Hero */}
           <div className="text-ink text-2xl sm:text-3xl font-display font-bold mb-3">
             <div className="relative z-10 max-w-md">
-<<<<<<< HEAD
               <h1 className="text-ink text-2xl sm:text-3xl font-display font-bold mb-3">Dashboard</h1>
-              <p className="text-ink/80 text-sm leading-relaxed">
-                Hi {user ? user.name.split(' ')[0] : 'there'}!
-              </p>
-=======
-              <h1 className="text-ink text-2xl sm:text-3xl font-display font-bold mb-3">Dashboard</h1>
-              <p className="text-ink/80 text-sm leading-relaxed">
-                Hi {user ? user.name.split(' ')[0] : 'there'}!
-              </p>
->>>>>>> dbd88e8 (trying to do in page SEO)
+              <p className="text-ink/80 text-sm leading-relaxed">Hi {user ? user.name.split(' ')[0] : 'there'}!</p>
               {isLoadingStats ? (
                 <div className="h-4 w-56 max-w-full rounded-full bg-white/20 motion-safe:animate-pulse" />
               ) : (
