@@ -121,10 +121,22 @@ export default function SubjectTestsPage() {
       chapterIds: Array.from(entry.chapterIds),
     }))
 
-    const grouped = partDefinitions.map((part) => ({
-      title: part.title,
-      tests: source.filter((test) => part.chapterIds.includes(String(test.chapterId || test.id || ''))),
-    }))
+    const grouped = partDefinitions.map((part) => {
+      const testsForPart = source.filter((test) => part.chapterIds.includes(String(test.chapterId || test.id || '')))
+      const uniqueTests = []
+      const seenIds = new Set()
+      for (const test of testsForPart) {
+        const testId = String(test.id || '')
+        if (!seenIds.has(testId)) {
+          seenIds.add(testId)
+          uniqueTests.push(test)
+        }
+      }
+      return {
+        title: part.title,
+        tests: uniqueTests,
+      }
+    })
 
     return grouped.filter((entry) => entry.tests.length > 0)
   }, [visibleTests])
@@ -307,7 +319,7 @@ export default function SubjectTestsPage() {
             <h3 className="mb-3 text-sm font-semibold text-muted">{group.title}</h3>
             <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
               {group.tests.map((t) => (
-                <div key={t.id} className="card p-5 flex flex-col">
+                <div key={`${group.title}-${t.id}`} className="card p-5 flex flex-col">
                   <div className="flex items-center justify-between mb-3">
                     <Badge tone="muted">{t.subject}</Badge>
                   </div>
