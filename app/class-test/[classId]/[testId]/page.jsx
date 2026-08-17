@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import AppShell from '@/components/AppShell'
 import { useAppContent } from '@/lib/use-app-content'
 import { useAuth } from '@/lib/auth-context'
@@ -59,8 +59,9 @@ async function fetchClassTestQuestions(classTest) {
   return []
 }
 
-export default function ClassTestPage({ params }) {
-  const { classId, testId } = params
+export default function ClassTestPage() {
+  const params = useParams()
+  const { classId, testId } = params || {}
   const router = useRouter()
   const { user } = useAuth()
   const { subjects: SUBJECTS } = useAppContent()

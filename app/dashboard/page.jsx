@@ -33,6 +33,8 @@ export default function DashboardPage() {
   } = useAppContent()
   const [timeRange, setTimeRange] = useState('Today')
   const [activityRange, setActivityRange] = useState('Weekly')
+  const [activityCategory, setActivityCategory] = useState('all')
+  const [courseStatus, setCourseStatus] = useState('all')
   const [studentData, setStudentData] = useState(null)
   const [isLoadingStats, setIsLoadingStats] = useState(true)
   const [hoveredBar, setHoveredBar] = useState(null)
@@ -93,6 +95,26 @@ export default function DashboardPage() {
     return { lecture, subjectTest, mockTest }
   }, [LECTURES_ARRAY, SUBJECT_TESTS, MOCK_TESTS])
 
+  const activityOptions = [
+    { key: 'all', label: 'All' },
+    { key: 'lectures', label: 'Lectures' },
+    { key: 'subjectTests', label: 'Subject Tests' },
+    { key: 'mockTests', label: 'Mock Tests' },
+  ]
+
+  const statusOptions = [
+    { key: 'all', label: 'All' },
+    { key: 'ongoing', label: 'Ongoing' },
+    { key: 'complete', label: 'Complete' },
+  ]
+
+  const filteredBreakdown = useMemo(() => {
+    const lecture = activityCategory === 'all' || activityCategory === 'lectures' ? rawBreakdown.lecture : 0
+    const subjectTest = activityCategory === 'all' || activityCategory === 'subjectTests' ? rawBreakdown.subjectTest : 0
+    const mockTest = activityCategory === 'all' || activityCategory === 'mockTests' ? rawBreakdown.mockTest : 0
+    return { lecture, subjectTest, mockTest }
+  }, [activityCategory, rawBreakdown])
+
   const manualStudyMinutes = useMemo(
     () => Math.round(rawBreakdown.lecture + rawBreakdown.subjectTest + rawBreakdown.mockTest),
     [rawBreakdown],
@@ -117,12 +139,55 @@ export default function DashboardPage() {
     [CLASS_TESTS_DATA],
   )
 
+  const courseCards = useMemo(() => {
+    const lectures = (LECTURES_ARRAY || []).map((lecture) => ({
+      id: `lecture-${lecture.id}`,
+      title: lecture.title || 'Lecture',
+      subtitle: `${lecture.duration || 0} min`,
+      type: 'lectures',
+      progress: Math.min(100, Math.max(0, Number(lecture.watched ?? 0))),
+      color: '#43B7E9',
+      icon: '🎥',
+    }))
+
+    const subjectTests = (SUBJECT_TESTS || []).map((test) => ({
+      id: `subject-${test.id}`,
+      title: test.title || 'Subject Test',
+      subtitle: `${test.subject || 'Test'} • ${test.duration || 0} min`,
+      type: 'subjectTests',
+      progress: test.attempted ? 100 : 35,
+      color: '#FF8B6B',
+      icon: '📝',
+    }))
+
+    const mockTests = (MOCK_TESTS || []).map((test) => ({
+      id: `mock-${test.id}`,
+      title: test.title || 'Mock Test',
+      subtitle: `${test.questions || 0} questions • ${test.duration || 0} min`,
+      type: 'mockTests',
+      progress: (test.attempts || 0) > 0 ? 100 : 30,
+      color: '#AA96DA',
+      icon: '🎯',
+    }))
+
+    return [...lectures, ...subjectTests, ...mockTests]
+  }, [LECTURES_ARRAY, SUBJECT_TESTS, MOCK_TESTS])
+
+  const visibleCourseCards = useMemo(() => {
+    return courseCards.filter((item) => {
+      if (activityCategory !== 'all' && item.type !== activityCategory) return false
+      if (courseStatus === 'all') return true
+      if (courseStatus === 'complete') return item.progress >= 100
+      return item.progress < 100
+    })
+  }, [activityCategory, courseCards, courseStatus])
+
   // My Activity: real breakdown by category (lectures watched, subject tests attempted, mock tests attempted).
   // The *shape* (relative split between categories) always comes from the user's actual content progress.
   // The *scale* (total minutes) uses the backend's period total when available (weekly/monthly), so switching
   // the selector reflects real numbers rather than a static demo curve.
   const activityChartData = useMemo(() => {
-    const { lecture, subjectTest, mockTest } = rawBreakdown
+    const { lecture, subjectTest, mockTest } = filteredBreakdown
     const rawTotal = lecture + subjectTest + mockTest
 
     const apiTotal =
@@ -138,8 +203,8 @@ export default function DashboardPage() {
       { key: 'lectures', label: 'Lectures', minutes: Math.round(lecture * scale), color: '#43B7E9' },
       { key: 'subjectTests', label: 'Subject Tests', minutes: Math.round(subjectTest * scale), color: '#FF8B6B' },
       { key: 'mockTests', label: 'Mock Tests', minutes: Math.round(mockTest * scale), color: '#AA96DA' },
-    ]
-  }, [rawBreakdown, activityRange, studentData])
+    ].filter((entry) => entry.minutes > 0)
+  }, [filteredBreakdown, activityRange, studentData])
 
   const activityMax = Math.max(1, ...activityChartData.map((d) => d.minutes))
   const hasActivity = activityChartData.some((d) => d.minutes > 0)
@@ -273,7 +338,7 @@ export default function DashboardPage() {
             </div>
 
             <div className="card p-5 sm:p-6">
-              <div className="flex items-center justify-between mb-4 gap-2">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-4">
                 <h2 className="font-display font-semibold text-ink">My Activity</h2>
                 <select
                   value={activityRange}
@@ -283,6 +348,23 @@ export default function DashboardPage() {
                   <option>Weekly</option>
                   <option>Monthly</option>
                 </select>
+              </div>
+
+              <div className="flex flex-wrap gap-2 mt-3">
+                {activityOptions.map((option) => (
+                  <button
+                    key={option.key}
+                    type="button"
+                    onClick={() => setActivityCategory(option.key)}
+                    className={`px-2.5 py-1.5 text-[11px] font-medium rounded-full border transition-colors ${
+                      activityCategory === option.key
+                        ? 'bg-brand text-white border-brand'
+                        : 'bg-canvas text-muted border-line hover:border-ink/20'
+                    } ${pressable}`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
               </div>
 
               {isLoadingStats ? (
@@ -340,53 +422,65 @@ export default function DashboardPage() {
             <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
               <h2 className="font-display font-semibold text-ink text-lg">My Courses</h2>
               <div className="flex gap-3">
-                <button type="button" className={`text-xs text-ink font-semibold hover:text-brand rounded-md px-1 ${pressable}`}>
-                  All
-                </button>
-                <button type="button" className={`text-xs text-muted font-semibold hover:text-ink rounded-md px-1 ${pressable}`}>
-                  Ongoing
-                </button>
-                <button type="button" className={`text-xs text-muted font-semibold hover:text-ink rounded-md px-1 ${pressable}`}>
-                  Complete
-                </button>
+                {statusOptions.map((option) => (
+                  <button
+                    key={option.key}
+                    type="button"
+                    onClick={() => setCourseStatus(option.key)}
+                    className={`text-xs font-semibold rounded-md px-1 transition-colors ${
+                      courseStatus === option.key ? 'text-brand' : 'text-muted hover:text-ink'
+                    } ${pressable}`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
               </div>
             </div>
             <div className="space-y-4">
-              {COURSES.map((course) => (
-                <div
-                  key={course.id}
-                  className="card p-5 sm:p-6 flex flex-col sm:flex-row items-start gap-4 sm:gap-6 motion-safe:transition-transform motion-safe:hover:-translate-y-0.5 duration-200"
-                >
-                  <div
-                    className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center text-3xl sm:text-4xl shrink-0"
-                    style={{ background: course.color + '20', color: course.color }}
-                  >
-                    {course.icon}
-                  </div>
-                  <div className="flex-1 min-w-0 w-full">
-                    <h4 className="font-semibold text-ink mb-1">{course.name}</h4>
-                    <p className="text-xs text-muted mb-3">{course.instructor}</p>
-                    <div className="flex items-center gap-4 mb-3">
-                      <div className="flex-1">
-                        <ProgressBar value={course.progress} color={course.color} />
-                      </div>
-                      <span className="text-xs font-medium text-ink shrink-0">{course.progress}%</span>
-                    </div>
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div className="flex items-center gap-1">
-                        <Icon name="star" size={14} className="text-yellow-400 fill-yellow-400" />
-                        <span className="text-xs font-semibold text-ink">{course.rating}</span>
-                      </div>
-                      <button
-                        type="button"
-                        className={`text-xs font-semibold text-brand border border-brand rounded-lg px-4 py-1.5 hover:bg-brand hover:text-white ${pressable}`}
-                      >
-                        View Course
-                      </button>
-                    </div>
-                  </div>
+              {visibleCourseCards.length === 0 ? (
+                <div className="card p-5 text-sm text-muted">
+                  No items match the current filters.
                 </div>
-              ))}
+              ) : (
+                visibleCourseCards.map((course) => (
+                  <div
+                    key={course.id}
+                    className="card p-5 sm:p-6 flex flex-col sm:flex-row items-start gap-4 sm:gap-6 motion-safe:transition-transform motion-safe:hover:-translate-y-0.5 duration-200"
+                  >
+                    <div
+                      className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center text-3xl sm:text-4xl shrink-0"
+                      style={{ background: course.color + '20', color: course.color }}
+                    >
+                      {course.icon}
+                    </div>
+                    <div className="flex-1 min-w-0 w-full">
+                      <div className="flex items-center justify-between gap-3 mb-1">
+                        <h4 className="font-semibold text-ink">{course.title}</h4>
+                        <span className="text-[10px] uppercase tracking-[0.12em] text-muted">{course.type}</span>
+                      </div>
+                      <p className="text-xs text-muted mb-3">{course.subtitle}</p>
+                      <div className="flex items-center gap-4 mb-3">
+                        <div className="flex-1">
+                          <ProgressBar value={course.progress} color={course.color} />
+                        </div>
+                        <span className="text-xs font-medium text-ink shrink-0">{course.progress}%</span>
+                      </div>
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div className="flex items-center gap-1">
+                          <Icon name="star" size={14} className="text-yellow-400 fill-yellow-400" />
+                          <span className="text-xs font-semibold text-ink">{course.progress >= 100 ? 'Complete' : 'In progress'}</span>
+                        </div>
+                        <button
+                          type="button"
+                          className={`text-xs font-semibold text-brand border border-brand rounded-lg px-4 py-1.5 hover:bg-brand hover:text-white ${pressable}`}
+                        >
+                          View
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>

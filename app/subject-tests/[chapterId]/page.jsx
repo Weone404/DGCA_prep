@@ -1,15 +1,16 @@
 "use client"
 
 import { useEffect, useState, useRef, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import AppShell from '@/components/AppShell'
 import { useAppContent } from '@/lib/use-app-content'
 import { useAuth } from '@/lib/auth-context'
 
-export default function TestPage({ params }) {
+export default function TestPage() {
+  const params = useParams()
+  const { chapterId } = params || {}
   const { subjectTests: SUBJECT_TESTS, subjects: SUBJECTS } = useAppContent()
   const { user: authUser } = useAuth()
-  const { chapterId } = params
   const router = useRouter()
 
   const test = SUBJECT_TESTS.find(t => String(t.id) === String(chapterId))

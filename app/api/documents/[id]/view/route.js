@@ -21,10 +21,11 @@ function toPublicUrl(storagePath = '') {
   return ''
 }
 
-export async function GET(request, { params }) {
+export async function GET(request, context) {
   try {
     await ensureAuthSchema()
 
+    const params = await context?.params
     const documentId = params?.id
     if (!documentId) {
       return NextResponse.json({ error: 'Document id is required.' }, { status: 400 })
