@@ -39,6 +39,7 @@ export default function DashboardPage() {
   const [isLoadingStats, setIsLoadingStats] = useState(true)
   const [hoveredBar, setHoveredBar] = useState(null)
   const { user } = useAuth()
+  const isLoggedIn = Boolean(user)
   const todayClass = LIVE_CLASSES.find((c) => c.status === 'live')
   const [currentDate, setCurrentDate] = useState(TODAY)
 
@@ -80,6 +81,10 @@ export default function DashboardPage() {
   // This replaces the old hardcoded demo numbers and feeds bo
   // th the summary text and the activity chart.
   const rawBreakdown = useMemo(() => {
+    if (!isLoggedIn) {
+      return { lecture: 0, subjectTest: 0, mockTest: 0 }
+    }
+
     const lecture = LECTURES_ARRAY.reduce(
       (sum, lecture) => sum + parseDuration(lecture.duration) * ((lecture.watched ?? 0) / 100),
       0,
@@ -93,7 +98,7 @@ export default function DashboardPage() {
       0,
     )
     return { lecture, subjectTest, mockTest }
-  }, [LECTURES_ARRAY, SUBJECT_TESTS, MOCK_TESTS])
+  }, [LECTURES_ARRAY, SUBJECT_TESTS, MOCK_TESTS, isLoggedIn])
 
   const activityOptions = [
     { key: 'all', label: 'All' },
@@ -128,11 +133,12 @@ export default function DashboardPage() {
   const segAssignment = (assignmentMinutes / donutTotal) * 100
 
   const activeStudyMinutes = useMemo(() => {
+    if (!isLoggedIn) return 0
     if (timeRange === 'Today') {
       return studentData?.time_spent_today_minutes ?? studentData?.time_spent_minutes ?? manualStudyMinutes
     }
     return studentData?.time_spent_weekly_minutes ?? studentData?.time_spent_minutes ?? manualStudyMinutes
-  }, [timeRange, studentData, manualStudyMinutes])
+  }, [timeRange, studentData, manualStudyMinutes, isLoggedIn])
 
   const upcomingClassTests = useMemo(
     () => (CLASS_TESTS_DATA || []).filter((test) => test.status === 'upcoming').slice(0, 3),
@@ -190,8 +196,9 @@ export default function DashboardPage() {
     const { lecture, subjectTest, mockTest } = filteredBreakdown
     const rawTotal = lecture + subjectTest + mockTest
 
-    const apiTotal =
-      activityRange === 'Weekly'
+    const apiTotal = !isLoggedIn
+      ? 0
+      : activityRange === 'Weekly'
         ? studentData?.time_spent_weekly_minutes ?? studentData?.time_spent_minutes
         : studentData?.time_spent_monthly_minutes ??
           (studentData?.time_spent_weekly_minutes != null ? studentData.time_spent_weekly_minutes * 4 : undefined)
@@ -204,10 +211,10 @@ export default function DashboardPage() {
       { key: 'subjectTests', label: 'Subject Tests', minutes: Math.round(subjectTest * scale), color: '#FF8B6B' },
       { key: 'mockTests', label: 'Mock Tests', minutes: Math.round(mockTest * scale), color: '#AA96DA' },
     ].filter((entry) => entry.minutes > 0)
-  }, [filteredBreakdown, activityRange, studentData])
+  }, [filteredBreakdown, activityRange, studentData, isLoggedIn])
 
   const activityMax = Math.max(1, ...activityChartData.map((d) => d.minutes))
-  const hasActivity = activityChartData.some((d) => d.minutes > 0)
+  const hasActivity = isLoggedIn && activityChartData.some((d) => d.minutes > 0)
 
   const daysInMonth = (date) => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
   const firstDayOfMonth = (date) => new Date(date.getFullYear(), date.getMonth(), 1).getDay()
@@ -254,9 +261,11 @@ export default function DashboardPage() {
                 <div className="h-4 w-56 max-w-full rounded-full bg-white/20 motion-safe:animate-pulse" />
               ) : (
                 <p className="text-ink/80 text-sm leading-relaxed transition-opacity duration-300">
-                  {studentData
-                    ? `You've spent ${formatDuration(activeStudyMinutes)} on the site ${timeRange === 'Today' ? 'today' : 'this week'}. Keep going!`
-                    : 'Track your learning time across tests, lectures, and mock practice.'}
+                  {!isLoggedIn
+                    ? 'You are not signed in yet. Your study time will appear here when you log in.'
+                    : studentData
+                      ? `You've spent ${formatDuration(activeStudyMinutes)} on the site ${timeRange === 'Today' ? 'today' : 'this week'}. Keep going!`
+                      : 'Track your learning time across tests, lectures, and mock practice.'}
                 </p>
               )}
               <button
