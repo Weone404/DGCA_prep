@@ -442,9 +442,9 @@ export default function DashboardPage() {
                   No items match the current filters.
                 </div>
               ) : (
-                visibleCourseCards.map((course) => (
+                visibleCourseCards.map((course, index) => (
                   <div
-                    key={course.id}
+                    key={`${course.type}-${course.id ?? 'item'}-${index}`}
                     className="card p-5 sm:p-6 flex flex-col sm:flex-row items-start gap-4 sm:gap-6 motion-safe:transition-transform motion-safe:hover:-translate-y-0.5 duration-200"
                   >
                     <div
