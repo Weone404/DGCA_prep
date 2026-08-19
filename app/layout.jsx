@@ -8,10 +8,6 @@ import ChunkErrorReload from '@/components/ChunkErrorReload'
 export const metadata = {
   title: 'We One aviation — Learn From Home',
   description: 'Your all-in-one learning dashboard',
-  icons: {
-    icon: '/favicon.ico',
-    shortcut: '/favicon.ico',
-  },
 }
 
 export default function RootLayout({ children }) {

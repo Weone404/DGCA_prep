@@ -57,6 +57,10 @@ export default function Icon({ name, size = 20, className = '' }) {
       return <svg {...props}><path d="M12 5v14M5 12h14" /></svg>
     case 'download':
       return <svg {...props}><path d="M12 3v12" /><path d="m7 10 5 5 5-5" /><path d="M5 21h14" /></svg>
+    case 'upload':
+      return <svg {...props}><path d="M12 16V4" /><path d="m7 9 5-5 5 5" /><path d="M5 20h14" /></svg>
+    case 'close':
+      return <svg {...props}><path d="m6 6 12 12M18 6 6 18" /></svg>
     case 'file':
       return <svg {...props}><path d="M6 3h8l4 4v14H6V3Z" /><path d="M14 3v4h4" /></svg>
     case 'lock':

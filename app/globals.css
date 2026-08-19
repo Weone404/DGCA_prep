@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+@import 'react-pdf/dist/Page/TextLayer.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -75,6 +76,24 @@ h1 { font-size: 1.5rem; }
 
 /* Ensure images and embedded content are fluid */
 img, iframe, video, svg, canvas { max-width: 100%; height: auto; }
+
+.react-pdf__Page { position: relative; }
+.react-pdf__Page__textContent {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  line-height: 1;
+  opacity: 0.2;
+  z-index: 1;
+}
+.react-pdf__Page__textContent span {
+  position: absolute;
+  color: transparent;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0% 0%;
+}
+.react-pdf__Page__textContent span::selection { background: rgba(37, 99, 235, 0.3); }
 
 html.dark .border-line {
   border-color: #334155;
@@ -157,6 +176,24 @@ textarea,
 select,
 button {
   color: #1B2430;
+}
+
+/* Keep the teacher upload surface readable when a stale dark class remains on html. */
+.resource-upload-form,
+.resource-upload-form label {
+  color: #1B2430 !important;
+}
+
+.resource-upload-form input,
+.resource-upload-form textarea {
+  background-color: #ffffff !important;
+  color: #1B2430 !important;
+  border-color: #CBD5E1 !important;
+}
+
+.resource-upload-form input::placeholder,
+.resource-upload-form textarea::placeholder {
+  color: #64748B !important;
 }
 
 input::placeholder,
