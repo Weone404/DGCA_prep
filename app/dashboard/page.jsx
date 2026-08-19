@@ -146,38 +146,24 @@ export default function DashboardPage() {
   )
 
   const courseCards = useMemo(() => {
-    const lectures = (LECTURES_ARRAY || []).map((lecture) => ({
-      id: `lecture-${lecture.id}`,
-      title: lecture.title || 'Lecture',
-      subtitle: `${lecture.duration || 0} min`,
-      type: 'lectures',
-      progress: Math.min(100, Math.max(0, Number(lecture.watched ?? 0))),
-      color: '#43B7E9',
-      icon: '🎥',
-    }))
+    const lecturesBySubject = new Map()
+    for (const lecture of LECTURES_ARRAY || []) {
+      const subject = String(lecture.subject || 'Other').trim() || 'Other'
+      if (!lecturesBySubject.has(subject)) lecturesBySubject.set(subject, lecture)
+    }
 
-    const subjectTests = (SUBJECT_TESTS || []).map((test) => ({
-      id: `subject-${test.id}`,
-      title: test.title || 'Subject Test',
-      subtitle: `${test.subject || 'Test'} • ${test.duration || 0} min`,
-      type: 'subjectTests',
-      progress: test.attempted ? 100 : 35,
-      color: '#FF8B6B',
-      icon: '📝',
-    }))
-
-    const mockTests = (MOCK_TESTS || []).map((test) => ({
-      id: `mock-${test.id}`,
-      title: test.title || 'Mock Test',
-      subtitle: `${test.questions || 0} questions • ${test.duration || 0} min`,
-      type: 'mockTests',
-      progress: (test.attempts || 0) > 0 ? 100 : 30,
-      color: '#AA96DA',
-      icon: '🎯',
-    }))
-
-    return [...lectures, ...subjectTests, ...mockTests]
-  }, [LECTURES_ARRAY, SUBJECT_TESTS, MOCK_TESTS])
+    return Array.from(lecturesBySubject.entries())
+      .slice(0, 5)
+      .map(([subject, lecture]) => ({
+        id: `lecture-${lecture.id}`,
+        title: lecture.title || 'Lecture',
+        subtitle: `${subject} • ${lecture.duration || 0} min`,
+        type: 'lectures',
+        progress: Math.min(100, Math.max(0, Number(lecture.watched ?? 0))),
+        color: '#43B7E9',
+        icon: '🎥',
+      }))
+  }, [LECTURES_ARRAY])
 
   const visibleCourseCards = useMemo(() => {
     return courseCards.filter((item) => {

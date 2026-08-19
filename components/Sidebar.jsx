@@ -139,7 +139,7 @@ export default function Sidebar() {
         className={`flex flex-col w-full max-w-[92vw] sm:max-w-sm lg:w-64 shrink-0 border-r border-line bg-white px-5 py-6 min-h-screen fixed inset-y-0 left-0 z-50 overflow-y-auto lg:sticky lg:top-0 lg:z-0 transition-transform duration-300 ease-in-out will-change-transform dark:border-slate-800 dark:bg-slate-900 ${open ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}
       >
         <div className="flex items-center justify-between mb-8">
-          <Link href="/dashboard" className="flex items-center gap-3 px-2 group">
+          <Link href="/about-dgca" className="flex items-center gap-3 px-2 group" aria-label="About DGCA">
             <div className="w-11 h-11 overflow-hidden rounded-2xl border border-line bg-white shrink-0 transition-transform duration-200 group-hover:scale-105 dark:border-slate-700 dark:bg-slate-900">
               <Image src="/Logo.webp" alt="We One aviation logo" width={44} height={44} className="h-full w-full object-cover" priority />
             </div>

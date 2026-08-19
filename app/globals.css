@@ -196,6 +196,17 @@ button {
   color: #64748B !important;
 }
 
+.about-dgca-content,
+.about-dgca-content h1,
+.about-dgca-content h2,
+.about-dgca-content h3 {
+  color: #1B2430 !important;
+}
+
+.about-dgca-content p {
+  color: #64748B;
+}
+
 input::placeholder,
 textarea::placeholder,
 select::placeholder {
