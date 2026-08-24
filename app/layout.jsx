@@ -17,6 +17,15 @@ export const metadata = {
   },
 }
 
+const organizationJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'EducationalOrganization',
+  name: 'We One Aviation',
+  url: 'https://www.dgcaexam.com',
+  logo: 'https://www.dgcaexam.com/Logo.webp',
+  description: 'Online DGCA exam preparation platform offering live classes, subject-wise tests, mock tests, and study resources for aspiring commercial pilots.',
+}
+
 export default function RootLayout({ children }) {
   const appName = process.env.NEXT_PUBLIC_APP_NAME || 'We One aviation'
   const appTagline = process.env.NEXT_PUBLIC_APP_TAGLINE || 'Learn From Home'
@@ -26,6 +35,7 @@ export default function RootLayout({ children }) {
     <html lang="en" suppressHydrationWarning>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }} />
       </head>
       <body className="bg-canvas text-ink transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100">
         <ChunkErrorReload />

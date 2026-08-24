@@ -6,9 +6,23 @@ export const metadata = {
   keywords: ['DGCA exam', 'DGCA CPL', 'Commercial Pilot License India', 'Air Navigation', 'Air Regulations', 'Meteorology'],
 }
 
+const courseJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Course',
+  name: 'DGCA Exam Preparation Guide',
+  description: 'A guide to DGCA exam subjects, aviation navigation, meteorology, regulations, aircraft systems, and preparation for aspiring commercial pilots.',
+  url: 'https://www.dgcaexam.com/about-dgca',
+  provider: {
+    '@type': 'EducationalOrganization',
+    name: 'We One Aviation',
+    url: 'https://www.dgcaexam.com',
+  },
+}
+
 export default function AboutDgcaPage() {
   return (
     <AppShell title="About DGCA">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(courseJsonLd) }} />
       <article className="about-dgca-content mx-auto max-w-4xl py-4 text-slate-900 dark:text-slate-100">
         <header className="border-b border-line pb-8 dark:border-slate-700">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand">Pilot training in India</p>
