@@ -398,11 +398,11 @@ function PaywallModal({ totalLectures, onSuccess, onClose }) {
 
   return (
     <Modal onClose={onClose} ariaLabel="Unlock all lectures">
-      <div className="bg-violet p-7 relative text-white">
+      <div className="relative bg-violet p-5 text-white sm:p-7">
         <button
           onClick={onClose}
           aria-label="Close"
-          className="absolute top-4 right-4 w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center"
+          className="absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-lg bg-white/20"
         >
           ×
         </button>
@@ -418,9 +418,9 @@ function PaywallModal({ totalLectures, onSuccess, onClose }) {
         </div>
       </div>
 
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <p className="font-display font-bold text-sm text-ink mb-3">Choose Your Plan</p>
-        <div className="grid grid-cols-3 gap-3 mb-5">
+        <div className="grid grid-cols-1 gap-3 mb-5 sm:grid-cols-3">
           {Object.values(PLANS).map((p) => (
             <button
               key={p.id}

@@ -6,7 +6,6 @@ import { NAV_ITEMS } from '@/lib/data'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
 import Link from 'next/link'
-import Image from 'next/image'
 
 const NOTIFICATION_SEEN_KEY = 'student_notifications_seen_at_v1'
 const NOTIFICATION_POLL_MS = 45000
@@ -52,7 +51,6 @@ function formatAge(ms) {
 export default function Topbar({ title, theme, toggleTheme }) {
   const [query, setQuery] = useState('')
   const [openMenu, setOpenMenu] = useState(false)
-  const [mobileNav, setMobileNav] = useState(false)
   const [notificationOpen, setNotificationOpen] = useState(false)
   const [notifications, setNotifications] = useState([])
   const [seenAt, setSeenAt] = useState(0)
@@ -228,10 +226,6 @@ export default function Topbar({ title, theme, toggleTheme }) {
   return (
     <header className="flex flex-wrap items-center justify-between gap-3 sm:gap-4 px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-4">
       <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-        {/* hamburger - visible on small screens */}
-        <button onClick={() => setMobileNav(true)} className="mr-2 rounded-md border border-line bg-white/70 p-2 dark:border-slate-700 dark:bg-slate-900/70 lg:hidden">
-          <Icon name="menu" size={18} />
-        </button>
         <h1 className="inline-flex max-w-[14rem] items-center rounded-full border border-line bg-white/80 px-3 py-1.5 text-sm font-display font-bold tracking-tight text-ink shadow-sm backdrop-blur-sm dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-100 sm:max-w-[18rem] sm:text-base lg:max-w-[22rem]">
           <span className="truncate">{pageTitle}</span>
         </h1>
@@ -296,7 +290,7 @@ export default function Topbar({ title, theme, toggleTheme }) {
 
         {user ? (
           <div className="relative">
-            <button onClick={() => setOpenMenu((v) => !v)} className="flex items-center gap-2">
+            <button onClick={() => setOpenMenu((v) => !v)} className="flex min-h-11 items-center gap-2">
               <img src={avatarSrc} alt={displayName} className="h-9 w-9 rounded-full object-cover" />
               <span className="block max-w-[6.5rem] truncate text-xs font-semibold text-ink dark:text-slate-100 sm:max-w-[9rem] sm:text-sm">{displayName}</span>
               <Icon name="chevron-down" size={16} className="text-muted" />
@@ -328,37 +322,6 @@ export default function Topbar({ title, theme, toggleTheme }) {
         )}
       </div>
 
-      {/* Mobile nav drawer */}
-      {mobileNav && (
-        <div className="fixed inset-0 z-40">
-          <div className="absolute inset-0 bg-ink/30" onClick={() => setMobileNav(false)} />
-          <aside className="absolute left-0 top-0 bottom-0 w-full max-w-full overflow-auto bg-white p-6 sm:w-80 md:w-72 dark:border-slate-700 dark:bg-slate-900">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 overflow-hidden rounded-2xl border border-line bg-white dark:border-slate-700 dark:bg-slate-900">
-                    <Image src="/Logo.webp" alt="We One aviation logo" width={40} height={40} className="h-full w-full object-cover" />
-                  </div>
-                <div>
-                  <p className="font-display font-bold text-ink leading-none dark:text-slate-100">We One aviation</p>
-                  <p className="mt-1 text-xs text-muted">Learn From Home</p>
-                </div>
-              </div>
-              <button onClick={() => setMobileNav(false)} className="p-2 rounded-md">
-                <Icon name="x" size={18} />
-              </button>
-            </div>
-
-            <nav className="flex flex-col gap-2">
-              {NAV_ITEMS.map((item) => (
-                <Link key={item.href} href={item.href} className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-medium text-muted hover:bg-canvas hover:text-ink dark:hover:bg-slate-800 dark:hover:text-slate-100">
-                  <Icon name={item.icon} size={18} />
-                  <span>{item.label}</span>
-                </Link>
-              ))}
-            </nav>
-          </aside>
-        </div>
-      )}
     </header>
   )
 }

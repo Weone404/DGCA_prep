@@ -57,11 +57,9 @@ html.dark .bg-gradient-page {
 /* Responsive container utility used across pages */
 .container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1440px;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 1rem;
-  padding-right: 1rem;
 }
 
 /* Make .card have comfortable responsive padding by default */

@@ -218,12 +218,12 @@ export default function SubjectTestsPage() {
       <div>
         <h1 className="sr-only">Subject Tests</h1>
         <div className="w-full mb-6">
-          <div className="w-full bg-black text-white p-4 rounded-lg flex items-center justify-between gap-4">
+          <div className="flex w-full flex-col items-start justify-between gap-4 rounded-lg bg-black p-4 text-white sm:flex-row sm:items-center">
           <div>
             <p className="font-semibold">{`You have completed ${completedLessons} lessons in the last day.`}</p>
             <p className="text-sm text-white/80">Start your learning today.</p>
           </div>
-          <button onClick={() => navigateWithLoader('/live-classes')} className="bg-white text-black px-4 py-2 rounded-md font-semibold">Start Learning</button>
+          <button onClick={() => navigateWithLoader('/live-classes')} className="w-full rounded-md bg-white px-4 py-2 font-semibold text-black sm:w-auto">Start Learning</button>
         </div>
       </div>
       <div className="flex flex-wrap gap-2 mb-6">
@@ -283,14 +283,14 @@ export default function SubjectTestsPage() {
         </div>
       ) : null}
 
-      <div className="card p-5 mb-6 flex flex-wrap items-center justify-between gap-3">
+      <div className="card mb-6 flex flex-col items-start justify-between gap-3 p-4 sm:flex-row sm:items-center sm:p-5">
         <div className="flex flex-wrap gap-3 text-xs sm:text-sm">
           <p className="text-muted">Total chapters: <span className="font-semibold text-ink">{stats.total}</span></p>
           <p className="text-muted">Attempted: <span className="font-semibold text-ink">{stats.attempted}</span></p>
           <p className="text-muted">Avg score: <span className="font-semibold text-ink">{stats.avgScore}%</span></p>
           <p className="text-muted">Best score: <span className="font-semibold text-ink">{stats.bestScore}%</span></p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex w-full flex-wrap gap-2 sm:w-auto">
           {[{ k: 'all', l: 'All' }, { k: 'attempted', l: 'Attempted' }, { k: 'pending', l: 'Pending' }].map((f) => (
             <button
               key={f.k}

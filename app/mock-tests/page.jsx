@@ -118,8 +118,8 @@ function IntroScreen({ subject, questionCount, totalTimeSeconds, warning, onStar
 
   return (
     <div className="space-y-6">
-      <div className="card p-6">
-        <div className="flex items-center justify-between gap-4 mb-6">
+      <div className="card p-4 sm:p-6">
+        <div className="flex flex-col items-start justify-between gap-4 mb-6 sm:flex-row sm:items-center">
           <div>
             <h1 className="font-display text-2xl font-bold">Ready for your mock test?</h1>
             <p className="text-sm text-muted mt-1">Review the rules before you begin.</p>
@@ -199,13 +199,13 @@ function TestScreen({
 
   return (
     <div className="space-y-6">
-      <div className="card p-2.5">
+      <div className="card p-3 sm:p-2.5">
         <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
           <div className="text-[11px] text-muted">Answered {answeredCount} / {total}</div>
           <div className="text-[11px] font-semibold text-ink">{formatTime(remainingSeconds)} remaining</div>
         </div>
 
-        <div className="grid grid-cols-10 gap-1 overflow-x-auto pb-0.5">
+        <div className="flex flex-wrap gap-2 pb-0.5">
           {Array.from({ length: total }).map((_, index) => {
             const state = getDotState({ screen, index, currentIndex, answers, pool })
             return (
@@ -213,7 +213,7 @@ function TestScreen({
                 key={index}
                 type="button"
                 onClick={() => onJumpToQuestion(index)}
-                className={`h-6 w-6 rounded-full text-[10px] font-semibold transition ${state === 'active' ? 'border-2 border-brand bg-brand/10 text-brand' : state === 'answered' ? 'bg-brand/20 text-brand' : 'bg-slate-100 text-muted hover:bg-slate-200'}`}
+                className={`h-9 w-9 rounded-full text-[10px] font-semibold transition ${state === 'active' ? 'border-2 border-brand bg-brand/10 text-brand' : state === 'answered' ? 'bg-brand/20 text-brand' : 'bg-slate-100 text-muted hover:bg-slate-200'}`}
               >
                 {index + 1}
               </button>
@@ -222,7 +222,7 @@ function TestScreen({
         </div>
       </div>
 
-      <div className="card p-6">
+      <div className="card p-4 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-5">
           <div>
             <p className="text-sm font-semibold text-muted">{subject.title}</p>
@@ -238,7 +238,7 @@ function TestScreen({
           <ProgressBar value={Math.round(((currentIndex + 1) / total) * 100)} color={subject.color} />
         </div>
 
-        <div className="rounded-3xl border border-line p-6 bg-surface">
+        <div className="rounded-3xl border border-line p-4 bg-surface sm:p-6">
           <p className="text-sm text-muted mb-3">{currentQuestion.chapterId}</p>
           <p className="font-semibold text-ink text-lg">{currentQuestion.question}</p>
         </div>
@@ -324,7 +324,7 @@ function FinishScreen({ subject, result, answers, pool, saveStatus, onReset, lea
           <Badge tone={saveTone}>{saveLabel}</Badge>
         </div>
 
-        <div className="grid grid-cols-3 gap-3 mt-6 text-center text-sm">
+        <div className="grid grid-cols-1 gap-3 mt-6 text-center text-sm sm:grid-cols-3">
           <div className="rounded-3xl border border-line p-4">
             <p className="font-semibold text-ink">Correct</p>
             <p className="text-brand text-xl font-semibold">{result.correct}</p>

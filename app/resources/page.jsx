@@ -40,7 +40,7 @@ export default function ResourcesPage() {
     <AppShell>
       <div>
         <h1 className="sr-only">Resources</h1>
-        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row">
         <div className="flex items-center gap-2 bg-white rounded-xl px-4 py-3 shadow-card flex-1">
           <Icon name="search" size={16} className="text-muted" />
           <input
@@ -50,7 +50,7 @@ export default function ResourcesPage() {
             className="bg-transparent outline-none text-sm w-full text-ink placeholder:text-muted"
           />
         </div>
-        <select value={subject} onChange={(e) => setSubject(e.target.value)} className="bg-white rounded-xl px-4 py-3 shadow-card text-sm text-ink outline-none">
+        <select value={subject} onChange={(e) => setSubject(e.target.value)} className="w-full bg-white rounded-xl px-4 py-3 shadow-card text-sm text-ink outline-none sm:w-auto">
           {subjects.map((item) => <option key={item}>{item}</option>)}
         </select>
       </div>
@@ -58,7 +58,7 @@ export default function ResourcesPage() {
       {error ? <p className="mb-4 text-sm text-coral">{error}</p> : null}
       <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
         {list.map((r) => (
-          <button type="button" key={r.id} onClick={() => setSelectedResource(r)} className="card p-5 flex items-center gap-4 text-left hover:border-brand/40">
+          <button type="button" key={r.id} onClick={() => setSelectedResource(r)} className="card flex min-h-20 items-center gap-3 p-4 text-left hover:border-brand/40 sm:gap-4 sm:p-5">
             <div className="w-12 h-12 rounded-xl bg-violet/10 text-violet flex items-center justify-center shrink-0">
               <Icon name="file" size={20} />
             </div>

@@ -66,7 +66,7 @@ export default function Sidebar() {
           <div className={`flex items-center rounded-xl border border-transparent transition-all duration-200 ${active || hasActiveChild ? 'bg-brand-light dark:bg-slate-800' : 'hover:bg-canvas dark:hover:bg-slate-800'}`}>
             <Link
               href={item.href}
-              className={`flex-1 flex items-center gap-3 px-3 py-2.5 rounded-l-xl text-[14px] font-medium relative transition-all duration-200 ease-out ${active || hasActiveChild ? 'text-brand' : 'text-muted hover:text-ink'}`}
+              className={`flex-1 flex min-h-11 items-center gap-3 px-3 py-2.5 rounded-l-xl text-[14px] font-medium relative transition-all duration-200 ease-out ${active || hasActiveChild ? 'text-brand' : 'text-muted hover:text-ink'}`}
             >
               <span
                 className={`absolute left-[-20px] top-1/2 -translate-y-1/2 h-6 w-1 rounded-r-full bg-brand transition-all duration-200 ease-out origin-center ${active || hasActiveChild ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-0'}`}
@@ -100,7 +100,7 @@ export default function Sidebar() {
       <Link
         key={item.id}
         href={item.href}
-        className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] font-medium relative transition-all duration-200 ease-out ${active ? 'text-brand bg-brand-light dark:bg-slate-800' : 'text-muted hover:bg-canvas hover:text-ink hover:translate-x-0.5 dark:hover:bg-slate-800 dark:hover:text-slate-100'}`}
+        className={`group flex min-h-11 items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] font-medium relative transition-all duration-200 ease-out ${active ? 'text-brand bg-brand-light dark:bg-slate-800' : 'text-muted hover:bg-canvas hover:text-ink hover:translate-x-0.5 dark:hover:bg-slate-800 dark:hover:text-slate-100'}`}
         style={{ marginLeft: depth * 12 }}
       >
         <span
@@ -155,7 +155,7 @@ export default function Sidebar() {
             aria-label="Close menu"
             className="lg:hidden flex h-9 w-9 items-center justify-center rounded-lg text-muted transition-colors duration-150 hover:bg-canvas hover:text-ink dark:hover:bg-slate-800 dark:hover:text-slate-100"
           >
-            <Icon name="x" size={18} />
+            <Icon name="close" size={18} />
           </button>
         </div>
 

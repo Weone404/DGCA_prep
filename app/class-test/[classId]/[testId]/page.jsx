@@ -249,7 +249,7 @@ export default function ClassTestPage() {
 
   return (
     <AppShell>
-      <div className="min-h-screen flex items-center justify-center p-6 text-ink">
+      <div className="flex min-h-screen items-center justify-center p-3 text-ink sm:p-6">
         {screen === 'loading' && (
           <div className="card p-6 max-w-md w-full text-center text-ink">
             <h2 className="font-bold text-xl mb-2 text-ink">Loading class test</h2>
@@ -266,7 +266,7 @@ export default function ClassTestPage() {
         )}
 
         {screen === 'start' && classTest && (
-          <div className="card p-6 max-w-lg w-full text-ink" style={{ borderLeft: `6px solid ${themeColor}` }}>
+          <div className="card w-full max-w-lg p-4 text-ink sm:p-6" style={{ borderLeft: `6px solid ${themeColor}` }}>
             <h2 className="font-bold text-xl mb-3 text-ink">{classTest.title}</h2>
 
             <div className="flex flex-wrap items-center gap-2 mb-3">
@@ -317,7 +317,7 @@ export default function ClassTestPage() {
               <div className="font-mono text-ink">{String(mins).padStart(2, '0')}:{String(secs).padStart(2, '0')}</div>
             </div>
 
-            <div className="card p-5 text-ink">
+              <div className="card p-4 text-ink sm:p-5">
               <div className="text-sm text-muted mb-3">Question {currentQ + 1} of {total}</div>
               <div className="font-bold text-lg mb-4 text-ink">{currentQuestion.question}</div>
 
@@ -331,12 +331,12 @@ export default function ClassTestPage() {
                   return (
                     <button
                       key={index}
-                      className={optionClass}
+                      className={`${optionClass} min-h-12 w-full text-left`}
                       onClick={() => handleAnswer(index)}
                       disabled={selected !== undefined}
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-white border flex items-center justify-center">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-white">
                           {['A', 'B', 'C', 'D'][index]}
                         </div>
                         <div className="text-ink">{option}</div>
@@ -354,7 +354,7 @@ export default function ClassTestPage() {
                     <button
                       key={index}
                       onClick={() => setCurrentQ(index)}
-                      className={`w-8 h-8 rounded-full border text-xs font-semibold ${isCurrent ? 'text-white border-transparent' : (isAnswered ? 'bg-brand/10 border-brand/30 text-brand' : 'bg-white border-line text-muted')}`}
+                      className={`h-10 w-10 rounded-full border text-xs font-semibold ${isCurrent ? 'text-white border-transparent' : (isAnswered ? 'bg-brand/10 border-brand/30 text-brand' : 'bg-white border-line text-muted')}`}
                       style={isCurrent ? { background: themeColor } : undefined}
                     >
                       {index + 1}

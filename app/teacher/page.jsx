@@ -2273,7 +2273,7 @@ export default function TeacherDashboardPage() {
         <div className="rounded-2xl border border-slate-200 bg-white p-2 shadow-sm dark:border-slate-700 dark:bg-slate-900">
           <div className="flex min-w-max gap-2 overflow-x-auto pb-1">
             {NAV_TABS.map((tab) => (
-              <button key={tab.id} type="button" onClick={() => setActiveTab(tab.id)} className={`whitespace-nowrap rounded-xl px-3 py-2 text-sm font-medium ${activeTab === tab.id ? 'bg-brand text-white shadow-sm' : 'bg-slate-50 text-slate-700'}`}>
+              <button key={tab.id} type="button" onClick={() => setActiveTab(tab.id)} className={`min-h-11 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-medium ${activeTab === tab.id ? 'bg-brand text-white shadow-sm' : 'bg-slate-50 text-slate-700'}`}>
                 {tab.label}
               </button>
             ))}

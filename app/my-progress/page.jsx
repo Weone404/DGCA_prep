@@ -94,7 +94,7 @@ export default function MyProgressPage() {
           { label: 'Courses completed', value: USER.coursesComplete, color: 'text-brand' },
           { label: 'Hours this week', value: currentWeekLabel, color: 'text-coral' },
         ].map((s) => (
-          <div key={s.label} className="card p-6">
+          <div key={s.label} className="card p-4 sm:p-6">
             <p className={`text-3xl font-display font-bold ${s.color}`}>{s.value}</p>
             <p className="text-sm text-muted mt-1">{s.label}</p>
           </div>
@@ -103,7 +103,7 @@ export default function MyProgressPage() {
     </div>
 
       <div className="grid lg:grid-cols-[1.3fr_1fr] gap-6">
-        <div className="card p-6">
+        <div className="card p-4 sm:p-6">
           <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h2 className="font-display font-semibold text-ink">Weekly Study Hours</h2>
@@ -142,7 +142,7 @@ export default function MyProgressPage() {
           </div>
         </div>
 
-        <div className="card p-6">
+        <div className="card p-4 sm:p-6">
           <h2 className="font-display font-semibold text-ink mb-6">Subject Mastery</h2>
           <div className="space-y-5">
             {PROGRESS_SUBJECTS.map((s) => (
@@ -181,7 +181,7 @@ export default function MyProgressPage() {
           { label: 'Average Score', value: `${avgScore}%`, color: 'text-brand' },
           { label: 'Total Questions', value: testResults.reduce((sum, r) => sum + r.total, 0), color: 'text-coral' },
         ].map((s) => (
-          <div key={s.label} className="card p-6">
+          <div key={s.label} className="card p-4 sm:p-6">
             <p className={`text-3xl font-display font-bold ${s.color}`}>{s.value}</p>
             <p className="text-sm text-muted mt-1">{s.label}</p>
           </div>
@@ -189,7 +189,7 @@ export default function MyProgressPage() {
       </div>
 
       {!loading && testResults.length > 0 && (
-        <div className="card p-6 mt-6">
+        <div className="card mt-6 p-4 sm:p-6">
           <h2 className="font-display font-semibold text-ink mb-5">Test Results</h2>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">

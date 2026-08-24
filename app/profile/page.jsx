@@ -135,7 +135,7 @@ export default function ProfilePage() {
       <AppShell>
         <div>
           <div className="flex items-center justify-center min-h-screen">
-          <div className="card p-8 max-w-md w-full text-center">
+          <div className="card w-full max-w-md p-5 text-center sm:p-8">
             <div className="text-5xl mb-4">🔐</div>
             <h2 className="font-display font-bold text-xl text-ink mb-2">Login Required</h2>
             <p className="text-muted text-sm mb-6">Please log in to access your profile</p>
@@ -315,13 +315,13 @@ export default function ProfilePage() {
       <div className="grid lg:grid-cols-[320px_1fr] gap-6">
         <h1 className="sr-only">Profile</h1>
         {/* left summary card */}
-        <div className="card p-6">
+        <div className="card p-4 sm:p-6">
           <div className="flex flex-col items-center text-center">
             <img src={getAvatarSrc() || user.avatar || ''} alt={user.name || 'User'} className="w-24 h-24 rounded-full object-cover mb-4" />
             <h2 className="font-display font-bold text-ink">{user.name || 'Student'}</h2>
             <span className="mt-1 text-xs font-semibold bg-coral/10 text-coral px-2.5 py-1 rounded-full">{user.role || 'Student'}</span>
 
-            <div className="flex gap-8 mt-6">
+            <div className="flex flex-wrap justify-center gap-6 mt-6 sm:gap-8">
               <div>
                 <p className="font-display font-bold text-violet text-xl">{String(user.coursesInProgress || 0).padStart(2, '0')}</p>
                 <p className="text-xs text-muted">Course in progress</p>
@@ -356,9 +356,9 @@ export default function ProfilePage() {
         </div>
 
         {/* right settings card */}
-        <div className="card p-6 sm:p-8">
+        <div className="card p-4 sm:p-8">
           <h2 className="font-display font-bold text-xl text-ink mb-5">Profile Setting</h2>
-          <div className="flex gap-6 border-b border-line mb-8 overflow-x-auto">
+          <div className="flex gap-5 border-b border-line mb-8 overflow-x-auto sm:gap-6">
             {TABS.map((t) => (
               <button
                 key={t}
@@ -393,7 +393,7 @@ export default function ProfilePage() {
                       e.target.value = ''
                     }}
                   />
-                  <button type="button" onClick={() => fileInputRef.current?.click()} className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-violet text-white flex items-center justify-center">
+                  <button type="button" onClick={() => fileInputRef.current?.click()} className="absolute bottom-0 right-0 flex h-11 w-11 items-center justify-center rounded-full bg-violet text-white">
                     <Icon name="camera" size={14} />
                   </button>
                 </div>

@@ -13,6 +13,8 @@ export default function Icon({ name, size = 20, className = '' }) {
   switch (name) {
     case 'grid':
       return <svg {...props}><rect x="3" y="3" width="7" height="7" rx="2" /><rect x="14" y="3" width="7" height="7" rx="2" /><rect x="3" y="14" width="7" height="7" rx="2" /><rect x="14" y="14" width="7" height="7" rx="2" /></svg>
+    case 'menu':
+      return <svg {...props}><path d="M4 6h16M4 12h16M4 18h16" /></svg>
     case 'book':
       return <svg {...props}><path d="M4 4h11a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3V4Z" /><path d="M18 4v16" /></svg>
     case 'edit':

@@ -16,7 +16,7 @@ export default function AppShell({ title, children }) {
       <Sidebar />
       <div className="flex-1 min-w-0">
         <Topbar title={title} theme={theme} toggleTheme={toggleTheme} />
-        <main className="px-4 sm:px-6 lg:px-8 pb-10 container">{children}</main>
+        <main className="container px-4 pb-8 sm:px-6 sm:pb-10 lg:px-8">{children}</main>
       </div>
     </div>
   )
