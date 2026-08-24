@@ -265,7 +265,7 @@ export default function DashboardPage() {
               📚
             </div>
             <img
-              src="https://images.unsplash.com/photo-1516321318423-f06f70674e90?w=300&h=300&fit=crop"
+              src="/student-study.webp"
               alt="Student studying core aviation material on a laptop"
               loading="lazy"
               className="hidden sm:block absolute right-0 top-1/2 -translate-y-1/2 w-32 h-32 lg:w-48 lg:h-48 object-cover opacity-20 rounded-2xl pointer-events-none"
