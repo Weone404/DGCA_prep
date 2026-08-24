@@ -17,6 +17,11 @@ export default function ResourcesPage() {
 
   useEffect(() => {
     if (loading) return
+    if (!user) {
+      setResources([])
+      setError('')
+      return
+    }
     fetch('/api/resources', { credentials: 'include' })
       .then(async (response) => {
         const payload = await response.json()
@@ -24,7 +29,7 @@ export default function ResourcesPage() {
         setResources(payload.resources || [])
       })
       .catch((requestError) => setError(requestError.message))
-  }, [loading])
+  }, [loading, user])
 
   const subjects = useMemo(() => ['All', ...new Set(resources.map((resource) => resource.subject).filter(Boolean))], [resources])
 
