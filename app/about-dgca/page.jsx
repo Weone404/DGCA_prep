@@ -12,7 +12,7 @@ export default function AboutDgcaPage() {
       <article className="about-dgca-content mx-auto max-w-4xl py-4 text-slate-900 dark:text-slate-100">
         <header className="border-b border-line pb-8 dark:border-slate-700">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-brand">Pilot training in India</p>
-          <h1 className="mt-3 font-display text-3xl font-bold tracking-tight sm:text-4xl">DGCA Exam Guide for Aspiring Commercial Pilots</h1>
+          <h1 className="mt-3 font-display text-3xl font-bold tracking-tight sm:text-4xl">DGCA Exam Preparation Guide for Aspiring Commercial Pilots</h1>
           <p className="mt-4 max-w-3xl text-base leading-7 text-muted">The Directorate General of Civil Aviation (DGCA) is India&apos;s civil aviation regulator. Its examinations test the aviation knowledge required by student pilots working toward a professional flying career.</p>
         </header>
 
@@ -29,7 +29,7 @@ export default function AboutDgcaPage() {
         </section>
 
         <section className="border-b border-line py-8 dark:border-slate-700">
-          <h2 className="font-display text-2xl font-semibold">DGCA exam subjects</h2>
+          <h2 className="font-display text-2xl font-semibold">DGCA Exam Subjects: Aviation Navigation and Meteorology</h2>
           <div className="mt-5 space-y-6">
             <div><h3 className="text-lg font-semibold">Air Navigation</h3><p className="mt-2 text-base leading-7 text-muted">Covers charts, flight planning, navigation systems, instruments, and the calculations used to plan a safe route.</p></div>
             <div><h3 className="text-lg font-semibold">Air Regulations</h3><p className="mt-2 text-base leading-7 text-muted">Covers aviation law, operating procedures, pilot licensing, airspace rules, and the standards that govern civil aviation.</p></div>
@@ -40,13 +40,13 @@ export default function AboutDgcaPage() {
         </section>
 
         <section className="border-b border-line py-8 dark:border-slate-700">
-          <h2 className="font-display text-2xl font-semibold">Why the DGCA exam matters for a CPL</h2>
+          <h2 className="font-display text-2xl font-semibold">Why DGCA Exam Preparation Matters for CPL Ground Classes</h2>
           <p className="mt-4 text-base leading-7 text-muted">A Commercial Pilot License requires more than flight hours. A professional pilot must also understand the regulations, weather, navigation, aircraft systems, and operating limitations that support safe decisions.</p>
           <p className="mt-4 text-base leading-7 text-muted">Preparing for DGCA examinations gives aspiring pilots the theoretical foundation needed to progress through flight training and operate responsibly in the aviation environment.</p>
         </section>
 
         <section className="py-8">
-          <h2 className="font-display text-2xl font-semibold">How to prepare for the DGCA exam</h2>
+          <h2 className="font-display text-2xl font-semibold">How to Prepare for the DGCA Mock Test and DGCA Exam</h2>
           <p className="mt-4 text-base leading-7 text-muted">Study each subject consistently, revise important concepts, practise examination-style questions, and connect theory to real flight operations. Organised notes and regular revision can make preparation more focused and effective.</p>
         </section>
       </article>

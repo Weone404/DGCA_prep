@@ -6,8 +6,8 @@ import E6BFlightComputer from '@/components/E6BFlightComputer'
 import ChunkErrorReload from '@/components/ChunkErrorReload'
 
 export const metadata = {
-  title: 'We One aviation — Learn From Home',
-  description: 'Your all-in-one learning dashboard',
+  title: 'DGCA Exam Preparation | CPL & ATPL Ground Classes',
+  description: 'Master DGCA exam preparation with expert CPL ground classes and ATPL ground classes, plus aviation navigation, meteorology and DGCA mock test practice for aspiring pilots.',
 }
 
 export default function RootLayout({ children }) {
