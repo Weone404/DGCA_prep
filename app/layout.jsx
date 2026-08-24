@@ -8,6 +8,13 @@ import ChunkErrorReload from '@/components/ChunkErrorReload'
 export const metadata = {
   title: 'DGCA Exam Preparation | CPL & ATPL Ground Classes',
   description: 'Master DGCA exam preparation with expert CPL ground classes and ATPL ground classes, plus aviation navigation, meteorology and DGCA mock test practice for aspiring pilots.',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.png', type: 'image/png', sizes: '512x512' },
+    ],
+    apple: [{ url: '/apple-icon.png', sizes: '180x180', type: 'image/png' }],
+  },
 }
 
 export default function RootLayout({ children }) {
