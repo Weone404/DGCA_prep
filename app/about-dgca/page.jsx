@@ -1,5 +1,7 @@
 import AppShell from '@/components/AppShell'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata = {
   title: 'DGCA Exam Guide for Aspiring Commercial Pilots | We One Aviation',
   description: 'Learn what the DGCA exam covers, who should take it, and why it matters for a Commercial Pilot License in India.',

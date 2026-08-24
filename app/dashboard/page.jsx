@@ -8,6 +8,8 @@ import { useMemo, useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/lib/auth-context'
 import { useAppContent } from '@/lib/use-app-content'
 
+export const dynamic = 'force-dynamic'
+
 const TODAY = new Date() // Use the real current date for the dashboard calendar
 
 const COURSES = [
