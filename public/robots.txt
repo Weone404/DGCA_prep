@@ -11,3 +11,4 @@ Disallow: /resources
 Disallow: /student-visa
 Disallow: /student-education-loan
 Disallow: /flying-training-license
+Sitemap: https://www.dgcaexam.com/sitemap.xml
