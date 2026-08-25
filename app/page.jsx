@@ -26,10 +26,10 @@ export default function Home() {
           Build your aviation career with focused ground training, practice and study support.
         </p>
         <div className="mt-8 flex flex-wrap gap-4">
-          <Link href="/register" className="rounded-xl bg-brand px-5 py-3 text-sm font-semibold text-white">
+          <Link href="/register" prefetch={false} className="rounded-xl bg-brand px-5 py-3 text-sm font-semibold text-white">
             Create account
           </Link>
-          <Link href="/about-dgca" className="rounded-xl border border-line px-5 py-3 text-sm font-semibold text-ink">
+          <Link href="/about-dgca" prefetch={false} className="rounded-xl border border-line px-5 py-3 text-sm font-semibold text-ink">
             Explore DGCA exam guide
           </Link>
         </div>
