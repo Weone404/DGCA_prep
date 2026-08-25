@@ -1,5 +1,3 @@
-'use client'
-
 /* metadata moved to server route or layout */
 import AppShell from '@/components/AppShell'
 

@@ -1,5 +1,3 @@
-'use client'
-
 import Link from 'next/link'
 import AppShell from '@/components/AppShell'
 import { SIDEBAR_ITEMS } from '@/lib/sidebar-nav'

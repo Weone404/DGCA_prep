@@ -1,5 +1,3 @@
-'use client'
-
 export default function RouteLoadingOverlay({
   title = 'Loading...',
   subtitle = 'Please wait while we prepare your page.',

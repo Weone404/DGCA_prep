@@ -1,9 +1,21 @@
 import './globals.css'
+import { Inter, Poppins } from 'next/font/google'
 import { AuthProvider } from '@/lib/auth-context'
 import { ThemeProvider } from '@/components/ThemeProvider'
-import FloatingCalculator from '@/components/FloatingCalculator'
-import E6BFlightComputer from '@/components/E6BFlightComputer'
 import ChunkErrorReload from '@/components/ChunkErrorReload'
+import DeferredTools from '@/components/DeferredTools'
+
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-inter',
+})
+
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['500', '600', '700'],
+  variable: '--font-poppins',
+})
 
 export const metadata = {
   metadataBase: new URL('https://www.dgcaexam.com'),
@@ -60,7 +72,7 @@ export default function RootLayout({ children }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }} />
       </head>
-      <body className="bg-canvas text-ink transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100">
+      <body className={`${inter.variable} ${poppins.variable} bg-canvas text-ink transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100`}>
         <ChunkErrorReload />
         <div className="border-b border-line bg-canvas px-4 py-2 text-center text-xs text-muted transition-colors duration-300 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300">
           {appName} • {appTagline} • {supportEmail}
@@ -68,8 +80,7 @@ export default function RootLayout({ children }) {
         <ThemeProvider>
           <AuthProvider>
             {children}
-            <FloatingCalculator />
-            <E6BFlightComputer />
+            <DeferredTools />
           </AuthProvider>
         </ThemeProvider>
       </body>
