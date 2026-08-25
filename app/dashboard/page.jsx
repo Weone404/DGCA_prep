@@ -456,7 +456,7 @@ export default function DashboardPage() {
                     </div>
                     <div className="flex-1 min-w-0 w-full">
                       <div className="flex items-center justify-between gap-3 mb-1">
-                        <h4 className="font-semibold text-ink">{course.title}</h4>
+                        <h3 className="font-semibold text-ink">{course.title}</h3>
                         <span className="text-[10px] uppercase tracking-[0.12em] text-muted">{course.type}</span>
                       </div>
                       <p className="text-xs text-muted mb-3">{course.subtitle}</p>

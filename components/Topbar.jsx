@@ -226,9 +226,9 @@ export default function Topbar({ title, theme, toggleTheme }) {
   return (
     <header className="flex flex-wrap items-center justify-between gap-3 sm:gap-4 px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-4">
       <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-        <h1 className="inline-flex max-w-[14rem] items-center rounded-full border border-line bg-white/80 px-3 py-1.5 text-sm font-display font-bold tracking-tight text-ink shadow-sm backdrop-blur-sm dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-100 sm:max-w-[18rem] sm:text-base lg:max-w-[22rem]">
+        <div className="inline-flex max-w-[14rem] items-center rounded-full border border-line bg-white/80 px-3 py-1.5 text-sm font-display font-bold tracking-tight text-ink shadow-sm backdrop-blur-sm dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-100 sm:max-w-[18rem] sm:text-base lg:max-w-[22rem]">
           <span className="truncate">{pageTitle}</span>
-        </h1>
+        </div>
         <div className="hidden w-52 items-center gap-2 rounded-full border border-line bg-white px-3 py-2 shadow-card dark:border-slate-700 dark:bg-slate-900 sm:w-64 md:flex">
           <Icon name="search" size={16} className="text-muted" />
           <input
