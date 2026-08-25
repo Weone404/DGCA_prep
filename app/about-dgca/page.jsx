@@ -6,6 +6,21 @@ export const metadata = {
   title: 'DGCA Exam Guide for Aspiring Commercial Pilots | We One Aviation',
   description: 'Learn what the DGCA exam covers, who should take it, and why it matters for a Commercial Pilot License in India.',
   keywords: ['DGCA exam', 'DGCA CPL', 'Commercial Pilot License India', 'Air Navigation', 'Air Regulations', 'Meteorology'],
+  openGraph: {
+    title: 'DGCA Exam Guide for Aspiring Commercial Pilots | We One Aviation',
+    description: 'Learn what the DGCA exam covers, who should take it, and why it matters for a Commercial Pilot License in India.',
+    url: 'https://www.dgcaexam.com/about-dgca',
+    siteName: 'DGCA Exam Prep',
+    images: ['/og-image.jpg'],
+    locale: 'en_US',
+    type: 'article',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'DGCA Exam Guide for Aspiring Commercial Pilots | We One Aviation',
+    description: 'Learn what the DGCA exam covers, who should take it, and why it matters for a Commercial Pilot License in India.',
+    images: ['/og-image.jpg'],
+  },
 }
 
 const courseJsonLd = {

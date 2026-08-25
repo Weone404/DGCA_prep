@@ -6,8 +6,31 @@ import E6BFlightComputer from '@/components/E6BFlightComputer'
 import ChunkErrorReload from '@/components/ChunkErrorReload'
 
 export const metadata = {
+  metadataBase: new URL('https://www.dgcaexam.com'),
   title: 'DGCA Exam Preparation | CPL & ATPL Ground Classes',
   description: 'Master DGCA exam preparation with expert CPL ground classes and ATPL ground classes, plus aviation navigation, meteorology and DGCA mock test practice for aspiring pilots.',
+  openGraph: {
+    title: 'DGCA Exam Preparation | CPL & ATPL Ground Classes',
+    description: 'Master DGCA exam preparation with expert CPL ground classes and ATPL ground classes, plus aviation navigation, meteorology and DGCA mock test practice for aspiring pilots.',
+    url: 'https://www.dgcaexam.com',
+    siteName: 'DGCA Exam Prep',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'DGCA Exam Prep for CPL and ATPL ground classes',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'DGCA Exam Preparation | CPL & ATPL Ground Classes',
+    description: 'Master DGCA exam preparation with expert CPL ground classes and ATPL ground classes, plus aviation navigation, meteorology and DGCA mock test practice for aspiring pilots.',
+    images: ['/og-image.jpg'],
+  },
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: 'any' },
