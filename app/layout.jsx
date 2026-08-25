@@ -8,10 +8,10 @@ import ChunkErrorReload from '@/components/ChunkErrorReload'
 export const metadata = {
   metadataBase: new URL('https://www.dgcaexam.com'),
   title: 'DGCA Exam Preparation | CPL & ATPL Ground Classes',
-  description: 'Master DGCA exam preparation with expert CPL ground classes and ATPL ground classes, plus aviation navigation, meteorology and DGCA mock test practice for aspiring pilots.',
+  description: 'DGCA exam preparation made easy — live CPL & ATPL ground classes, subject-wise mock tests, and AI-powered doubt solving. Start learning free today.',
   openGraph: {
     title: 'DGCA Exam Preparation | CPL & ATPL Ground Classes',
-    description: 'Master DGCA exam preparation with expert CPL ground classes and ATPL ground classes, plus aviation navigation, meteorology and DGCA mock test practice for aspiring pilots.',
+    description: 'DGCA exam preparation made easy — live CPL & ATPL ground classes, subject-wise mock tests, and AI-powered doubt solving. Start learning free today.',
     url: 'https://www.dgcaexam.com',
     siteName: 'DGCA Exam Prep',
     images: [
@@ -28,7 +28,7 @@ export const metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'DGCA Exam Preparation | CPL & ATPL Ground Classes',
-    description: 'Master DGCA exam preparation with expert CPL ground classes and ATPL ground classes, plus aviation navigation, meteorology and DGCA mock test practice for aspiring pilots.',
+    description: 'DGCA exam preparation made easy — live CPL & ATPL ground classes, subject-wise mock tests, and AI-powered doubt solving. Start learning free today.',
     images: ['/og-image.jpg'],
   },
   icons: {
