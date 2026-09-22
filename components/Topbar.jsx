@@ -240,7 +240,7 @@ export default function Topbar({ title, theme, toggleTheme }) {
         </div>
       </div>
 
-      <div className="flex items-center gap-3 sm:gap-4 ml-auto">
+      <div className="flex w-full items-center justify-end gap-2 sm:w-auto sm:gap-4 ml-auto">
         <button
           type="button"
           onClick={toggleTheme}
@@ -315,7 +315,7 @@ export default function Topbar({ title, theme, toggleTheme }) {
         ) : (
           <Link
             href="/login"
-            className="bg-brand hover:bg-brand-dark transition-colors text-white text-sm font-semibold px-6 py-2.5 rounded-xl"
+            className="min-h-11 bg-brand hover:bg-brand-dark transition-colors text-white text-sm font-semibold px-4 sm:px-6 py-2.5 rounded-xl"
           >
             Login
           </Link>

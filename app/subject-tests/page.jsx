@@ -7,6 +7,7 @@ import { Badge } from '@/components/UI'
 import { useAppContent } from '@/lib/use-app-content'
 import { useRouter } from 'next/navigation'
 import RouteLoadingOverlay from '@/components/RouteLoadingOverlay'
+import ImportantQuestionsSection from '@/components/ImportantQuestionsSection'
 
 function normalizeKey(value) {
   return String(value || '').trim().toLowerCase()
@@ -226,7 +227,7 @@ export default function SubjectTestsPage() {
           <button onClick={() => navigateWithLoader('/live-classes')} className="w-full rounded-md bg-white px-4 py-2 font-semibold text-black sm:w-auto">Start Learning</button>
         </div>
       </div>
-      <div className="flex flex-wrap gap-2 mb-6">
+      <div className="responsive-scroll -mx-1 flex gap-2 px-1 pb-2 mb-4 sm:mx-0 sm:flex-wrap sm:px-0 sm:pb-0 sm:mb-6">
         {subjectOptions.map((subject) => subject.name).map((s) => (
           <button
             key={s}
@@ -234,7 +235,7 @@ export default function SubjectTestsPage() {
               setActiveSubject(s)
               setActiveSubTopic(null)
             }}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+            className={`shrink-0 whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-colors ${
               activeSubject === s ? 'bg-brand text-white' : 'bg-white text-muted hover:text-ink shadow-card'
             }`}
           >
@@ -350,6 +351,8 @@ export default function SubjectTestsPage() {
           </div>
         ) : null}
       </div>
+
+      <ImportantQuestionsSection subject={activeSubTopic?.name || activeSubTopic?.title || activeSubject} />
 
       {/* chapter modal removed — subject chips only filter the test list now */}
 

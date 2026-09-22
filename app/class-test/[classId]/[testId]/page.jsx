@@ -319,7 +319,7 @@ export default function ClassTestPage() {
 
               <div className="card p-4 text-ink sm:p-5">
               <div className="text-sm text-muted mb-3">Question {currentQ + 1} of {total}</div>
-              <div className="font-bold text-lg mb-4 text-ink">{currentQuestion.question}</div>
+              <div className="break-words font-bold text-lg mb-4 text-ink">{currentQuestion.question}</div>
 
               <div className="flex flex-col gap-3">
                 {currentQuestion.options.map((option, index) => {
@@ -335,11 +335,11 @@ export default function ClassTestPage() {
                       onClick={() => handleAnswer(index)}
                       disabled={selected !== undefined}
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-start gap-3">
                         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-white">
                           {['A', 'B', 'C', 'D'][index]}
                         </div>
-                        <div className="text-ink">{option}</div>
+                        <div className="min-w-0 break-words text-ink">{option}</div>
                       </div>
                     </button>
                   )

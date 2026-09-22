@@ -7,6 +7,7 @@
 
 html {
   min-height: 100%;
+  overflow-x: hidden;
 }
 
 body {
@@ -15,6 +16,45 @@ body {
   color: #1B2430;
   font-family: var(--font-inter), sans-serif;
   overflow-x: hidden;
+}
+
+/* Keep long user/content supplied strings inside their layout bounds. */
+button,
+a,
+input,
+textarea,
+select {
+  max-width: 100%;
+}
+
+button,
+a {
+  touch-action: manipulation;
+}
+
+input,
+textarea,
+select {
+  min-width: 0;
+}
+
+table {
+  max-width: 100%;
+}
+
+/* A table may scroll, but it must not make the page scroll. */
+.table-scroll,
+article table,
+.prose table {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Long question/option text should wrap instead of widening cards. */
+[class*="text-"],
+.break-words {
+  overflow-wrap: anywhere;
 }
 
 html:not(.dark) {
@@ -61,6 +101,42 @@ html.dark .bg-gradient-page {
   margin-right: auto;
 }
 
+@media (max-width: 1023px) {
+  .container {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 639px) {
+  button {
+    min-height: 2.75rem;
+  }
+
+  .card {
+    border-radius: 16px;
+  }
+
+  .card.p-6,
+  .card.p-7 {
+    padding: 1rem;
+  }
+
+  /* Preserve the menu button's space in the mobile header. */
+  header {
+    padding-left: 4.5rem !important;
+  }
+}
+
+@media (max-width: 479px) {
+  body {
+    font-size: 0.9375rem;
+  }
+
+  .card {
+    padding: 0.875rem;
+  }
+}
+
 /* Make .card have comfortable responsive padding by default */
 .card { padding: 1rem; }
 @media (min-width: 768px) { .card { padding: 1.25rem; } }
@@ -73,6 +149,20 @@ h1 { font-size: 1.5rem; }
 
 /* Ensure images and embedded content are fluid */
 img, iframe, video, svg, canvas { max-width: 100%; height: auto; }
+
+iframe,
+video {
+  display: block;
+  width: 100%;
+}
+
+/* Opt in to a contained horizontal scroller for wide controls such as tabs. */
+.responsive-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+}
 
 .react-pdf__Page { position: relative; }
 .react-pdf__Page__textContent {

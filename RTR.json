@@ -1,0 +1,2088 @@
+{
+  "subject": "RTR",
+  "total_questions": 283,
+  "questions": [
+    {
+      "id": 1,
+      "question": "ADS-C is related to:",
+      "options": [
+        "Time deviation",
+        "Lateral deviation",
+        "Temperature deviation"
+      ],
+      "answer": "Lateral deviation",
+      "explanation": "ADS-C (Automatic Dependent Surveillance-Contract) is primarily used for lateral deviation monitoring in oceanic and remote airspace where radar coverage is unavailable.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular March 2026 2ndDay Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_March2026_2ndDay_Shift1.json"
+    },
+    {
+      "id": 2,
+      "question": "Surface wave has highest range over:",
+      "options": [
+        "Land",
+        "Sea",
+        "Desert"
+      ],
+      "answer": "Sea",
+      "explanation": "Surface (ground) waves travel best over conductive surfaces. Sea water being highly conductive allows surface waves to travel much farther compared to land or desert terrain.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular March 2026 2ndDay Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_March2026_2ndDay_Shift1.json"
+    },
+    {
+      "id": 3,
+      "question": "How many types of NOTAM series are there?",
+      "options": [
+        "A,B,C,D,G",
+        "A,B,C,D,E",
+        "A,B,C,D,F"
+      ],
+      "answer": "A,B,C,D,E",
+      "explanation": "In India, NOTAMs are classified into series A, B, C, D, and E for different purposes (en-route, aerodromes, major changes, miscellaneous, phenomena).",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular March 2026 2ndDay Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_March2026_2ndDay_Shift1.json"
+    },
+    {
+      "id": 4,
+      "question": "NOTAM issued for RWY closure with immediate action comes under:",
+      "options": [
+        "Flight regularity",
+        "Flight safety"
+      ],
+      "answer": "Flight safety",
+      "explanation": "A runway closure NOTAM with immediate action is classified under flight safety as it directly affects the safe conduct of flight operations.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular March 2026 2ndDay Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_March2026_2ndDay_Shift1.json"
+    },
+    {
+      "id": 5,
+      "question": "Traffic control service given by aerodrome is known as:",
+      "options": [
+        "Air traffic control",
+        "Aerodrome traffic control"
+      ],
+      "answer": "Aerodrome traffic control",
+      "explanation": "Traffic control service provided within the aerodrome traffic zone is specifically known as Aerodrome Traffic Control, handled by the Tower (TWR).",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular March 2026 2ndDay Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_March2026_2ndDay_Shift1.json"
+    },
+    {
+      "id": 6,
+      "question": "How you read altitude 11500?",
+      "options": [
+        "One one thousand five hundred",
+        "Eleven thousand five hundred",
+        "One one five hundred"
+      ],
+      "answer": "One one thousand five hundred",
+      "explanation": "Altitude is read digit by digit for the thousands, then hundreds: 11,500 feet = 'one one thousand five hundred feet'.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular March 2026 2ndDay Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_March2026_2ndDay_Shift1.json"
+    },
+    {
+      "id": 7,
+      "question": "How you read wind 200 & 15knts?",
+      "options": [
+        "Wind two zero zero at one five knots",
+        "Wind two hundred at fifteen knots",
+        "Wind two zero at one five"
+      ],
+      "answer": "Wind two zero zero at one five knots",
+      "explanation": "Wind direction and speed are read as individual digits: 200° at 15 knots = 'wind two zero zero at one five knots'.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular March 2026 2ndDay Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_March2026_2ndDay_Shift1.json"
+    },
+    {
+      "id": 8,
+      "question": "Pilot is given time for ATIS:",
+      "options": [
+        "5 min",
+        "1 min",
+        "Half minute"
+      ],
+      "answer": "1 min",
+      "explanation": "Pilots are typically expected to obtain ATIS information within 1 minute prior to contacting ATC for clearance.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular March 2026 2ndDay Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_March2026_2ndDay_Shift1.json"
+    },
+    {
+      "id": 9,
+      "question": "Finals - question about final approach distance",
+      "options": [
+        "8NM",
+        "4NM",
+        "15NM"
+      ],
+      "answer": "8NM",
+      "explanation": "Final approach is typically considered to begin at approximately 8 NM from touchdown/approach threshold in standard instrument approach procedures.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular March 2026 2ndDay Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_March2026_2ndDay_Shift1.json"
+    },
+    {
+      "id": 10,
+      "question": "Wake turbulence categories:",
+      "options": [
+        "Heavy, medium, last",
+        "Boeing 777, Airbus 320, Cessna 150",
+        "Heavy, medium, light"
+      ],
+      "answer": "Heavy, medium, light",
+      "explanation": "ICAO classifies aircraft into wake turbulence categories as Heavy, Medium, and Light based on Maximum Certificated Take-Off Mass (MCTOM).",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular March 2026 2ndDay Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_March2026_2ndDay_Shift1.json"
+    },
+    {
+      "id": 11,
+      "question": "Who is overall administration for Navigation, Communication and Surveillance?",
+      "options": [
+        "ACNS",
+        "AAI",
+        "DGCA"
+      ],
+      "answer": "DGCA",
+      "explanation": "The Directorate General of Civil Aviation (DGCA) is the overall regulatory authority for civil aviation in India, including CNS oversight.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular March 2026 2ndDay Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_March2026_2ndDay_Shift1.json"
+    },
+    {
+      "id": 12,
+      "question": "Who is responsible for providing Navigation, Communication and Surveillance?",
+      "options": [
+        "Ministry of communication",
+        "AAI",
+        "DGCA"
+      ],
+      "answer": "AAI",
+      "explanation": "The Airports Authority of India (AAI) is responsible for providing CNS services at airports in India.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular March 2026 2ndDay Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_March2026_2ndDay_Shift1.json"
+    },
+    {
+      "id": 13,
+      "question": "When ATC uses word 'TAKEOFF':",
+      "options": [
+        "While giving clearance for taxi",
+        "while giving clearance for departure",
+        "While giving clearance for takeoff"
+      ],
+      "answer": "While giving clearance for takeoff",
+      "explanation": "The word 'TAKEOFF' is used by ATC only when issuing a takeoff clearance. For taxi or departure clearance, the word 'DEPARTURE' is used instead.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular March 2026 2ndDay Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_March2026_2ndDay_Shift1.json"
+    },
+    {
+      "id": 14,
+      "question": "Flight conducted in such meteorological condition that declared minima specific for VFR flight that is:",
+      "options": [
+        "IFR",
+        "VFR",
+        "Both"
+      ],
+      "answer": "VFR",
+      "explanation": "When a flight is conducted in meteorological conditions at or above the minima specified for VFR, the flight is conducted under Visual Flight Rules (VFR).",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular March 2026 2ndDay Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_March2026_2ndDay_Shift1.json"
+    },
+    {
+      "id": 1,
+      "question": "Your SELCAL comms is in poor condition, what will you RT phrase or can't hear something?",
+      "options": [
+        "selcal not audible",
+        "no selcal check"
+      ],
+      "answer": "selcal not audible",
+      "explanation": "The appropriate RT phrase when SELCAL is not working properly is to report 'SELCAL not audible'.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift2.json"
+    },
+    {
+      "id": 2,
+      "question": "In the eye pattern, the horizontal eye opening represents:",
+      "options": [
+        "noise",
+        "time",
+        "distortion"
+      ],
+      "answer": "time",
+      "explanation": "In an eye pattern, the horizontal eye opening represents the time interval over which the signal can be sampled without error.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift2.json"
+    },
+    {
+      "id": 3,
+      "question": "AOR NO in aviation is for:",
+      "options": [
+        "defence airport",
+        "civil airport",
+        "intl airport"
+      ],
+      "answer": "intl airport",
+      "explanation": "AOR (Area of Responsibility) number relates to international operations and is associated with international airports.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift2.json"
+    },
+    {
+      "id": 4,
+      "question": "If an atom loses its electron what is it then?",
+      "options": [
+        "positive atom",
+        "neg atom",
+        "neutral"
+      ],
+      "answer": "positive atom",
+      "explanation": "When an atom loses an electron, it has more protons than electrons, becoming a positively charged ion (cation).",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift2.json"
+    },
+    {
+      "id": 5,
+      "question": "If a pilot has to broadcast a radio message to all pilots in vicinity, who would they call to?",
+      "options": [
+        "all the pilots",
+        "all atc",
+        "all station"
+      ],
+      "answer": "all station",
+      "explanation": "The standard call is 'All stations' when broadcasting to all stations on the frequency.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift2.json"
+    },
+    {
+      "id": 6,
+      "question": "If an ATC has to broadcast a message to all aircrafts, who would they call?",
+      "options": [
+        "all a/c",
+        "all atc",
+        "all station"
+      ],
+      "answer": "all station",
+      "explanation": "ATC also uses 'All stations' when broadcasting a message to all aircraft on the frequency.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift2.json"
+    },
+    {
+      "id": 7,
+      "question": "If an ATC contacts you for the first time and uses abbreviated call sign?",
+      "options": [
+        "non compliant",
+        "acceptable if no other traffic",
+        "acceptable if pilot readsback"
+      ],
+      "answer": "non compliant",
+      "explanation": "ICAO procedures require the use of the full call sign when establishing initial communication.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift2.json"
+    },
+    {
+      "id": 8,
+      "question": "If the doppler shadow is widespread then?",
+      "options": [
+        "relative bearing is high",
+        "relative bearing is low"
+      ],
+      "answer": "relative bearing is low",
+      "explanation": "A widespread Doppler shadow indicates the relative bearing to the station is low (aircraft heading nearly directly toward or away from the station).",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift2.json"
+    },
+    {
+      "id": 9,
+      "question": "If the receiver didn't hear the transmission properly and you want him to repeat, what will you ask?",
+      "options": [
+        "repeat",
+        "roger",
+        "say again"
+      ],
+      "answer": "say again",
+      "explanation": "'Say again' is standard ICAO phraseology to request repetition. 'Repeat' means to transmit the same message again to another station.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift2.json"
+    },
+    {
+      "id": 1,
+      "question": "Control Zone above the surface of",
+      "options": [
+        "Ground",
+        "Earth",
+        "Sea"
+      ],
+      "answer": "Ground",
+      "explanation": "Control Zone (CTR) is controlled airspace extending from the surface of the ground (or water) upwards to a specified upper limit.",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day1.json"
+    },
+    {
+      "id": 1,
+      "question": "An eye diagram is primarily used to evaluate:",
+      "options": [
+        "RF carrier stability",
+        "Antenna polarization",
+        "Digital signal integrity and intersymbol interference",
+        "Audio modulation depth"
+      ],
+      "answer": "Digital signal integrity and intersymbol interference",
+      "explanation": "Eye diagram displays signal transitions over time; it reveals intersymbol interference (ISI), timing jitter, and noise margin.",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand May 2026",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_May2026.json"
+    },
+    {
+      "id": 2,
+      "question": "Binary Frequency Shift Keying (BFSK) conveys information by varying:",
+      "options": [
+        "Amplitude between two levels",
+        "Phase between two states",
+        "Frequency between two discrete values",
+        "Pulse duration"
+      ],
+      "answer": "Frequency between two discrete values",
+      "explanation": "BFSK modulates the carrier frequency to two distinct values representing binary 0 and 1.",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand May 2026",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_May2026.json"
+    },
+    {
+      "id": 3,
+      "question": "Time Division Multiplexing (TDM) separates channels by:",
+      "options": [
+        "Frequency allocation",
+        "Polarization diversity",
+        "Time slot assignment",
+        "Code orthogonality only"
+      ],
+      "answer": "Time slot assignment",
+      "explanation": "TDM allocates unique time slots to each channel on the same frequency.",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand May 2026",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_May2026.json"
+    },
+    {
+      "id": 4,
+      "question": "According to the sampling theorem, the minimum sampling frequency must be:",
+      "options": [
+        "Equal to message bandwidth",
+        "Greater than carrier frequency",
+        "At least twice the highest modulating frequency",
+        "Less than Nyquist bandwidth"
+      ],
+      "answer": "At least twice the highest modulating frequency",
+      "explanation": "Nyquist–Shannon theorem: sampling rate ≥ 2 × f_max to avoid aliasing.",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand May 2026",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_May2026.json"
+    },
+    {
+      "id": 5,
+      "question": "Carrier-to-noise ratio degradation primarily increases:",
+      "options": [
+        "Modulation index",
+        "Bit error probability",
+        "Antenna efficiency",
+        "Symbol rate"
+      ],
+      "answer": "Bit error probability",
+      "explanation": "Lower C/N ratio reduces the margin against noise, directly increasing bit error rate (BER).",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand May 2026",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_May2026.json"
+    },
+    {
+      "id": 6,
+      "question": "Convolutional code is decoded by:",
+      "options": [
+        "Huffman Decoder",
+        "Viterbi Decoder",
+        "Fourier Decoder",
+        "Parity Check"
+      ],
+      "answer": "Viterbi Decoder",
+      "explanation": "Viterbi algorithm is the standard maximum‑likelihood decoding method for convolutional codes.",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand May 2026",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_May2026.json"
+    },
+    {
+      "id": 7,
+      "question": "Eye Diagram is used to evaluate:",
+      "options": [
+        "Time jitter",
+        "Intersymbol interference",
+        "Both a and b",
+        "None"
+      ],
+      "answer": "Both a and b",
+      "explanation": "Eye diagram shows timing jitter (horizontal opening) and intersymbol interference (vertical and horizontal closure).",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand May 2026",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_May2026.json"
+    },
+    {
+      "id": 8,
+      "question": "Transmission blind — when should it be done?",
+      "options": [
+        "Immediately after loss of contact",
+        "After trying both primary and secondary frequencies",
+        "Only after satcom",
+        "Never"
+      ],
+      "answer": "After trying both primary and secondary frequencies",
+      "explanation": "Standard procedure: if communication lost, attempt both assigned frequencies before transmitting blind.",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand May 2026",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_May2026.json"
+    },
+    {
+      "id": 9,
+      "question": "ATC dealing with distress can impose radio silence on other stations:",
+      "options": [
+        "True",
+        "False"
+      ],
+      "answer": "True",
+      "explanation": "During distress, ATC may order all other stations to maintain radio silence to clear the frequency for emergency communications.",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand May 2026",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_May2026.json"
+    },
+    {
+      "id": 10,
+      "question": "FLP should be notified how much time before an Area Control jurisdiction?",
+      "options": [
+        "20 min before jurisdiction",
+        "30 min before jurisdiction",
+        "45 min before T/O"
+      ],
+      "answer": "30 min before jurisdiction",
+      "explanation": "Typically, flight plan notification to the next Area Control centre is required at least 30 minutes before entering its jurisdiction.",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand May 2026",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_May2026.json"
+    },
+    {
+      "id": 11,
+      "question": "If CPDLC is off and voice is restored, the sent messages will be:",
+      "options": [
+        "Automatically resent",
+        "Announced by voice",
+        "Deleted",
+        "Ignored"
+      ],
+      "answer": "Automatically resent",
+      "explanation": "CPDLC systems typically store undelivered messages and attempt to resend them when communication is restored.",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand May 2026",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_May2026.json"
+    },
+    {
+      "id": 12,
+      "question": "Superheterodyne receiver is known for:",
+      "options": [
+        "Selectivity",
+        "Sensitivity",
+        "Both a and b",
+        "None"
+      ],
+      "answer": "Both a and b",
+      "explanation": "Superheterodyne architecture uses a fixed intermediate frequency (IF) to achieve high selectivity and sensitivity.",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand May 2026",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_May2026.json"
+    },
+    {
+      "id": 1,
+      "question": "When can a controller not interrupt an RT transmission?",
+      "options": [
+        "Takeoff",
+        "Initial climb",
+        "Landing",
+        "All of the above"
+      ],
+      "answer": "All of the above",
+      "explanation": "Controllers should not interrupt transmissions during critical phases such as takeoff, initial climb, and landing to avoid distracting the pilot.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular June2026",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_June2026.json"
+    },
+    {
+      "id": 2,
+      "question": "When meteorological conditions are less than VMC, the flight must be conducted under:",
+      "options": [
+        "IFR",
+        "VFR",
+        "Both"
+      ],
+      "answer": "IFR",
+      "explanation": "If weather is below Visual Meteorological Conditions (VMC), the flight must be operated under Instrument Flight Rules (IFR).",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular June2026",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_June2026.json"
+    },
+    {
+      "id": 3,
+      "question": "Who can file a flight plan while the aircraft is in flight in ATS?",
+      "options": [
+        "Pilot",
+        "Owner",
+        "Aircraft Operator"
+      ],
+      "answer": "Pilot",
+      "explanation": "The pilot-in-command is responsible for filing a flight plan, including in-flight amendments.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular June2026",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_June2026.json"
+    },
+    {
+      "id": 4,
+      "question": "When tuning a radio by rotating the knob, which component is changed?",
+      "options": [
+        "Resistance",
+        "Capacitance"
+      ],
+      "answer": "Capacitance",
+      "explanation": "Tuning a radio typically adjusts the capacitance in the LC circuit to select the desired frequency.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular June2026",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_June2026.json"
+    },
+    {
+      "id": 5,
+      "question": "Annex 10 of ICAO deals with:",
+      "options": [
+        "Aeronautical Telecommunications",
+        "Rules of the Air",
+        "Aircraft Accident Investigation",
+        "Airworthiness"
+      ],
+      "answer": "Aeronautical Telecommunications",
+      "explanation": "ICAO Annex 10 contains Standards and Recommended Practices for aeronautical telecommunications, including radio equipment and frequencies.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular June2026",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_June2026.json"
+    },
+    {
+      "id": 6,
+      "question": "Skip distance is maximum during which conditions?",
+      "options": [
+        "Day & Low frequency",
+        "Day & High frequency",
+        "Night & Low frequency",
+        "Night & High frequency"
+      ],
+      "answer": "Night & High frequency",
+      "explanation": "At night, the ionosphere reflects higher frequencies better, and skip distance increases with frequency, so maximum skip occurs at night and high frequencies.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular June2026",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_June2026.json"
+    },
+    {
+      "id": 7,
+      "question": "In which airspace class is only IFR permitted?",
+      "options": [
+        "Class A",
+        "Class B",
+        "Class C",
+        "Class D"
+      ],
+      "answer": "Class A",
+      "explanation": "Class A airspace is restricted to IFR operations only; VFR is not permitted.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular June2026",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_June2026.json"
+    },
+    {
+      "id": 8,
+      "question": "Ground wave propagation is based on:",
+      "options": [
+        "Range directly proportional to the root of power",
+        "Frequency",
+        "Both"
+      ],
+      "answer": "Both",
+      "explanation": "Ground wave propagation depends on both frequency (lower frequencies travel farther) and transmitted power (higher power increases range).",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular June2026",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_June2026.json"
+    },
+    {
+      "id": 9,
+      "question": "To describe possible traffic to a pilot, a controller will use:",
+      "options": [
+        "Distance, Direction, Bearing",
+        "Distance, Direction, Colour"
+      ],
+      "answer": "Distance, Direction, Bearing",
+      "explanation": "Controllers describe traffic using distance, direction (e.g., left/right), and bearing (clock code or relative position) for clarity.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular June2026",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_June2026.json"
+    },
+    {
+      "id": 10,
+      "question": "If ATIS is not available, what can a pilot request from the controller before start-up?",
+      "options": [
+        "Weather forecast",
+        "Terminal information"
+      ],
+      "answer": "Terminal information",
+      "explanation": "ATIS provides terminal information; if unavailable, the pilot can request essential terminal information from the controller.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular June2026",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_June2026.json"
+    },
+    {
+      "id": 1,
+      "question": "Operations of aircraft is covered under which Annex?",
+      "options": [
+        "Annex-6",
+        "Annex-9",
+        "Annex-11"
+      ],
+      "answer": "Annex-6",
+      "explanation": "Annex 6 contains Standards and Recommended Practices (SARPs) for the operation of aircraft, including international commercial air transport and general aviation.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 2,
+      "question": "If a pilot flying seems to exceed his FDTL where should he refer?",
+      "options": [
+        "CAR-7 III",
+        "AIP",
+        "Some other option"
+      ],
+      "answer": "CAR-7 III",
+      "explanation": "In India, Flight Duty Time Limitations (FDTL) are prescribed under CAR Section 7 Series III which deals with Flight Time Limitations.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 3,
+      "question": "Dangerous goods transportation is covered under which Annex?",
+      "options": [
+        "Annex-16",
+        "Annex-17",
+        "Annex-18"
+      ],
+      "answer": "Annex-18",
+      "explanation": "Annex 18 to the Chicago Convention specifically deals with the Safe Transport of Dangerous Goods by Air.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 4,
+      "question": "Document for abbreviations and definitions:",
+      "options": [
+        "Doc-8168",
+        "Doc-8400",
+        "And one other option starting from 9"
+      ],
+      "answer": "Doc-8400",
+      "explanation": "ICAO Doc 8400 contains abbreviations and codes used in international civil aviation. Doc 8168 is the PANS-OPS manual.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 5,
+      "question": "VFR flight in VMC can be done:",
+      "options": [
+        "by PIC",
+        "by requesting ATC",
+        "by operator"
+      ],
+      "answer": "by PIC",
+      "explanation": "A VFR flight in VMC is conducted at the discretion and responsibility of the Pilot in Command (PIC).",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 6,
+      "question": "AOC doesn't contain:",
+      "options": [
+        "national and registration marks",
+        "serial number of aircraft",
+        "name and adress of owner"
+      ],
+      "answer": "name and adress of owner",
+      "explanation": "The Air Operator Certificate specifies aircraft types and registration marks but not the name and address of the owner (that is on the Certificate of Registration).",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 7,
+      "question": "If captain finds a person committing or can commit harmful act for flight safety, he can:",
+      "options": [
+        "land at any airport to disembark pax",
+        "force to disembark pax with security",
+        "all of above"
+      ],
+      "answer": "all of above",
+      "explanation": "The PIC has authority to take all necessary measures including landing at the nearest suitable airport or disembarking passengers to ensure flight safety.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 8,
+      "question": "IFR over terrain and mountain:",
+      "options": [
+        "1000ft above and not within 8km",
+        "2000ft and not within 8km",
+        "2000ft and not within 600m"
+      ],
+      "answer": "2000ft and not within 8km",
+      "explanation": "For IFR flights over mountainous terrain, minimum altitude is 2000 feet above the highest obstacle within 8 km of the aircraft position.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 9,
+      "question": "Which of the following is a prohibited area?",
+      "options": [
+        "Mathura refinery",
+        "blah",
+        "blah"
+      ],
+      "answer": "Mathura refinery",
+      "explanation": "Mathura Refinery is a well-known prohibited area in India where flight is not permitted due to security and safety reasons.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 10,
+      "question": "Which can not be used as a normal squawk code?",
+      "options": [
+        "7500",
+        "7600",
+        "5678"
+      ],
+      "answer": "7500",
+      "explanation": "7500 (hijack), 7600 (radio failure), and 7700 (emergency) are reserved emergency codes and should not be used as normal transponder codes. 5678 can be used as a normal squawk code.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 11,
+      "question": "Approach lights, threshold lights, runway lights - which are approach lights?",
+      "options": [
+        "approach lights",
+        "threshold lights",
+        "runway lights"
+      ],
+      "answer": "approach lights",
+      "explanation": "Approach lights guide the aircraft during the approach phase to landing. Threshold and runway lights serve different purposes.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 12,
+      "question": "Urgency call is:",
+      "options": [
+        "pan pan pan",
+        "mayday mayday mayday",
+        "pan medical"
+      ],
+      "answer": "pan pan pan",
+      "explanation": "The standard urgency call is 'PAN PAN' spoken three times. MAYDAY is for distress. 'Pan medical' is not standard ICAO phraseology.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 13,
+      "question": "Multi engine aircraft and single engine aircraft - multi is travelling left to right of single engine, right of way:",
+      "options": [
+        "multi engine",
+        "single engine",
+        "one with light weight"
+      ],
+      "answer": "multi engine",
+      "explanation": "Generally, in Indian aviation rules, the aircraft on the right has the right of way. A multi-engine aircraft typically has priority in this scenario.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 14,
+      "question": "Responsible for compliance to rules of air:",
+      "options": [
+        "operator",
+        "registery state",
+        "pic"
+      ],
+      "answer": "pic",
+      "explanation": "The Pilot in Command (PIC) is ultimately responsible for the operation of the aircraft in compliance with the rules of the air.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 15,
+      "question": "Cabin crew required:",
+      "options": [
+        "10 to 50 pax 1",
+        "50 and above 2",
+        "50 to 90 3"
+      ],
+      "answer": "50 and above 2",
+      "explanation": "As per DGCA CAR requirements, aircraft with seating capacity of 50-99 passengers require 2 cabin crew members.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 16,
+      "question": "Clearance till 18:12 and communication fails at 18:13 if not airborne till 18:12 then:",
+      "options": [
+        "file new flight plan",
+        "go to ramp and file new fpl",
+        "can continue"
+      ],
+      "answer": "file new flight plan",
+      "explanation": "If the aircraft is not airborne by the clearance void time (18:12) and communication fails, a new flight plan must be filed.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 17,
+      "question": "IFR-VFR separation is given in airspace classified as:",
+      "options": [
+        "class A and B",
+        "class C",
+        "class D"
+      ],
+      "answer": "class C",
+      "explanation": "In Class C airspace, both IFR and VFR flights are permitted and ATC provides separation between IFR and VFR traffic.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 18,
+      "question": "Clearance point is:",
+      "options": [
+        "from the point which clearance issued",
+        "to point till which cleared",
+        "take off to landing"
+      ],
+      "answer": "to point till which cleared",
+      "explanation": "The clearance limit is the point to which an aircraft is granted an ATC clearance.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 19,
+      "question": "IAF is:",
+      "options": [
+        "initial arrival fix",
+        "initial approach fix",
+        "indicated altitude fixed"
+      ],
+      "answer": "initial approach fix",
+      "explanation": "IAF stands for Initial Approach Fix, the point where the initial approach segment of an instrument approach procedure begins.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 20,
+      "question": "ADR is:",
+      "options": [
+        "aerodrome",
+        "advisory route",
+        "advisory airspace"
+      ],
+      "answer": "advisory route",
+      "explanation": "ADR stands for Advisory Route, a designated route along which air traffic advisory service is available.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 21,
+      "question": "Time to rest for less than 30 feet diving is:",
+      "options": [
+        "12hr",
+        "24hr",
+        "36hr"
+      ],
+      "answer": "24hr",
+      "explanation": "According to DGCA medical requirements, a pilot should not fly for at least 24 hours after diving to depths less than 30 feet.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 22,
+      "question": "It is adviced not to fly while suffering from cold because it:",
+      "options": [
+        "swelling in some part of ear may not allow pressure to release",
+        "causes pain in ear",
+        "can cause ear drum damage"
+      ],
+      "answer": "can cause ear drum damage",
+      "explanation": "Flying with a cold is dangerous because Eustachian tube blockage can prevent pressure equalization, potentially causing barotrauma and eardrum damage.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 23,
+      "question": "ATC can ask for position using:",
+      "options": [
+        "vor/dme",
+        "ident squawk",
+        "all of above"
+      ],
+      "answer": "all of above",
+      "explanation": "ATC can use multiple methods to determine aircraft position including VOR/DME fixes, radar ident, and squawk code identification.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 24,
+      "question": "VHF frequency unit is:",
+      "options": [
+        "hz",
+        "mhz",
+        "ghz"
+      ],
+      "answer": "mhz",
+      "explanation": "VHF (Very High Frequency) communication frequencies in aviation are expressed in megahertz (MHz), typically 118-137 MHz.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 25,
+      "question": "Precision approach is related to:",
+      "options": [
+        "visibility- dh/da",
+        "rvr-mda/mdh",
+        "visibility- och/oca"
+      ],
+      "answer": "visibility- dh/da",
+      "explanation": "Precision approaches use Decision Height (DH) or Decision Altitude (DA) along with required visibility/RVR minima.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 26,
+      "question": "White dumbbell with perpendicular bars indicates:",
+      "options": [
+        "taxiways",
+        "runways",
+        "runways for takeoff and landing"
+      ],
+      "answer": "runways for takeoff and landing",
+      "explanation": "A white dumbbell with perpendicular bars is a runway marker indicating areas available for takeoff and landing.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 27,
+      "question": "Property of gas:",
+      "options": [
+        "reduced to 1/3 at 27000ft",
+        "other options not recalled"
+      ],
+      "answer": "reduced to 1/3 at 27000ft",
+      "explanation": "At 27,000 feet, atmospheric pressure is approximately 1/3 of sea level pressure (standard atmosphere: ~1013 hPa at MSL ≈ 340 hPa at FL270).",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 28,
+      "question": "FL 150 relates with:",
+      "options": [
+        "455m",
+        "2000m",
+        "4550m"
+      ],
+      "answer": "4550m",
+      "explanation": "FL150 (15,000 feet) = 15,000 × 0.3048 = 4,572m ≈ 4,550m.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 29,
+      "question": "IFR separation at FL 350:",
+      "options": [
+        "2000ft",
+        "1000ft",
+        "4000ft"
+      ],
+      "answer": "1000ft",
+      "explanation": "In RVSM airspace (FL290-FL410), vertical separation between aircraft is 1000 feet.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 30,
+      "question": "Loss of body temperature is called:",
+      "options": [
+        "hypoxia",
+        "hypothermia",
+        "glycomia"
+      ],
+      "answer": "hypothermia",
+      "explanation": "Hypothermia is abnormally low body temperature. Hypoxia is lack of oxygen. Glycomia is not a standard medical term.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 31,
+      "question": "Breathing rate depends upon:",
+      "options": [
+        "co2 level",
+        "o2 level",
+        "co level"
+      ],
+      "answer": "co2 level",
+      "explanation": "Breathing rate is primarily regulated by CO2 levels in the blood. Increased CO2 stimulates respiratory centers.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 32,
+      "question": "Which is not associated with domestic route:",
+      "options": [
+        "W",
+        "Q",
+        "M"
+      ],
+      "answer": "M",
+      "explanation": "In Indian air route designators, 'W' and 'Q' are used for domestic routes. 'M' routes are typically international.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 33,
+      "question": "Heavy aircraft takes off before a light aircraft to avoid wing tip vortices, the light aircraft should:",
+      "options": [
+        "he should take more rwy length",
+        "airborne before the point of heavy aircraft",
+        "some other option"
+      ],
+      "answer": "airborne before the point of heavy aircraft",
+      "explanation": "To avoid wake turbulence from a preceding heavy aircraft, the light aircraft should lift off before the rotation point of the heavy aircraft.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 34,
+      "question": "Jet blast danger zone extends approximately:",
+      "options": [
+        "100ft",
+        "200ft",
+        "50ft"
+      ],
+      "answer": "200ft",
+      "explanation": "Jet blast from jet engines can be dangerous up to approximately 200 feet behind the aircraft.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 35,
+      "question": "Aircraft should be separated from other aircraft for safety in parking area by:",
+      "options": [
+        "100m",
+        "150m",
+        "200m"
+      ],
+      "answer": "150m",
+      "explanation": "Standard minimum separation between parked aircraft is typically 150 meters.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 36,
+      "question": "Twin engine extended operations are governed by:",
+      "options": [
+        "PANS ATM",
+        "ETOPS",
+        "some other option"
+      ],
+      "answer": "ETOPS",
+      "explanation": "ETOPS (Extended-range Twin-engine Operational Performance Standards) governs twin-engine aircraft operations on routes beyond 60 minutes from an adequate airport.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 37,
+      "question": "In a microburst we experienced a reduced headwind, it will affect TAS:",
+      "options": [
+        "TAS increase by amount of wind decreased",
+        "TAS decrease by amount of wind increased",
+        "No effect"
+      ],
+      "answer": "No effect",
+      "explanation": "True Airspeed (TAS) is the speed relative to the air mass and is not affected by wind. Wind affects ground speed only.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 38,
+      "question": "Rocking wings on interception by other aircraft means:",
+      "options": [
+        "will comply",
+        "understood",
+        "ok"
+      ],
+      "answer": "will comply",
+      "explanation": "Rocking wings (daytime) or flashing landing lights (nighttime) during interception means the intercepted aircraft understands and will comply.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 39,
+      "question": "Minimum obstruction clearance is decided by:",
+      "options": [
+        "operator",
+        "atc",
+        "responsible authorities for aerodromes"
+      ],
+      "answer": "responsible authorities for aerodromes",
+      "explanation": "The aerodrome operating authority establishes and maintains obstacle clearance limits.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 40,
+      "question": "QFE will be asked as:",
+      "options": [
+        "quebec fox end",
+        "querry front elfa",
+        "quebec foxtrot echo"
+      ],
+      "answer": "quebec foxtrot echo",
+      "explanation": "QFE is transmitted phonetically as 'Quebec Foxtrot Echo' using the ICAO phonetic alphabet.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "OnDemand April 2026 Day2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/O_April2026_Day2.json"
+    },
+    {
+      "id": 1,
+      "question": "What happens to current when load impedance is increased?",
+      "options": [
+        "Increases",
+        "Decreases",
+        "Remains same"
+      ],
+      "answer": "Decreases",
+      "explanation": "According to Ohm's law (I = V/Z), when impedance (Z) increases while voltage remains constant, current (I) decreases.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular March 2026 Shift2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_March2026_Shift2.json"
+    },
+    {
+      "id": 4,
+      "question": "FINAL approach initiated at what distance?",
+      "options": [
+        "4 NM",
+        "8 NM",
+        "10 NM",
+        "15 NM"
+      ],
+      "answer": "8 NM",
+      "explanation": "Final approach typically begins at approximately 8 NM from touchdown or the approach threshold for standard instrument approach procedures.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular March 2026 Shift2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_March2026_Shift2.json"
+    },
+    {
+      "id": 5,
+      "question": "Very High Frequency Omnidirectional Radio Range called?",
+      "options": [
+        "VHFORR",
+        "VOR",
+        "VHF-OR",
+        "OMNI"
+      ],
+      "answer": "VOR",
+      "explanation": "VOR (VHF Omnidirectional Range) is a navigation aid that provides bearing information to/from the station in the VHF band (108-118 MHz).",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular March 2026 Shift2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_March2026_Shift2.json"
+    },
+    {
+      "id": 6,
+      "question": "Emergency VHF frequency",
+      "options": [
+        "121.5 MHz",
+        "123.1 MHz",
+        "123.45 MHz",
+        "118.0 MHz"
+      ],
+      "answer": "121.5 MHz",
+      "explanation": "121.5 MHz is the international VHF emergency frequency (guard frequency) monitored for distress and urgency communications.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular March 2026 Shift2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_March2026_Shift2.json"
+    },
+    {
+      "id": 8,
+      "question": "DISREGARD means",
+      "options": [
+        "Cancel the message",
+        "Annul the previous clearance",
+        "Ignore the instruction"
+      ],
+      "answer": "Annul the previous clearance",
+      "explanation": "'Disregard' is used to cancel a previously transmitted clearance or instruction. The pilot should ignore the earlier transmission.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular March 2026 Shift2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_March2026_Shift2.json"
+    },
+    {
+      "id": 9,
+      "question": "When Cleared for Takeoff word is used",
+      "options": [
+        "For taxi clearance",
+        "For departure clearance",
+        "Only for takeoff clearance"
+      ],
+      "answer": "Only for takeoff clearance",
+      "explanation": "The word 'TAKEOFF' is used by ATC only when issuing a takeoff clearance. For taxi or departure, the word 'DEPARTURE' is used.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular March 2026 Shift2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_March2026_Shift2.json"
+    },
+    {
+      "id": 11,
+      "question": "Frequency of HF band",
+      "options": [
+        "3-30 kHz",
+        "3-30 MHz",
+        "30-300 MHz",
+        "300-3000 MHz"
+      ],
+      "answer": "3-30 MHz",
+      "explanation": "The HF (High Frequency) band ranges from 3 MHz to 30 MHz, used for long-range communication via ionospheric reflection.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular March 2026 Shift2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_March2026_Shift2.json"
+    },
+    {
+      "id": 12,
+      "question": "Attenuation means",
+      "options": [
+        "Amplification of signal",
+        "Reduction in signal strength",
+        "Change in frequency"
+      ],
+      "answer": "Reduction in signal strength",
+      "explanation": "Attenuation is the loss of signal power due to distance, absorption, or scattering as the wave propagates through a medium.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular March 2026 Shift2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_March2026_Shift2.json"
+    },
+    {
+      "id": 15,
+      "question": "How to read Flight Level 360?",
+      "options": [
+        "Flight level three sixty",
+        "Flight level three hundred sixty",
+        "Flight level three six zero"
+      ],
+      "answer": "Flight level three six zero",
+      "explanation": "Flight levels are always spoken as individual digits: FL360 = 'Flight level three six zero'.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular March 2026 Shift2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_March2026_Shift2.json"
+    },
+    {
+      "id": 18,
+      "question": "Hearing ability of human ear",
+      "options": [
+        "20 Hz to 20,000 Hz",
+        "50 Hz to 15,000 Hz",
+        "10 Hz to 10,000 Hz"
+      ],
+      "answer": "20 Hz to 20,000 Hz",
+      "explanation": "The typical human hearing range is 20 Hz to 20 kHz (20,000 Hz), though it varies with age and individual factors.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular March 2026 Shift2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_March2026_Shift2.json"
+    },
+    {
+      "id": 19,
+      "question": "During fuel dumping, other aircraft will make distance (True/False)",
+      "options": [
+        "True",
+        "False"
+      ],
+      "answer": "True",
+      "explanation": "Other aircraft should maintain distance from an aircraft dumping fuel to avoid fuel contamination on windshields and potential fire hazards.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular March 2026 Shift2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_March2026_Shift2.json"
+    },
+    {
+      "id": 24,
+      "question": "When should a pilot use the phrase take-off?",
+      "options": [
+        "When requesting takeoff clearance",
+        "When reading back takeoff clearance",
+        "When announcing departure"
+      ],
+      "answer": "When reading back takeoff clearance",
+      "explanation": "The word 'TAKEOFF' is used by pilots only when reading back a takeoff clearance from ATC, never when requesting taxi or departure.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular March 2026 Shift2",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_March2026_Shift2.json"
+    },
+    {
+      "id": 1,
+      "question": "Which wave is used for high range communication wrt distance:",
+      "options": [
+        "short wave",
+        "long wave",
+        "medium wave"
+      ],
+      "answer": "short wave",
+      "explanation": "Short waves (HF) use skywave propagation via ionospheric reflection, enabling long-range communication beyond line of sight.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 2,
+      "question": "ATC clearance taken prior to entering controlled airspace",
+      "options": [
+        "10 min",
+        "7 min",
+        "15 min"
+      ],
+      "answer": "15 min",
+      "explanation": "As per ICAO procedures, ATC clearance must be obtained prior to entering controlled airspace, typically 15 minutes before entry.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 3,
+      "question": "Legs of a visual circuit",
+      "options": [
+        "downwind, crosswind, finals",
+        "crosswind,downwind,base,finals"
+      ],
+      "answer": "crosswind,downwind,base,finals",
+      "explanation": "A standard visual traffic pattern consists of five legs: crosswind, downwind, base, final approach, and upwind (departure leg).",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 4,
+      "question": "Reporting points in a visual circuit",
+      "options": [
+        "downwind,base,finals,long finals",
+        "downwind,crosswind,finals, long finals"
+      ],
+      "answer": "downwind,base,finals,long finals",
+      "explanation": "Standard reporting points in a visual circuit are downwind, base, finals, and long finals (when applicable).",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 5,
+      "question": "Holding procedure not given information mandatory:",
+      "options": [
+        "fix inbound track altitude right left track time",
+        "fix I/B L/R track time of leg"
+      ],
+      "answer": "fix I/B L/R track time of leg",
+      "explanation": "Holding procedure details include fix, inbound track, turn direction (left/right), and time of leg. Altitude is separately assigned, not part of the holding pattern description.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 6,
+      "question": "Mandatory information in startup and push back:",
+      "options": [
+        "location and ATIS",
+        "operation of a/c , location",
+        "no. of engines"
+      ],
+      "answer": "operation of a/c , location",
+      "explanation": "For startup and pushback clearance, the pilot must provide aircraft type/operation details and current location on the aerodrome.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 7,
+      "question": "Mark the correct option",
+      "options": [
+        "Skip distance is related to ground wave",
+        "Dead space is….",
+        "Critical angle increases with inc in frequency"
+      ],
+      "answer": "Critical angle increases with inc in frequency",
+      "explanation": "The critical angle for ionospheric reflection increases with frequency. Higher frequencies require a steeper angle to be reflected back to Earth.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 8,
+      "question": "TIBA: aircraft will not acknowledge the transmission until",
+      "options": [
+        "if the aircraft is visible",
+        " if the traffic is perceived",
+        "if the a/c is far away"
+      ],
+      "answer": " if the traffic is perceived",
+      "explanation": "TIBA (Traffic Information Broadcast by Aircraft) requires pilots to broadcast traffic information; other aircraft should only acknowledge when the traffic is perceived/visualized.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 9,
+      "question": "TIBA full form",
+      "options": [
+        "Traffic info by a/c",
+        "Traffic info for a/c",
+        "Traffic info"
+      ],
+      "answer": "Traffic info by a/c",
+      "explanation": "TIBA stands for Traffic Information Broadcast by Aircraft, a procedure where pilots broadcast traffic information on a designated frequency in the absence of ATS.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 10,
+      "question": "Proceed pronunciation",
+      "options": [
+        "Pro-seed",
+        "Prooced",
+        "Proeed"
+      ],
+      "answer": "Pro-seed",
+      "explanation": "In ICAO phonetics, 'Proceed' is pronounced as 'PRO-SEED' to ensure clarity and avoid ambiguity over radio.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 11,
+      "question": "Permission for the proposed action granted:",
+      "options": [
+        "Affirm",
+        "Approved",
+        "Cleared"
+      ],
+      "answer": "Cleared",
+      "explanation": "'Cleared' is the standard ICAO phraseology indicating permission for a proposed action has been granted by ATC.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 12,
+      "question": "Set the code as instructed:",
+      "options": [
+        "squawk code",
+        " squawk ident",
+        "squawk Charlie"
+      ],
+      "answer": "squawk code",
+      "explanation": "The standard phraseology is 'Squawk (code)' to instruct a pilot to set a specific transponder code.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 13,
+      "question": "Urgency situation",
+      "options": [
+        "a person, an aircraft within sight requiring immediate assistance",
+        "threat or grave danger requiring immediate assistance"
+      ],
+      "answer": "a person, an aircraft within sight requiring immediate assistance",
+      "explanation": "An urgency situation (PAN-PAN) involves a condition concerning the safety of a person or aircraft that requires immediate assistance but does not constitute grave and imminent danger (which would be distress/MAYDAY).",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 14,
+      "question": "Urgency transmission",
+      "options": [
+        "PAN-PAN",
+        "MAYDAY"
+      ],
+      "answer": "PAN-PAN",
+      "explanation": "PAN-PAN is the standard urgency call used when there is a serious situation that requires immediate attention but is not life-threatening (unlike MAYDAY which indicates distress).",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 15,
+      "question": "Emergency frequency",
+      "options": [
+        "123.1",
+        "121.5",
+        "123.45"
+      ],
+      "answer": "121.5",
+      "explanation": "121.5 MHz is the international VHF emergency frequency (guard frequency) monitored globally for distress and urgency communications.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 16,
+      "question": "Interpilot frequency",
+      "options": [
+        "123.45",
+        "123.1",
+        "121.5"
+      ],
+      "answer": "123.45",
+      "explanation": "123.45 MHz is commonly used as the air-to-air (interpilot) frequency for pilot-to-pilot communication.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 17,
+      "question": "'I have received your last transmission' standard word:",
+      "options": [
+        "Roger",
+        " Wilco",
+        "Affirm"
+      ],
+      "answer": "Roger",
+      "explanation": "'Roger' means 'I have received all of your last transmission.' It does not imply understanding or compliance.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 18,
+      "question": "Non rvsm approval status (ON RT):",
+      "options": [
+        "Non rvsm",
+        "Unable rvsm",
+        "Negative rvsm"
+      ],
+      "answer": "Negative rvsm",
+      "explanation": "In ICAO phraseology, 'NEGATIVE RVSM' is used to indicate that an aircraft is not approved for RVSM (Reduced Vertical Separation Minimum) operations.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 19,
+      "question": "CNS managed by",
+      "options": [
+        "AAI",
+        "BCAS",
+        "IMD"
+      ],
+      "answer": "AAI",
+      "explanation": "In India, Communication, Navigation and Surveillance (CNS) services at airports are managed by the Airports Authority of India (AAI).",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 20,
+      "question": "Information not related to meteorological report:",
+      "options": [
+        "SIGMET",
+        "METAR",
+        "ILS"
+      ],
+      "answer": "ILS",
+      "explanation": "ILS (Instrument Landing System) is a ground-based navigation aid, not a meteorological report. SIGMET and METAR are weather reports.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 21,
+      "question": "Power of wave can be varied by:",
+      "options": [
+        "vibration of gas molecules",
+        "reflection & absorption in the atmosphere",
+        "or both"
+      ],
+      "answer": "or both",
+      "explanation": "The power of a radio wave can be affected by both the vibration of gas molecules and reflection/absorption in the atmosphere.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 22,
+      "question": "Uncertainty phase",
+      "options": [
+        "Incerfa",
+        "Alerfa",
+        "Detresfa"
+      ],
+      "answer": "Incerfa",
+      "explanation": "INCERFA (Uncertainty Phase) is the first phase of emergency wherein there is uncertainty about the safety of an aircraft and its occupants.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 23,
+      "question": "300 megahertz frequency what is the wavelength:",
+      "options": [
+        "1 m",
+        "10 m",
+        "100 m"
+      ],
+      "answer": "1 m",
+      "explanation": "Using the formula λ = c/f, where c = 3×10⁸ m/s and f = 300×10⁶ Hz, wavelength λ = 3×10⁸ / 300×10⁶ = 1 metre.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 24,
+      "question": "Why was standard phraseology implemented:",
+      "options": [
+        "to minimize ambiguity",
+        "to save time"
+      ],
+      "answer": "to minimize ambiguity",
+      "explanation": "ICAO standard phraseology was primarily implemented to minimize ambiguity in radio communications between pilots and ATC, enhancing safety.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 25,
+      "question": "ATC 'report passing FL80':",
+      "options": [
+        "Roger passing flight level eighty",
+        "Wilco passing Flight level eight zero C Affirm passing Flight level eighty zero"
+      ],
+      "answer": "Wilco passing Flight level eight zero C Affirm passing Flight level eighty zero",
+      "explanation": "'Wilco' (Will Comply) confirms receipt and compliance. Flight levels are read as individual digits: FL80 = 'flight level eight zero'.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 26,
+      "question": "In Mumbai Aerodrome traffic controller is given by…",
+      "options": [
+        "Mumbai Control",
+        "Mumbai Tower",
+        "Mumbai Ground"
+      ],
+      "answer": "Mumbai Tower",
+      "explanation": "Aerodrome traffic control (control of aircraft on the ground and in the vicinity of the airport) is provided by the Tower controller.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 27,
+      "question": "ATC clearance to proceed under:",
+      "options": [
+        "the specifics given by the air traffic control clearance",
+        "the specifics given by theaerodrome traffic control clearance"
+      ],
+      "answer": "the specifics given by the air traffic control clearance",
+      "explanation": "An ATC clearance authorizes an aircraft to proceed under conditions specified by the air traffic control clearance.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 28,
+      "question": "The point where the glide slope intercepts the runway:",
+      "options": [
+        "touchdown point",
+        "threshold"
+      ],
+      "answer": "threshold",
+      "explanation": "The glide slope (or glide path) ideally intercepts the runway at the threshold, which is the beginning of the usable runway for landing.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 29,
+      "question": "If the circuit load impedance reduces, the current flow:",
+      "options": [
+        "decreases",
+        "increases",
+        "remains the same"
+      ],
+      "answer": "increases",
+      "explanation": "According to Ohm's Law (I = V/Z), when impedance (Z) decreases while voltage remains constant, current (I) increases.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 30,
+      "question": "The communication in one direction at a time:",
+      "options": [
+        "Duplex",
+        "Simplex"
+      ],
+      "answer": "Simplex",
+      "explanation": "Simplex communication allows transmission in only one direction at a time. Duplex allows simultaneous two-way communication.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 31,
+      "question": "Transmit QNH 1007:",
+      "options": [
+        "QNH one zero zero",
+        "QNH one zero zero seven",
+        " one zero zero seven"
+      ],
+      "answer": "QNH one zero zero seven",
+      "explanation": "QNH values are transmitted by pronouncing each digit separately: 1007 = 'one zero zero seven'. 'QNH' prefix is also included.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 32,
+      "question": "DME frequency band:",
+      "options": [
+        "UHF",
+        "VHF",
+        "SHF"
+      ],
+      "answer": "UHF",
+      "explanation": "DME (Distance Measuring Equipment) operates in the UHF (Ultra High Frequency) band, typically 962-1213 MHz.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 33,
+      "question": "The number of cycles in a wave per second:",
+      "options": [
+        "wavelength",
+        "frequency",
+        "cyclic range"
+      ],
+      "answer": "frequency",
+      "explanation": "Frequency is defined as the number of complete cycles of a wave per second, measured in Hertz (Hz).",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 34,
+      "question": "The distance travelled by a wave in one cycle:",
+      "options": [
+        "amplitude",
+        "wavelength",
+        "frequency"
+      ],
+      "answer": "wavelength",
+      "explanation": "Wavelength (λ) is the distance travelled by a wave during one complete cycle.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 35,
+      "question": "Which is not a correct way of transmitting:",
+      "options": [
+        "constant volume while txmn",
+        "listen out on the freq before txmtg",
+        "pressing the transmit button after complete of txmn"
+      ],
+      "answer": "pressing the transmit button after complete of txmn",
+      "explanation": "The correct procedure is to press the transmit button before beginning to speak and release it after completing the transmission. Pressing after completion would cut off the message.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 36,
+      "question": "Annul the previous clearance:",
+      "options": [
+        "cancel",
+        "disregard"
+      ],
+      "answer": "disregard",
+      "explanation": "'Disregard' is used to cancel a previously transmitted clearance or instruction. 'Cancel' is used in different contexts.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 37,
+      "question": "SI unit of mass",
+      "options": [
+        "Kg",
+        "Tonne(T)",
+        "Gm"
+      ],
+      "answer": "Kg",
+      "explanation": "The SI unit of mass is the kilogram (kg).",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 38,
+      "question": "Power of the transmitter is increased four times what happens to the range:",
+      "options": [
+        "4 times increase",
+        "Increased 1.4 times",
+        "Doubled"
+      ],
+      "answer": "Doubled",
+      "explanation": "Range is proportional to the square root of power (R ∝ √P). If power increases 4 times, range doubles (√4 = 2).",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 39,
+      "question": "A situation of grave and imminent danger requiring immediate assistance",
+      "options": [
+        "distress",
+        "urgency",
+        "security"
+      ],
+      "answer": "distress",
+      "explanation": "A distress situation (MAYDAY) exists when there is grave and imminent danger requiring immediate assistance.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 40,
+      "question": "What is the correct Transmission of AI200:",
+      "options": [
+        "Air India two hundred.",
+        "Air India two zero zero",
+        "Air India two hundred zero"
+      ],
+      "answer": "Air India two hundred.",
+      "explanation": "In RT phraseology, flight numbers are spoken as complete hundreds: AI200 = 'Air India two hundred', not digit by digit.",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 41,
+      "question": "Standard phrase to check readability:",
+      "options": [
+        "How do you.",
+        "How do you read."
+      ],
+      "answer": "How do you read.",
+      "explanation": "The standard phrase to check readability is 'How do you read?' to which the response is a readability scale (1-5).",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    },
+    {
+      "id": 42,
+      "question": "Skip distance is longer at ____ with a ____ frequency",
+      "options": [
+        "Day, higher.",
+        "Night, lower."
+      ],
+      "answer": "Night, lower.",
+      "explanation": "Skip distance is longer at night (due to lower D-layer absorption) and with lower frequencies (lower frequencies are refracted more by the ionosphere).",
+      "imageUrl": "",
+      "source_subject": "RTR",
+      "source_paper": "Regular December 2025 Shift1",
+      "source_url": "https://pilotportal.in/PreviousPaper/RTR/R_December2025_Shift1.json"
+    }
+  ]
+}
