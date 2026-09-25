@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation'
 import AppShell from '@/components/AppShell'
 import Icon from '@/components/Icon'
 import StudentDocuments from '@/components/StudentDocuments'
+import MyProgressContent from '@/components/MyProgressContent'
 import { useAuth } from '@/lib/auth-context'
 
-const TABS = ['Personal Details', 'Test Results', 'Attendance', 'Notification', 'Privacy', 'Student Documents']
+const TABS = ['Personal Details', 'My Progress', 'Test Results', 'Attendance', 'Notification', 'Privacy', 'Student Documents']
 
 export default function ProfilePage() {
   const router = useRouter()
@@ -310,6 +311,8 @@ export default function ProfilePage() {
     }
   }
 
+  const avatarSrc = getAvatarSrc() || user.avatar || null
+
   return (
     <AppShell>
       <div className="grid lg:grid-cols-[320px_1fr] gap-6">
@@ -317,7 +320,11 @@ export default function ProfilePage() {
         {/* left summary card */}
         <div className="card p-4 sm:p-6">
           <div className="flex flex-col items-center text-center">
-            <img src={getAvatarSrc() || user.avatar || ''} alt={user.name || 'User'} className="w-24 h-24 rounded-full object-cover mb-4" />
+            {avatarSrc ? (
+              <img src={avatarSrc} alt={user.name || 'User'} className="w-24 h-24 rounded-full object-cover mb-4" />
+            ) : (
+              <div className="w-24 h-24 rounded-full bg-canvas mb-4" aria-label="User avatar placeholder" />
+            )}
             <h2 className="font-display font-bold text-ink">{user.name || 'Student'}</h2>
             <span className="mt-1 text-xs font-semibold bg-coral/10 text-coral px-2.5 py-1 rounded-full">{user.role || 'Student'}</span>
 
@@ -376,7 +383,11 @@ export default function ProfilePage() {
             <form onSubmit={save}>
               <div className="flex justify-center mb-8">
                 <div className="relative">
-                  <img src={getAvatarSrc() || user.avatar} alt={`Profile picture for ${user.name || ''}`} className="w-24 h-24 rounded-full object-cover" />
+                  {avatarSrc ? (
+                    <img src={avatarSrc} alt={`Profile picture for ${user.name || ''}`} className="w-24 h-24 rounded-full object-cover" />
+                  ) : (
+                    <div className="w-24 h-24 rounded-full bg-canvas" aria-label="User avatar placeholder" />
+                  )}
                   {uploadingAvatar ? (
                     <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center text-white text-xs font-semibold">
                       Uploading...
@@ -432,6 +443,8 @@ export default function ProfilePage() {
               </div>
             </form>
           )}
+
+          {tab === 'My Progress' && <MyProgressContent />}
 
           {tab === 'Test Results' && (
             <div>

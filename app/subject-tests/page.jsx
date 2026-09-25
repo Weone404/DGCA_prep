@@ -42,15 +42,44 @@ function buildSubjectOptions(subjects = []) {
         subtitle: subject.subtitle || `${subject.tests || 0} chapters`,
       })),
     }
+
     return [...nonNavigationSubjects, parent]
   }
 
   return subjects
 }
 
-export default function SubjectTestsPage() {
+export function SubjectTestsPage({ courseSubjectDefinitions = null, pageTitle = 'Subject Tests' } = {}) {
   const { subjects: SUBJECTS, subjectTests: SUBJECT_TESTS, user: appUser } = useAppContent()
-  const subjectOptions = useMemo(() => buildSubjectOptions(SUBJECTS), [SUBJECTS])
+  const subjectOptions = useMemo(() => {
+    const options = buildSubjectOptions(SUBJECTS)
+    if (!courseSubjectDefinitions) return options
+
+    return courseSubjectDefinitions
+      .map((definition) => {
+        const sourceNames = definition.sourceNames || [definition.name]
+        const directSource = options.find((subject) => sourceNames.some(
+          (name) => normalizeKey(name) === normalizeKey(subject.name)
+        ))
+        const nestedSource = directSource ? null : options.reduce((match, subject) => (
+          match || (subject.subSubjects || []).find((child) => sourceNames.some(
+            (name) => normalizeKey(name) === normalizeKey(child.name || child.title)
+          )) || null
+        ), null)
+        const source = directSource || nestedSource
+        if (!source) return null
+        const sourceName = sourceNames.find((name) => normalizeKey(name) === normalizeKey(source.name))
+          || source.name
+        return {
+          ...source,
+          name: definition.name,
+          ...(nestedSource ? { hasSubjects: false, subSubjects: undefined } : {}),
+          testNames: definition.testNames || [sourceName],
+        }
+
+      })
+      .filter(Boolean)
+  }, [SUBJECTS, courseSubjectDefinitions])
   const [activeSubject, setActiveSubject] = useState('Air Regulations')
   const [activeSubTopic, setActiveSubTopic] = useState(null)
   const [filter, setFilter] = useState('all')
@@ -85,11 +114,12 @@ export default function SubjectTestsPage() {
       return SUBJECT_TESTS.filter((test) => names.has(normalizeKey(test.subject)))
     }
 
+    const selectedNames = selectedSubjectConfig?.testNames || [activeSubject]
     return SUBJECT_TESTS.filter((test) => {
-      const bySubject = activeSubject === 'All' || test.subject === activeSubject
+      const bySubject = activeSubject === 'All' || selectedNames.some((name) => normalizeKey(name) === normalizeKey(test.subject))
       return bySubject
     })
-  }, [SUBJECT_TESTS, activeSubject, subTopicConfigs, activeSubTopic])
+  }, [SUBJECT_TESTS, activeSubject, selectedSubjectConfig, subTopicConfigs, activeSubTopic])
 
   const visibleTests = useMemo(() => {
     const lowerSearch = searchQuery.trim().toLowerCase()
@@ -217,7 +247,7 @@ export default function SubjectTestsPage() {
   return (
     <AppShell>
       <div>
-        <h1 className="sr-only">Subject Tests</h1>
+        <h1 className="sr-only">{pageTitle}</h1>
         <div className="w-full mb-6">
           <div className="flex w-full flex-col items-start justify-between gap-4 rounded-lg bg-black p-4 text-white sm:flex-row sm:items-center">
           <div>
@@ -385,4 +415,8 @@ export default function SubjectTestsPage() {
     </div>
     </AppShell>
   )
+}
+
+export default function SubjectTestsRoute() {
+  return <SubjectTestsPage />
 }

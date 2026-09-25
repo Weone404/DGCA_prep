@@ -298,7 +298,7 @@ export default function Topbar({ title, theme, toggleTheme }) {
             {openMenu && (
               <div className="absolute right-0 z-20 mt-2 w-48 rounded-xl border border-line bg-white py-2 shadow-card dark:border-slate-700 dark:bg-slate-900">
                 <Link href="/profile" className="flex items-center gap-2 px-4 py-2 text-sm text-ink hover:bg-canvas dark:text-slate-100 dark:hover:bg-slate-800">
-                  <Icon name="user" size={15} /> My Profile
+                  <Icon name="user" size={15} /> Profile
                 </Link>
                 <button 
                   onClick={() => {

@@ -1,24 +1,5 @@
 import { NextResponse } from 'next/server'
-import fs from 'node:fs/promises'
-import path from 'node:path'
-
-const SUBJECT_FILES = {
-  'air navigation': 'Air_Navigation.json',
-  'air regulation': 'Air_Regulation.json',
-  'air regulations': 'Air_Regulation.json',
-  meteorology: 'Meteorology.json',
-  rtr: 'RTR.json',
-  'radio telephony': 'RTR.json',
-  'technical general': 'Technical_General.json',
-}
-
-function normalize(value) {
-  return String(value || '').trim().toLowerCase().replace(/[_-]/g, ' ')
-}
-
-function getFileName(subject) {
-  return SUBJECT_FILES[normalize(subject)] || null
-}
+import { loadSubjectQuestions } from '../../../../lib/subject-question-source'
 
 function isUsableQuestion(question) {
   return Boolean(
@@ -32,17 +13,8 @@ function isUsableQuestion(question) {
 }
 
 async function readQuestions(subject) {
-  const fileName = getFileName(subject)
-  if (!fileName) return { fileName: null, questions: [] }
-
-  const filePath = path.join(process.cwd(), fileName)
-  const content = await fs.readFile(filePath, 'utf8')
-  const parsed = JSON.parse(content)
-  const questions = Array.isArray(parsed) ? parsed : parsed?.questions
-  return {
-    fileName,
-    questions: Array.isArray(questions) ? questions.filter(isUsableQuestion) : [],
-  }
+  const result = await loadSubjectQuestions(subject)
+  return { ...result, questions: result.questions.filter(isUsableQuestion) }
 }
 
 export async function GET(request, { params }) {

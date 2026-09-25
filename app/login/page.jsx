@@ -6,6 +6,11 @@ import Link from 'next/link'
 import { useAuth } from '@/lib/auth-context'
 import { PUBLIC_APP_CONFIG } from '@/lib/public-config'
 
+function getSafeRedirect(value) {
+  if (!value || !value.startsWith('/') || value.startsWith('//')) return '/dashboard'
+  return value
+}
+
 export default function LoginPage() {
   const router = useRouter()
   const { login } = useAuth()
@@ -33,7 +38,10 @@ export default function LoginPage() {
       }
 
       login(data.user)
-      router.push('/dashboard')
+      const redirect = typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.search).get('redirect')
+        : null
+      router.push(getSafeRedirect(redirect))
     } catch {
       setError('Unable to log in right now. Please try again.')
     } finally {

@@ -66,6 +66,8 @@ export default function Sidebar() {
           <div className={`flex items-center rounded-xl border border-transparent transition-all duration-200 ${active || hasActiveChild ? 'bg-brand-light dark:bg-slate-800' : 'hover:bg-canvas dark:hover:bg-slate-800'}`}>
             <Link
               href={item.href}
+              target={item.external ? '_blank' : undefined}
+              rel={item.external ? 'noreferrer' : undefined}
               className={`flex-1 flex min-h-11 items-center gap-3 px-3 py-2.5 rounded-l-xl text-[14px] font-medium relative transition-all duration-200 ease-out ${active || hasActiveChild ? 'text-brand' : 'text-muted hover:text-ink'}`}
             >
               <span
@@ -100,6 +102,8 @@ export default function Sidebar() {
       <Link
         key={item.id}
         href={item.href}
+        target={item.external ? '_blank' : undefined}
+        rel={item.external ? 'noreferrer' : undefined}
         className={`group flex min-h-11 items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] font-medium relative transition-all duration-200 ease-out ${active ? 'text-brand bg-brand-light dark:bg-slate-800' : 'text-muted hover:bg-canvas hover:text-ink hover:translate-x-0.5 dark:hover:bg-slate-800 dark:hover:text-slate-100'}`}
         style={{ marginLeft: depth * 12 }}
       >
