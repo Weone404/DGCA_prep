@@ -6,15 +6,18 @@ import AppShell from '@/components/AppShell'
 import { useAppContent } from '@/lib/use-app-content'
 import { useAuth } from '@/lib/auth-context'
 
-export default function TestPage() {
+export default function TestPage({ rtr1 = false }) {
   const params = useParams()
   const { chapterId } = params || {}
   const { subjectTests: SUBJECT_TESTS, subjects: SUBJECTS } = useAppContent()
   const { user: authUser } = useAuth()
   const router = useRouter()
 
-  const test = SUBJECT_TESTS.find(t => String(t.id) === String(chapterId))
-  useEffect(() => { if (!test) router.replace('/subject-tests') }, [test, router])
+  const test = rtr1
+    ? { id: 'rtr-1', title: 'RTR 1 MCQ Test', subject: 'RTR Part 1', questions: 696, duration: 60 }
+    : SUBJECT_TESTS.find(t => String(t.id) === String(chapterId))
+  const listingRoute = rtr1 ? '/rtr-1' : '/subject-tests'
+  useEffect(() => { if (!test) router.replace(listingRoute) }, [listingRoute, test, router])
   if (!test) return null
 
   const subjMeta = SUBJECTS.find(s => s.name === test.subject) || {}
@@ -40,6 +43,25 @@ export default function TestPage() {
 
   const loadQuestions = useCallback(async () => {
     try {
+      if (rtr1) {
+        const response = await fetch('/api/rtr1/questions', { credentials: 'include' })
+        if (!response.ok) throw new Error('RTR 1 question bank request failed')
+        const payload = await response.json()
+        const bankQuestions = Array.isArray(payload?.questions) ? payload.questions : []
+        if (bankQuestions.length) {
+          setChapterMeta({
+            id: 'rtr-1',
+            title: 'RTR 1 MCQ Test',
+            part: 'RTR Part 1',
+            totalQuestions: payload.total ?? bankQuestions.length,
+            bankSubject: 'RTR Part 1',
+            fallback: false,
+          })
+          setQuestions(bankQuestions)
+          return
+        }
+      }
+
       const params = new URLSearchParams({
         subjectTestId: String(test.id),
         numQuestions: String(test.questions),
@@ -77,7 +99,7 @@ export default function TestPage() {
       fallback: true,
     })
     setQuestions([])
-  }, [test.id, test.questions, test.subject, test.title])
+  }, [rtr1, test.id, test.questions, test.subject, test.title])
 
   useEffect(() => {
     loadQuestions()
@@ -194,7 +216,7 @@ export default function TestPage() {
               </p>
             ) : null}
             <div className="flex gap-3">
-              <button onClick={() => router.push('/subject-tests')} className="flex-1 border rounded-lg py-2 text-ink">Cancel</button>
+              <button onClick={() => router.push(listingRoute)} className="flex-1 border rounded-lg py-2 text-ink">Cancel</button>
               <button onClick={startTest} disabled={questions.length === 0} style={{ background: questions.length === 0 ? '#94a3b8' : themeColor }} className="flex-1 text-white rounded-lg py-2">{questions.length === 0 ? 'Unavailable' : 'Start Test'}</button>
             </div>
           </div>
@@ -204,14 +226,14 @@ export default function TestPage() {
           <div className="card p-6 max-w-md w-full text-center">
             <h3 className="text-xl font-bold mb-2">No bank questions available</h3>
             <p className="text-sm text-muted mb-4">This chapter does not currently have a question set in the bank.</p>
-            <button onClick={() => router.push('/subject-tests')} className="px-4 py-2 border rounded-lg">Back to chapters</button>
+            <button onClick={() => router.push(listingRoute)} className="px-4 py-2 border rounded-lg">Back to chapters</button>
           </div>
         )}
 
         {screen === 'test' && q && (
           <div className="max-w-2xl w-full text-ink">
             <div className="flex items-center justify-between mb-4">
-              <button onClick={() => router.push('/subject-tests')} className="border rounded-lg px-3 py-1 text-ink">Exit</button>
+              <button onClick={() => router.push(listingRoute)} className="border rounded-lg px-3 py-1 text-ink">Exit</button>
               <div className="font-semibold text-ink">{chapterMeta.title}</div>
               <div className="font-mono text-ink">{String(mins).padStart(2,'0')}:{String(secs).padStart(2,'0')}</div>
             </div>
@@ -252,7 +274,7 @@ export default function TestPage() {
               <button 
                 onClick={() => {
                   saveTestResult()
-                  router.push('/subject-tests')
+                  router.push(listingRoute)
                 }} 
                 disabled={isSaving}
                 className="flex-1 border rounded-lg py-2"
