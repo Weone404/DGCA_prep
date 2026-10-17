@@ -103,15 +103,23 @@ export default function FloatingCalculator() {
   const [buttonPos, setButtonPos] = useState({ x: 0, y: 0 })
   const [panelPos, setPanelPos] = useState(null)
   const [hasHydratedPos, setHasHydratedPos] = useState(false)
+  const [viewportSize, setViewportSize] = useState({ width: 1280, height: 800 })
 
   const panelRef = useRef(null)
   const dragStateRef = useRef(null)
   const justDraggedRef = useRef(false)
 
-  const panelWidth = useMemo(() => {
-    const { width } = getViewport()
-    return Math.min(PANEL_WIDTH, Math.max(260, width - EDGE_GAP * 2))
-  }, [hasHydratedPos, isOpen])
+  const panelWidth = useMemo(
+    () => Math.min(PANEL_WIDTH, Math.max(260, viewportSize.width - EDGE_GAP * 2)),
+    [viewportSize.width],
+  )
+
+  useEffect(() => {
+    const updateViewportSize = () => setViewportSize(getViewport())
+    updateViewportSize()
+    window.addEventListener('resize', updateViewportSize)
+    return () => window.removeEventListener('resize', updateViewportSize)
+  }, [])
 
   useEffect(() => {
     const { width, height } = getViewport()
@@ -154,16 +162,60 @@ export default function FloatingCalculator() {
     window.localStorage.setItem(PANEL_POSITION_KEY, JSON.stringify(panelPos))
   }, [panelPos, hasHydratedPos])
 
+  useEffect(() => {
+    if (!hasHydratedPos) return
+    setButtonPos((position) => {
+      const fallbackPosition = {
+        x: Math.max(EDGE_GAP, viewportSize.width - TRIGGER_SIZE - 24),
+        y: Math.max(EDGE_GAP, viewportSize.height - TRIGGER_SIZE - 24),
+      }
+      const needsReposition = position.x < EDGE_GAP
+        || position.x > viewportSize.width - TRIGGER_SIZE - EDGE_GAP
+        || position.y < EDGE_GAP
+        || position.y > viewportSize.height - TRIGGER_SIZE - EDGE_GAP
+      const boundedPosition = {
+        x: clamp(position.x, EDGE_GAP, viewportSize.width - TRIGGER_SIZE - EDGE_GAP),
+        y: clamp(position.y, EDGE_GAP, viewportSize.height - TRIGGER_SIZE - EDGE_GAP),
+      }
+      const buttonBounds = {
+        left: boundedPosition.x,
+        top: boundedPosition.y,
+        right: boundedPosition.x + TRIGGER_SIZE,
+        bottom: boundedPosition.y + TRIGGER_SIZE,
+      }
+      const overlapsShell = ['header', 'button[aria-label="Open menu"]', 'aside[role="navigation"]']
+        .some((selector) => {
+          const element = document.querySelector(selector)
+          if (!element) return false
+          const bounds = element.getBoundingClientRect()
+          return bounds.width > 0
+            && bounds.height > 0
+            && buttonBounds.left < bounds.right
+            && buttonBounds.right > bounds.left
+            && buttonBounds.top < bounds.bottom
+            && buttonBounds.bottom > bounds.top
+        })
+
+      return overlapsShell || needsReposition
+        ? fallbackPosition
+        : boundedPosition
+    })
+  }, [hasHydratedPos, viewportSize])
+
   const resolvePanelPosition = useMemo(() => {
     if (panelPos) {
-      const { width, height } = getViewport()
       return {
-        x: clamp(panelPos.x, EDGE_GAP, width - panelWidth - EDGE_GAP),
-        y: clamp(panelPos.y, EDGE_GAP, Math.max(EDGE_GAP, height - 180)),
+        x: clamp(panelPos.x, EDGE_GAP, viewportSize.width - panelWidth - EDGE_GAP),
+        y: clamp(panelPos.y, EDGE_GAP, Math.max(EDGE_GAP, viewportSize.height - 180)),
       }
     }
     return buildAnchoredPanelPosition(buttonPos, panelWidth)
-  }, [buttonPos, panelPos, panelWidth, hasHydratedPos, isOpen])
+  }, [buttonPos, panelPos, panelWidth, hasHydratedPos, isOpen, viewportSize])
+  const { width: viewportWidth, height: viewportHeight } = viewportSize
+  const maxPanelTop = viewportWidth < 1024 && viewportHeight < PANEL_HEIGHT_ESTIMATE + EDGE_GAP * 2
+    ? EDGE_GAP
+    : Math.max(EDGE_GAP, (viewportHeight - EDGE_GAP * 2) / 2)
+  const panelTop = clamp(resolvePanelPosition.y, EDGE_GAP, maxPanelTop)
 
   const evaluateExpression = useCallback(
     (rawExpression) => {
@@ -419,7 +471,7 @@ export default function FloatingCalculator() {
       </button>
 
       <div
-        className={`fixed z-50 origin-bottom-right rounded-2xl border border-line bg-white/95 p-3 text-ink shadow-2xl backdrop-blur transition-all duration-200 dark:border-slate-700 dark:bg-slate-900/95 dark:text-slate-100 ${
+        className={`fixed z-50 origin-bottom-right overflow-y-auto rounded-2xl border border-line bg-white/95 p-3 text-ink shadow-2xl backdrop-blur transition-all duration-200 dark:border-slate-700 dark:bg-slate-900/95 dark:text-slate-100 ${
           isOpen ? 'pointer-events-auto scale-100 opacity-100' : 'pointer-events-none scale-95 opacity-0'
         }`}
         role="dialog"
@@ -430,11 +482,12 @@ export default function FloatingCalculator() {
         style={{
           width: `${panelWidth}px`,
           left: resolvePanelPosition.x,
-          top: resolvePanelPosition.y,
+          top: panelTop,
           maxWidth: `calc(100vw - ${EDGE_GAP * 2}px)`,
+          maxHeight: `calc(100dvh - ${panelTop + EDGE_GAP}px)`,
         }}
       >
-        <div className="mb-3 flex items-center justify-between gap-2 rounded-xl bg-canvas px-3 py-2 dark:bg-slate-800/70">
+        <div className="sticky top-0 z-10 mb-3 flex items-center justify-between gap-2 rounded-xl bg-canvas px-3 py-2 dark:bg-slate-800/70">
           <div className="flex items-center gap-2">
             <button
               type="button"

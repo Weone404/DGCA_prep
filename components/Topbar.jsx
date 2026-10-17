@@ -54,6 +54,7 @@ export default function Topbar({ title, theme, toggleTheme }) {
   const [notificationOpen, setNotificationOpen] = useState(false)
   const [notifications, setNotifications] = useState([])
   const [seenAt, setSeenAt] = useState(0)
+  const [notificationRightOffset, setNotificationRightOffset] = useState(0)
   const notificationRef = useRef(null)
   const pathname = usePathname()
   const router = useRouter()
@@ -201,6 +202,22 @@ export default function Topbar({ title, theme, toggleTheme }) {
     return () => document.removeEventListener('mousedown', handleOutsideClick)
   }, [notificationOpen])
 
+  useEffect(() => {
+    if (!notificationOpen) return
+
+    updateNotificationOffset()
+    window.addEventListener('resize', updateNotificationOffset)
+    return () => window.removeEventListener('resize', updateNotificationOffset)
+  }, [notificationOpen])
+
+  const updateNotificationOffset = () => {
+    const notificationBounds = notificationRef.current?.getBoundingClientRect()
+    const actionsBounds = notificationRef.current?.parentElement?.getBoundingClientRect()
+    if (notificationBounds && actionsBounds) {
+      setNotificationRightOffset(Math.max(0, actionsBounds.right - notificationBounds.right))
+    }
+  }
+
   const unreadCount = useMemo(
     () => notifications.filter((entry) => entry.at > seenAt).length,
     [notifications, seenAt]
@@ -208,6 +225,7 @@ export default function Topbar({ title, theme, toggleTheme }) {
 
   const toggleNotifications = () => {
     const next = !notificationOpen
+    if (next) updateNotificationOffset()
     setNotificationOpen(next)
     if (next) {
       const now = Date.now()
@@ -224,7 +242,7 @@ export default function Topbar({ title, theme, toggleTheme }) {
   }
 
   return (
-    <header className="flex flex-wrap items-center justify-between gap-3 sm:gap-4 px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-4">
+    <header className="flex flex-wrap items-center justify-between gap-3 sm:gap-4 px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-4 sm:pl-[4.5rem] lg:pl-8">
       <div className="flex items-center gap-2 sm:gap-3 min-w-0">
         <div className="inline-flex max-w-[14rem] items-center rounded-full border border-line bg-white/80 px-3 py-1.5 text-sm font-display font-bold tracking-tight text-ink shadow-sm backdrop-blur-sm dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-100 sm:max-w-[18rem] sm:text-base lg:max-w-[22rem]">
           <span className="truncate">{pageTitle}</span>
@@ -261,7 +279,10 @@ export default function Topbar({ title, theme, toggleTheme }) {
           </button>
 
           {notificationOpen && (
-            <div className="absolute right-0 z-30 mt-2 w-[22rem] max-w-[88vw] rounded-2xl border border-line bg-white py-2 shadow-card dark:border-slate-700 dark:bg-slate-900">
+            <div
+              className="absolute z-30 mt-2 w-[22rem] max-w-[88vw] rounded-2xl border border-line bg-white py-2 shadow-card dark:border-slate-700 dark:bg-slate-900"
+              style={{ right: -notificationRightOffset }}
+            >
               <div className="flex items-center justify-between border-b border-line px-4 py-2 dark:border-slate-700">
                 <p className="text-sm font-semibold text-ink dark:text-slate-100">Notifications</p>
                 <p className="text-xs text-muted">{unreadCount > 0 ? `${unreadCount} new` : 'Up to date'}</p>

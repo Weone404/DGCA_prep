@@ -15,6 +15,19 @@ export default function Sidebar() {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
   const [expanded, setExpanded] = useState({})
+  const [mobileViewport, setMobileViewport] = useState(false)
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 1023px)')
+    const updateViewport = () => {
+      setMobileViewport(mediaQuery.matches)
+      if (!mediaQuery.matches) setOpen(false)
+    }
+
+    updateViewport()
+    mediaQuery.addEventListener('change', updateViewport)
+    return () => mediaQuery.removeEventListener('change', updateViewport)
+  }, [])
 
   useEffect(() => {
     setOpen(false)
@@ -54,6 +67,8 @@ export default function Sidebar() {
     setExpanded(nextState)
   }, [pathname])
 
+  const drawerHidden = mobileViewport && !open
+
   const renderItem = (item, depth = 0) => {
     const isGroup = item.type === 'group' && item.children?.length
     const active = isActivePath(pathname, item.href)
@@ -68,6 +83,7 @@ export default function Sidebar() {
               href={item.href}
               target={item.external ? '_blank' : undefined}
               rel={item.external ? 'noreferrer' : undefined}
+              onClick={() => setOpen(false)}
               className={`flex-1 flex min-h-11 items-center gap-3 px-3 py-2.5 rounded-l-xl text-[14px] font-medium relative transition-all duration-200 ease-out ${active || hasActiveChild ? 'text-brand' : 'text-muted hover:text-ink'}`}
             >
               <span
@@ -104,6 +120,7 @@ export default function Sidebar() {
         href={item.href}
         target={item.external ? '_blank' : undefined}
         rel={item.external ? 'noreferrer' : undefined}
+        onClick={() => setOpen(false)}
         className={`group flex min-h-11 items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] font-medium relative transition-all duration-200 ease-out ${active ? 'text-brand bg-brand-light dark:bg-slate-800' : 'text-muted hover:bg-canvas hover:text-ink hover:translate-x-0.5 dark:hover:bg-slate-800 dark:hover:text-slate-100'}`}
         style={{ marginLeft: depth * 12 }}
       >
@@ -126,7 +143,7 @@ export default function Sidebar() {
         onClick={() => setOpen(true)}
         aria-label="Open menu"
         aria-expanded={open}
-        className="lg:hidden fixed top-4 left-4 z-40 w-11 h-11 rounded-xl2 border border-line bg-white shadow-sm flex items-center justify-center text-ink active:scale-95 transition-transform duration-150 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+        className="lg:hidden fixed top-[3.25rem] left-4 z-40 w-11 h-11 rounded-xl2 border border-line bg-white shadow-sm flex items-center justify-center text-ink active:scale-95 transition-transform duration-150 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
       >
         <Icon name="menu" size={20} />
       </button>
@@ -139,8 +156,10 @@ export default function Sidebar() {
 
       <aside
         role="navigation"
-        aria-hidden={!open}
-        className={`flex flex-col w-full max-w-[92vw] sm:max-w-sm lg:w-64 shrink-0 border-r border-line bg-white px-5 py-6 min-h-screen fixed inset-y-0 left-0 z-50 overflow-y-auto lg:sticky lg:top-0 lg:z-0 transition-transform duration-300 ease-in-out will-change-transform dark:border-slate-800 dark:bg-slate-900 ${open ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}
+        aria-label="Sidebar navigation"
+        aria-hidden={drawerHidden}
+        inert={drawerHidden}
+        className={`flex flex-col w-full max-w-[92vw] sm:max-w-sm lg:max-w-none lg:w-64 shrink-0 border-r border-line bg-white px-5 py-6 min-h-screen fixed inset-y-0 left-0 z-50 overflow-y-auto lg:relative lg:inset-auto lg:left-auto lg:z-auto lg:sticky lg:top-0 transition-transform duration-300 ease-in-out will-change-transform dark:border-slate-800 dark:bg-slate-900 ${open ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}
       >
         <div className="flex items-center justify-between mb-8">
           <Link href="/about-dgca" className="flex items-center gap-3 px-2 group" aria-label="About DGCA">

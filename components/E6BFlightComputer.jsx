@@ -167,6 +167,7 @@ export default function E6BFlightComputer() {
   const [timerRunning, setTimerRunning] = useState(false)
   const [timerMode, setTimerMode] = useState('stopwatch')
   const [countdownInput, setCountdownInput] = useState('60')
+  const [viewportSize, setViewportSize] = useState({ width: 1280, height: 800 })
 
   const panelRef = useRef(null)
   const dragAnchorRef = useRef(null)
@@ -188,6 +189,13 @@ export default function E6BFlightComputer() {
   useEffect(() => {
     const interval = window.setInterval(() => setClock(new Date()), 1000)
     return () => window.clearInterval(interval)
+  }, [])
+
+  useEffect(() => {
+    const updateViewportSize = () => setViewportSize(getViewport())
+    updateViewportSize()
+    window.addEventListener('resize', updateViewportSize)
+    return () => window.removeEventListener('resize', updateViewportSize)
   }, [])
 
   useEffect(() => {
@@ -238,6 +246,46 @@ export default function E6BFlightComputer() {
     if (!hasHydratedPos) return
     window.localStorage.setItem(HISTORY_KEY, JSON.stringify(history))
   }, [history, hasHydratedPos])
+
+  useEffect(() => {
+    if (!hasHydratedPos) return
+    setButtonPos((position) => {
+      const fallbackPosition = {
+        x: Math.max(EDGE_GAP, viewportSize.width - TRIGGER_SIZE - 96),
+        y: Math.max(EDGE_GAP, viewportSize.height - TRIGGER_SIZE - 24),
+      }
+      const needsReposition = position.x < EDGE_GAP
+        || position.x > viewportSize.width - TRIGGER_SIZE - EDGE_GAP
+        || position.y < EDGE_GAP
+        || position.y > viewportSize.height - TRIGGER_SIZE - EDGE_GAP
+      const boundedPosition = {
+        x: clamp(position.x, EDGE_GAP, viewportSize.width - TRIGGER_SIZE - EDGE_GAP),
+        y: clamp(position.y, EDGE_GAP, viewportSize.height - TRIGGER_SIZE - EDGE_GAP),
+      }
+      const buttonBounds = {
+        left: boundedPosition.x,
+        top: boundedPosition.y,
+        right: boundedPosition.x + TRIGGER_SIZE,
+        bottom: boundedPosition.y + TRIGGER_SIZE,
+      }
+      const overlapsShell = ['header', 'button[aria-label="Open menu"]', 'aside[role="navigation"]']
+        .some((selector) => {
+          const element = document.querySelector(selector)
+          if (!element) return false
+          const bounds = element.getBoundingClientRect()
+          return bounds.width > 0
+            && bounds.height > 0
+            && buttonBounds.left < bounds.right
+            && buttonBounds.right > bounds.left
+            && buttonBounds.top < bounds.bottom
+            && buttonBounds.bottom > bounds.top
+        })
+
+      return overlapsShell || needsReposition
+        ? fallbackPosition
+        : boundedPosition
+    })
+  }, [hasHydratedPos, viewportSize])
 
   useEffect(() => {
     if (!hasHydratedPos) return
@@ -304,16 +352,25 @@ export default function E6BFlightComputer() {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [activeFunction, focusedField, highlightedIndex, isOpen, view])
 
+  const panelWidth = useMemo(
+    () => Math.min(PANEL_WIDTH, Math.max(280, viewportSize.width - EDGE_GAP * 2)),
+    [viewportSize.width],
+  )
+
   const resolvePanelPosition = useMemo(() => {
     if (panelPos) {
-      const { width, height } = getViewport()
       return {
-        x: clamp(panelPos.x, EDGE_GAP, width - PANEL_WIDTH - EDGE_GAP),
-        y: clamp(panelPos.y, EDGE_GAP, Math.max(EDGE_GAP, height - 180)),
+        x: clamp(panelPos.x, EDGE_GAP, viewportSize.width - panelWidth - EDGE_GAP),
+        y: clamp(panelPos.y, EDGE_GAP, Math.max(EDGE_GAP, viewportSize.height - 180)),
       }
     }
-    return buildAnchoredPanelPosition(buttonPos, PANEL_WIDTH)
-  }, [buttonPos, panelPos])
+    return buildAnchoredPanelPosition(buttonPos, panelWidth)
+  }, [buttonPos, panelPos, panelWidth, viewportSize])
+  const { width: viewportWidth, height: viewportHeight } = viewportSize
+  const maxPanelTop = viewportWidth < 1024 && viewportHeight < 580 + EDGE_GAP * 2
+    ? EDGE_GAP
+    : Math.max(EDGE_GAP, (viewportHeight - EDGE_GAP * 2) / 2)
+  const panelTop = clamp(resolvePanelPosition.y, EDGE_GAP, maxPanelTop)
 
   const handlePointerMove = (event) => {
     if (!dragState) return
@@ -331,7 +388,7 @@ export default function E6BFlightComputer() {
 
     if (dragState.kind === 'panel') {
       setPanelPos({
-        x: clamp(dragState.startX + dx, EDGE_GAP, width - PANEL_WIDTH - EDGE_GAP),
+        x: clamp(dragState.startX + dx, EDGE_GAP, width - panelWidth - EDGE_GAP),
         y: clamp(dragState.startY + dy, EDGE_GAP, Math.max(EDGE_GAP, height - 180)),
       })
     }
@@ -345,7 +402,7 @@ export default function E6BFlightComputer() {
       window.removeEventListener('pointermove', handlePointerMove)
       window.removeEventListener('pointerup', stopDragging)
     }
-  }, [dragState])
+  }, [dragState, panelWidth])
 
   function stopDragging() {
     setDragState(null)
@@ -599,8 +656,6 @@ export default function E6BFlightComputer() {
     updateField(focusedField, `${current}${value}`)
   }
 
-  const panelWidth = useMemo(() => Math.min(PANEL_WIDTH, Math.max(280, getViewport().width - EDGE_GAP * 2)), [isOpen])
-
   if (!hasHydratedPos) return null
 
   return (
@@ -625,15 +680,15 @@ export default function E6BFlightComputer() {
       </button>
 
       <div
-        className={`fixed z-[60] origin-bottom-right overflow-hidden rounded-[24px] border border-white/10 bg-[#111111] text-white shadow-[0_25px_60px_rgba(0,0,0,0.45)] transition-all duration-300 ${isOpen ? 'pointer-events-auto scale-100 opacity-100' : 'pointer-events-none scale-95 opacity-0'}`}
+        className={`fixed z-[60] origin-bottom-right overflow-x-hidden overflow-y-auto rounded-[24px] border border-white/10 bg-[#111111] text-white shadow-[0_25px_60px_rgba(0,0,0,0.45)] transition-all duration-300 ${isOpen ? 'pointer-events-auto scale-100 opacity-100' : 'pointer-events-none scale-95 opacity-0'}`}
         role="dialog"
         aria-label="E6-B Flight Computer"
         aria-modal="true"
         tabIndex={-1}
         ref={panelRef}
-        style={{ width: `${panelWidth}px`, left: resolvePanelPosition.x, top: resolvePanelPosition.y, maxWidth: `calc(100vw - ${EDGE_GAP * 2}px)` }}
+        style={{ width: `${panelWidth}px`, left: resolvePanelPosition.x, top: panelTop, maxWidth: `calc(100vw - ${EDGE_GAP * 2}px)`, maxHeight: `calc(100dvh - ${panelTop + EDGE_GAP}px)` }}
       >
-        <div className="flex items-center justify-between border-b border-white/10 px-3 py-2">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-[#111111] px-3 py-2">
           <div className="flex items-center gap-2">
             <button
               type="button"

@@ -12,11 +12,11 @@ export default function AppShell({ title, children }) {
   useStudyTimeTracker(authUser?.email)
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-page transition-colors duration-300 dark:bg-slate-950 lg:flex-row">
+    <div className="flex min-h-screen flex-col bg-gradient-page transition-colors duration-300 dark:bg-slate-950 lg:flex-row lg:items-start">
       <Sidebar />
-      <div className="flex-1 min-w-0">
+      <div className="flex min-w-0 flex-1 flex-col">
         <Topbar title={title} theme={theme} toggleTheme={toggleTheme} />
-        <main className="container px-4 pb-8 sm:px-6 sm:pb-10 lg:px-8">{children}</main>
+        <main className="w-full min-w-0 px-4 pb-8 sm:px-6 sm:pb-10 lg:px-8">{children}</main>
       </div>
     </div>
   )
